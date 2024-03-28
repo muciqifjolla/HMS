@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2024 at 08:53 AM
+-- Generation Time: Mar 28, 2024 at 08:57 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -37,6 +37,19 @@ CREATE TABLE `department` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `doctor`
+--
+
+CREATE TABLE `doctor` (
+  `Doctor_ID` int(11) NOT NULL,
+  `Qualifications` varchar(255) NOT NULL,
+  `Emp_ID` int(11) NOT NULL,
+  `Specialization` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `insurance`
 --
 
@@ -52,6 +65,21 @@ CREATE TABLE `insurance` (
   `Maternity` tinyint(1) DEFAULT NULL,
   `Dental` tinyint(1) DEFAULT NULL,
   `Optical` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lab_screening`
+--
+
+CREATE TABLE `lab_screening` (
+  `Lab_ID` int(11) NOT NULL,
+  `Patient_ID` int(11) NOT NULL,
+  `Technician_ID` int(11) DEFAULT NULL,
+  `Doctor_ID` int(11) DEFAULT NULL,
+  `Test_Cost` decimal(10,2) DEFAULT NULL,
+  `Date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -117,11 +145,26 @@ ALTER TABLE `department`
   ADD PRIMARY KEY (`Dept_ID`);
 
 --
+-- Indexes for table `doctor`
+--
+ALTER TABLE `doctor`
+  ADD PRIMARY KEY (`Doctor_ID`),
+  ADD KEY `Emp_ID` (`Emp_ID`);
+
+--
 -- Indexes for table `insurance`
 --
 ALTER TABLE `insurance`
   ADD PRIMARY KEY (`Policy_Number`),
   ADD KEY `Patient_ID` (`Patient_ID`);
+
+--
+-- Indexes for table `lab_screening`
+--
+ALTER TABLE `lab_screening`
+  ADD PRIMARY KEY (`Lab_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`),
+  ADD KEY `Doctor_ID` (`Doctor_ID`);
 
 --
 -- Indexes for table `medicine`
@@ -153,6 +196,18 @@ ALTER TABLE `department`
   MODIFY `Dept_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `doctor`
+--
+ALTER TABLE `doctor`
+  MODIFY `Doctor_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `lab_screening`
+--
+ALTER TABLE `lab_screening`
+  MODIFY `Lab_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `medicine`
 --
 ALTER TABLE `medicine`
@@ -175,10 +230,23 @@ ALTER TABLE `staff`
 --
 
 --
+-- Constraints for table `doctor`
+--
+ALTER TABLE `doctor`
+  ADD CONSTRAINT `doctor_ibfk_1` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`);
+
+--
 -- Constraints for table `insurance`
 --
 ALTER TABLE `insurance`
   ADD CONSTRAINT `insurance_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
+
+--
+-- Constraints for table `lab_screening`
+--
+ALTER TABLE `lab_screening`
+  ADD CONSTRAINT `lab_screening_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
+  ADD CONSTRAINT `lab_screening_ibfk_2` FOREIGN KEY (`Doctor_ID`) REFERENCES `doctor` (`Doctor_ID`);
 
 --
 -- Constraints for table `staff`
