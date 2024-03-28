@@ -200,6 +200,41 @@ CREATE TABLE `staff` (
   `Date_Separation` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE Bill (
+    Payment_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Date DATE NOT NULL,
+    Room_cost DECIMAL(10, 2),
+    Other_charges DECIMAL(10, 2),
+    M_Cost DECIMAL(10, 2),
+    Total DECIMAL(10, 2) NOT NULL,
+    Patient_ID INT NOT NULL,
+    FOREIGN KEY (Patient_ID) REFERENCES Patient(Patient_ID),
+    FOREIGN KEY (Room_cost) REFERENCES Room(Room_cost),
+    FOREIGN KEY (M_Cost) REFERENCES Medicine(M_Cost)
+);
+
+CREATE TABLE Appointment (
+    Appoint_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Scheduled_On DATE NOT NULL,
+    Date DATE NOT NULL,
+    Time TIME NOT NULL,
+    Doctor_ID INT NOT NULL,
+    Patient_ID INT NOT NULL,
+    FOREIGN KEY (Doctor_ID) REFERENCES Doctor(Doctor_ID),
+    FOREIGN KEY (Patient_ID) REFERENCES Patient(Patient_ID)
+);
+
+CREATE TABLE Prescription (
+    Prescription_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Patient_ID INT NOT NULL,
+    Date DATE NOT NULL,
+    Dosage VARCHAR(100) NOT NULL,
+    Doctor_ID INT NOT NULL,
+    Medicine_ID INT NOT NULL,
+    FOREIGN KEY (Patient_ID) REFERENCES Patient(Patient_ID),
+    FOREIGN KEY (Doctor_ID) REFERENCES Doctor(Doctor_ID),
+    FOREIGN KEY (Medicine_ID) REFERENCES Medicine(Medicine_ID)
+);
 --
 -- Indexes for dumped tables
 --
