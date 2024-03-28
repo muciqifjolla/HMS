@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2024 at 08:49 AM
+-- Generation Time: Mar 28, 2024 at 08:53 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -86,6 +86,26 @@ CREATE TABLE `patient` (
   `Phone` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `staff`
+--
+
+CREATE TABLE `staff` (
+  `Emp_ID` int(11) NOT NULL,
+  `Emp_Fname` varchar(50) NOT NULL,
+  `Emp_Lname` varchar(50) NOT NULL,
+  `Joining_Date` date NOT NULL,
+  `Emp_type` varchar(50) NOT NULL,
+  `Email` varchar(100) DEFAULT NULL,
+  `Address` varchar(255) DEFAULT NULL,
+  `Dept_ID` int(11) DEFAULT NULL,
+  `SSN` varchar(20) DEFAULT NULL,
+  `DOB` date DEFAULT NULL,
+  `Date_Separation` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -116,6 +136,13 @@ ALTER TABLE `patient`
   ADD PRIMARY KEY (`Patient_ID`);
 
 --
+-- Indexes for table `staff`
+--
+ALTER TABLE `staff`
+  ADD PRIMARY KEY (`Emp_ID`),
+  ADD KEY `Dept_ID` (`Dept_ID`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -138,6 +165,12 @@ ALTER TABLE `patient`
   MODIFY `Patient_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `staff`
+--
+ALTER TABLE `staff`
+  MODIFY `Emp_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -146,6 +179,12 @@ ALTER TABLE `patient`
 --
 ALTER TABLE `insurance`
   ADD CONSTRAINT `insurance_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
+
+--
+-- Constraints for table `staff`
+--
+ALTER TABLE `staff`
+  ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`Dept_ID`) REFERENCES `department` (`Dept_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
