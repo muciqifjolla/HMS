@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2024 at 08:57 AM
+-- Generation Time: Mar 28, 2024 at 09:02 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -50,6 +50,20 @@ CREATE TABLE `doctor` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `emergency_contact`
+--
+
+CREATE TABLE `emergency_contact` (
+  `Contact_ID` int(11) NOT NULL,
+  `Contact_Name` varchar(100) NOT NULL,
+  `Phone` varchar(20) NOT NULL,
+  `Relation` varchar(50) NOT NULL,
+  `Patient_ID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `insurance`
 --
 
@@ -85,6 +99,19 @@ CREATE TABLE `lab_screening` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `medical_history`
+--
+
+CREATE TABLE `medical_history` (
+  `Record_ID` int(11) NOT NULL,
+  `Patient_ID` int(11) NOT NULL,
+  `Allergies` varchar(255) DEFAULT NULL,
+  `Pre_Conditions` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `medicine`
 --
 
@@ -112,6 +139,20 @@ CREATE TABLE `patient` (
   `Admission_Date` date NOT NULL,
   `Discharge_Date` date DEFAULT NULL,
   `Phone` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payroll`
+--
+
+CREATE TABLE `payroll` (
+  `Account_no` int(11) NOT NULL,
+  `Salary` decimal(10,2) NOT NULL,
+  `Bonus` decimal(10,2) DEFAULT NULL,
+  `Emp_ID` int(11) NOT NULL,
+  `IBAN` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -152,6 +193,13 @@ ALTER TABLE `doctor`
   ADD KEY `Emp_ID` (`Emp_ID`);
 
 --
+-- Indexes for table `emergency_contact`
+--
+ALTER TABLE `emergency_contact`
+  ADD PRIMARY KEY (`Contact_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`);
+
+--
 -- Indexes for table `insurance`
 --
 ALTER TABLE `insurance`
@@ -167,6 +215,13 @@ ALTER TABLE `lab_screening`
   ADD KEY `Doctor_ID` (`Doctor_ID`);
 
 --
+-- Indexes for table `medical_history`
+--
+ALTER TABLE `medical_history`
+  ADD PRIMARY KEY (`Record_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`);
+
+--
 -- Indexes for table `medicine`
 --
 ALTER TABLE `medicine`
@@ -177,6 +232,13 @@ ALTER TABLE `medicine`
 --
 ALTER TABLE `patient`
   ADD PRIMARY KEY (`Patient_ID`);
+
+--
+-- Indexes for table `payroll`
+--
+ALTER TABLE `payroll`
+  ADD PRIMARY KEY (`Account_no`),
+  ADD KEY `Emp_ID` (`Emp_ID`);
 
 --
 -- Indexes for table `staff`
@@ -202,10 +264,22 @@ ALTER TABLE `doctor`
   MODIFY `Doctor_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `emergency_contact`
+--
+ALTER TABLE `emergency_contact`
+  MODIFY `Contact_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `lab_screening`
 --
 ALTER TABLE `lab_screening`
   MODIFY `Lab_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `medical_history`
+--
+ALTER TABLE `medical_history`
+  MODIFY `Record_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `medicine`
@@ -218,6 +292,12 @@ ALTER TABLE `medicine`
 --
 ALTER TABLE `patient`
   MODIFY `Patient_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `payroll`
+--
+ALTER TABLE `payroll`
+  MODIFY `Account_no` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `staff`
@@ -236,6 +316,12 @@ ALTER TABLE `doctor`
   ADD CONSTRAINT `doctor_ibfk_1` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`);
 
 --
+-- Constraints for table `emergency_contact`
+--
+ALTER TABLE `emergency_contact`
+  ADD CONSTRAINT `emergency_contact_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
+
+--
 -- Constraints for table `insurance`
 --
 ALTER TABLE `insurance`
@@ -247,6 +333,18 @@ ALTER TABLE `insurance`
 ALTER TABLE `lab_screening`
   ADD CONSTRAINT `lab_screening_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
   ADD CONSTRAINT `lab_screening_ibfk_2` FOREIGN KEY (`Doctor_ID`) REFERENCES `doctor` (`Doctor_ID`);
+
+--
+-- Constraints for table `medical_history`
+--
+ALTER TABLE `medical_history`
+  ADD CONSTRAINT `medical_history_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
+
+--
+-- Constraints for table `payroll`
+--
+ALTER TABLE `payroll`
+  ADD CONSTRAINT `payroll_ibfk_1` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`);
 
 --
 -- Constraints for table `staff`
