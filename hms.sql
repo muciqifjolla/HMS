@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2024 at 08:44 AM
+-- Generation Time: Mar 28, 2024 at 08:49 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,39 @@ SET time_zone = "+00:00";
 --
 -- Database: `hms`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `department`
+--
+
+CREATE TABLE `department` (
+  `Dept_ID` int(11) NOT NULL,
+  `Dept_head` varchar(100) DEFAULT NULL,
+  `Dept_name` varchar(100) NOT NULL,
+  `Emp_Count` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `insurance`
+--
+
+CREATE TABLE `insurance` (
+  `Policy_Number` varchar(20) NOT NULL,
+  `Patient_ID` int(11) NOT NULL,
+  `Ins_Code` varchar(10) NOT NULL,
+  `End_Date` date DEFAULT NULL,
+  `Provider` varchar(100) NOT NULL,
+  `Plan` varchar(100) NOT NULL,
+  `Co_Pay` decimal(10,2) DEFAULT NULL,
+  `Coverage` varchar(255) DEFAULT NULL,
+  `Maternity` tinyint(1) DEFAULT NULL,
+  `Dental` tinyint(1) DEFAULT NULL,
+  `Optical` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -58,6 +91,19 @@ CREATE TABLE `patient` (
 --
 
 --
+-- Indexes for table `department`
+--
+ALTER TABLE `department`
+  ADD PRIMARY KEY (`Dept_ID`);
+
+--
+-- Indexes for table `insurance`
+--
+ALTER TABLE `insurance`
+  ADD PRIMARY KEY (`Policy_Number`),
+  ADD KEY `Patient_ID` (`Patient_ID`);
+
+--
 -- Indexes for table `medicine`
 --
 ALTER TABLE `medicine`
@@ -74,6 +120,12 @@ ALTER TABLE `patient`
 --
 
 --
+-- AUTO_INCREMENT for table `department`
+--
+ALTER TABLE `department`
+  MODIFY `Dept_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `medicine`
 --
 ALTER TABLE `medicine`
@@ -84,6 +136,16 @@ ALTER TABLE `medicine`
 --
 ALTER TABLE `patient`
   MODIFY `Patient_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `insurance`
+--
+ALTER TABLE `insurance`
+  ADD CONSTRAINT `insurance_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
