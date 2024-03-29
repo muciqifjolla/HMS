@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Mar 28, 2024 at 04:28 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: Mar 29, 2024 at 02:43 PM
+-- Server version: 5.7.33
+-- PHP Version: 8.3.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,6 +24,39 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `appointment`
+--
+
+CREATE TABLE `appointment` (
+  `Appoint_ID` int(11) NOT NULL,
+  `Scheduled_On` date NOT NULL,
+  `Date` date NOT NULL,
+  `Time` time NOT NULL,
+  `Doctor_ID` int(11) NOT NULL,
+  `Patient_ID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bill`
+--
+
+CREATE TABLE `bill` (
+  `Payment_ID` int(11) NOT NULL,
+  `DATE` date NOT NULL,
+  `Room_cost` decimal(10,2) DEFAULT NULL,
+  `Other_charges` decimal(10,2) DEFAULT NULL,
+  `M_Cost` decimal(10,2) DEFAULT NULL,
+  `Total` decimal(10,2) NOT NULL,
+  `Patient_ID` int(11) NOT NULL,
+  `Room_ID` int(11) NOT NULL,
+  `Medicine_ID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `department`
 --
 
@@ -32,7 +65,7 @@ CREATE TABLE `department` (
   `Dept_head` varchar(100) DEFAULT NULL,
   `Dept_name` varchar(100) NOT NULL,
   `Emp_Count` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -45,7 +78,7 @@ CREATE TABLE `doctor` (
   `Qualifications` varchar(255) NOT NULL,
   `Emp_ID` int(11) NOT NULL,
   `Specialization` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -59,7 +92,7 @@ CREATE TABLE `emergency_contact` (
   `Phone` varchar(20) NOT NULL,
   `Relation` varchar(50) NOT NULL,
   `Patient_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -79,7 +112,7 @@ CREATE TABLE `insurance` (
   `Maternity` tinyint(1) DEFAULT NULL,
   `Dental` tinyint(1) DEFAULT NULL,
   `Optical` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -94,7 +127,7 @@ CREATE TABLE `lab_screening` (
   `Doctor_ID` int(11) DEFAULT NULL,
   `Test_Cost` decimal(10,2) DEFAULT NULL,
   `Date` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -107,7 +140,7 @@ CREATE TABLE `medical_history` (
   `Patient_ID` int(11) NOT NULL,
   `Allergies` varchar(255) DEFAULT NULL,
   `Pre_Conditions` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -120,7 +153,7 @@ CREATE TABLE `medicine` (
   `M_name` varchar(100) NOT NULL,
   `M_Quantity` int(11) NOT NULL,
   `M_Cost` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -132,7 +165,7 @@ CREATE TABLE `nurse` (
   `Nurse_ID` int(11) NOT NULL,
   `Patient_ID` int(11) NOT NULL,
   `Emp_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -151,7 +184,7 @@ CREATE TABLE `patient` (
   `Admission_Date` date NOT NULL,
   `Discharge_Date` date DEFAULT NULL,
   `Phone` varchar(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -165,7 +198,22 @@ CREATE TABLE `payroll` (
   `Bonus` decimal(10,2) DEFAULT NULL,
   `Emp_ID` int(11) NOT NULL,
   `IBAN` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `prescription`
+--
+
+CREATE TABLE `prescription` (
+  `Prescription_ID` int(11) NOT NULL,
+  `Patient_ID` int(11) NOT NULL,
+  `Date` date NOT NULL,
+  `Dosage` varchar(100) NOT NULL,
+  `Doctor_ID` int(11) NOT NULL,
+  `Medicine_ID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -178,7 +226,7 @@ CREATE TABLE `room` (
   `Room_type` varchar(20) NOT NULL,
   `Patient_ID` int(11) DEFAULT NULL,
   `Room_cost` decimal(10,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -198,46 +246,28 @@ CREATE TABLE `staff` (
   `SSN` varchar(20) DEFAULT NULL,
   `DOB` date DEFAULT NULL,
   `Date_Separation` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE Bill (
-    Payment_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Date DATE NOT NULL,
-    Room_cost DECIMAL(10, 2),
-    Other_charges DECIMAL(10, 2),
-    M_Cost DECIMAL(10, 2),
-    Total DECIMAL(10, 2) NOT NULL,
-    Patient_ID INT NOT NULL,
-    FOREIGN KEY (Patient_ID) REFERENCES Patient(Patient_ID),
-    FOREIGN KEY (Room_cost) REFERENCES Room(Room_cost),
-    FOREIGN KEY (M_Cost) REFERENCES Medicine(M_Cost)
-);
-
-CREATE TABLE Appointment (
-    Appoint_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Scheduled_On DATE NOT NULL,
-    Date DATE NOT NULL,
-    Time TIME NOT NULL,
-    Doctor_ID INT NOT NULL,
-    Patient_ID INT NOT NULL,
-    FOREIGN KEY (Doctor_ID) REFERENCES Doctor(Doctor_ID),
-    FOREIGN KEY (Patient_ID) REFERENCES Patient(Patient_ID)
-);
-
-CREATE TABLE Prescription (
-    Prescription_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Patient_ID INT NOT NULL,
-    Date DATE NOT NULL,
-    Dosage VARCHAR(100) NOT NULL,
-    Doctor_ID INT NOT NULL,
-    Medicine_ID INT NOT NULL,
-    FOREIGN KEY (Patient_ID) REFERENCES Patient(Patient_ID),
-    FOREIGN KEY (Doctor_ID) REFERENCES Doctor(Doctor_ID),
-    FOREIGN KEY (Medicine_ID) REFERENCES Medicine(Medicine_ID)
-);
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `appointment`
+--
+ALTER TABLE `appointment`
+  ADD PRIMARY KEY (`Appoint_ID`),
+  ADD KEY `Doctor_ID` (`Doctor_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`);
+
+--
+-- Indexes for table `bill`
+--
+ALTER TABLE `bill`
+  ADD PRIMARY KEY (`Payment_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`),
+  ADD KEY `Room_ID` (`Room_ID`),
+  ADD KEY `Medicine_ID` (`Medicine_ID`);
 
 --
 -- Indexes for table `department`
@@ -309,6 +339,15 @@ ALTER TABLE `payroll`
   ADD KEY `Emp_ID` (`Emp_ID`);
 
 --
+-- Indexes for table `prescription`
+--
+ALTER TABLE `prescription`
+  ADD PRIMARY KEY (`Prescription_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`),
+  ADD KEY `Doctor_ID` (`Doctor_ID`),
+  ADD KEY `Medicine_ID` (`Medicine_ID`);
+
+--
 -- Indexes for table `room`
 --
 ALTER TABLE `room`
@@ -325,6 +364,18 @@ ALTER TABLE `staff`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `appointment`
+--
+ALTER TABLE `appointment`
+  MODIFY `Appoint_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `bill`
+--
+ALTER TABLE `bill`
+  MODIFY `Payment_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `department`
@@ -381,6 +432,12 @@ ALTER TABLE `payroll`
   MODIFY `Account_no` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `prescription`
+--
+ALTER TABLE `prescription`
+  MODIFY `Prescription_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `room`
 --
 ALTER TABLE `room`
@@ -395,6 +452,21 @@ ALTER TABLE `staff`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `appointment`
+--
+ALTER TABLE `appointment`
+  ADD CONSTRAINT `appointment_ibfk_1` FOREIGN KEY (`Doctor_ID`) REFERENCES `doctor` (`Doctor_ID`),
+  ADD CONSTRAINT `appointment_ibfk_2` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
+
+--
+-- Constraints for table `bill`
+--
+ALTER TABLE `bill`
+  ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
+  ADD CONSTRAINT `bill_ibfk_2` FOREIGN KEY (`Room_ID`) REFERENCES `room` (`Room_ID`),
+  ADD CONSTRAINT `bill_ibfk_3` FOREIGN KEY (`Medicine_ID`) REFERENCES `medicine` (`Medicine_ID`);
 
 --
 -- Constraints for table `doctor`
@@ -439,6 +511,14 @@ ALTER TABLE `nurse`
 --
 ALTER TABLE `payroll`
   ADD CONSTRAINT `payroll_ibfk_1` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`);
+
+--
+-- Constraints for table `prescription`
+--
+ALTER TABLE `prescription`
+  ADD CONSTRAINT `prescription_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
+  ADD CONSTRAINT `prescription_ibfk_2` FOREIGN KEY (`Doctor_ID`) REFERENCES `doctor` (`Doctor_ID`),
+  ADD CONSTRAINT `prescription_ibfk_3` FOREIGN KEY (`Medicine_ID`) REFERENCES `medicine` (`Medicine_ID`);
 
 --
 -- Constraints for table `room`
