@@ -23,7 +23,7 @@ function Medicine({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpd
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:9004/medicine/${id}`);
+            await axios.delete(`http://localhost:9004/api/medicine/delete/${id}`);
             setMedicine(medicine.filter(item => item.Medicine_ID !== id));
         } catch (err) {
             console.log(err);

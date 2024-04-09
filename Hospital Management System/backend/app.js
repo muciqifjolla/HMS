@@ -3,6 +3,8 @@ const cors = require("cors");
 require("dotenv").config();
 const db = require("./db");
 const MedicineRoute = require("./routes/MedicineRoutes");
+const AppointmentRoute = require("./routes/AppointmentRoutes");
+ 
 
 
 const app  = express();
@@ -20,6 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api", MedicineRoute);
+app.use("/api", AppointmentRoute);
 
 
 module.exports = app;

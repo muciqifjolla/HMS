@@ -6,7 +6,7 @@ router.get("/medicine", FindAllMedicine);
 router.get("/medicine/:id", FindSingleMedicine);
 router.post("/medicine/create", AddMedicine);
 router.put("/medicine/update/:id", UpdateMedicine);
-router.delete("/medicine/:id", DeleteMedicine);
+router.delete("/medicine/delete/:id", DeleteMedicine);
 
 
 
