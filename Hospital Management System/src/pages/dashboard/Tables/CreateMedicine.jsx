@@ -13,7 +13,7 @@ function CreateMedicine() {
 
     const handleAddMedicine = async () => {
         try {
-            await axios.post("http://localhost:9004/medicine/create", { name, quantity, cost });
+            await axios.post("http://localhost:9004/api/medicine/create", { name, quantity, cost });
             setName('');
             setQuantity('');
             setCost('');

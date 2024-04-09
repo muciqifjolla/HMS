@@ -8,7 +8,6 @@ export function Tables() {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedMedicineId, setSelectedMedicineId] = useState(null); 
-    console.log(selectedMedicineId, 'tables.js');
     return (
         <>
             <div> 

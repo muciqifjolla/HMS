@@ -10,12 +10,11 @@ function Medicine({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpd
     const handleUpdateButtonClick = (medicineId) => {
         setSelectedMedicineId(medicineId);
         setShowUpdateForm(!showUpdateForm);
-        console.log(medicineId)
     };
     
 
     useEffect(() => {
-        axios.get('http://localhost:9004/medicine')
+        axios.get('http://localhost:9004/api/medicine')
             .then(res => setMedicine(res.data))
             .catch(err => console.log(err));
     }, []);

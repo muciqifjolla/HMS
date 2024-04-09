@@ -9,17 +9,15 @@ function UpdateMedicine({id}) {
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
     const [cost, setCost] = useState('');
-    console.log(name);
 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/medicine/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/medicine/${id}`);
                 setName(response.data.M_name);
                 setQuantity(response.data.M_Quantity);
                 setCost(response.data.M_Cost);
-                console.log(name);
             } catch (error) {
                 console.error('Error fetching medicine:', error);
             }
@@ -32,10 +30,8 @@ function UpdateMedicine({id}) {
     const handleUpdateMedicine = async () => {
         
         try {
-            await axios.put(`http://localhost:9004/medicine/update/${id}`, { name, quantity, cost});
-            console.log(id, 'updatemedicine');
+            await axios.put(`http://localhost:9004/api/medicine/update/${id}`, { name, quantity, cost});
             setName(name);
-            console.log(name);
             setQuantity(quantity);
             setCost(cost);
             navigate('/dashboard/home');
