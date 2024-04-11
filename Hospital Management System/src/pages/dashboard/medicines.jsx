@@ -3,7 +3,7 @@ import Medicine from "./Tables/Medicine";
 import CreateMedicine from "./Tables/CreateMedicine";
 import UpdateMedicine from "./Tables/UpdateMedicine";
 
-export function Tables() {
+export function Medicines() {
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
@@ -25,4 +25,4 @@ export function Tables() {
     );
 }
 
-export default Tables;
+export default Medicines;

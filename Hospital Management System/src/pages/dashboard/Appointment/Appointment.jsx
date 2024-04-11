@@ -12,18 +12,14 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
         setShowUpdateForm(!showUpdateForm);
     };
     function calculateDaysLeft(targetDate) {
-        // Get the current date
+        
         const currentDate = new Date();
-    
-        // Parse the target date string to a Date object
         const target = new Date(targetDate);
-    
-        // Calculate the difference in milliseconds
         const differenceMs = target - currentDate;
-    
-        // Convert milliseconds to days
         const differenceDays = Math.ceil(differenceMs / (1000 * 60 * 60 * 24));
-    
+
+
+
         return differenceDays;
     }
     
@@ -58,7 +54,7 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
             {showCreateForm ? 'Close Add Form' : 'Add +'}
         </button>
         <div className="table-responsive">
-            <div className="container mx-auto px-4 sm:px-8">
+            <div>
                 <div className="py-8">
                     <div>
                         <h2 className="text-2xl font-semibold leading-tight">Appointments</h2>
@@ -126,13 +122,13 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
                                         <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                             <p className="text-gray-900 whitespace-no-wrap">{data.Time} Time</p>
                                         </td>
-                                        <td>
+                                        <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
                                             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"  onClick={() => handleUpdateButtonClick(data.Appoint_ID)}>
                                                 {showUpdateForm ? 'Close Update Form' : 'Update'}
                                             </button>
                                         </td>
                                     
-                                        <td>
+                                        <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
                                             <button className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={() => handleDelete(data.Appoint_ID)} style={{ borderRadius: '0.5rem', padding: '5px 10px' }}>Delete</button>
                                         </td>
                                     </tr>
