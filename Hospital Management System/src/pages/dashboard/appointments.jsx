@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Appointment from "./Appointment/Appointment";
-import CreateMedicine from "./Tables/CreateMedicine";
-import UpdateMedicine from "./Tables/UpdateMedicine";
+import CreateAppointment from "./Appointment/CreateAppointment";
+import UpdateAppointment from "./Appointment/UpdateAppointment";
 
 export function Appointments() {
 
@@ -17,9 +17,9 @@ export function Appointments() {
                     setShowUpdateForm={setShowUpdateForm} 
                     setSelectedAppointmentIdId={setSelectedAppointmentIdId} 
                 />
-                {showCreateForm && <CreateMedicine />}
+                {showCreateForm && <CreateAppointment />}
                 
-                {showUpdateForm && <UpdateMedicine id={selectedAppointmentId} />} 
+                {showUpdateForm && <UpdateAppointment id={selectedAppointmentId} />} 
             </div>
         </>
     );
