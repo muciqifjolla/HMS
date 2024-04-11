@@ -41,6 +41,12 @@ export const routes = [
         path: "/appointments",
         element: <Appointments />,
       },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "Staff",
+        path: "/staff",
+        element: <staff />,
+      },
     
       // {
       //   icon: <InformationCircleIcon {...icon} />,
