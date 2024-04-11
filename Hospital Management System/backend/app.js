@@ -4,7 +4,7 @@ require("dotenv").config();
 const db = require("./db");
 const MedicineRoute = require("./routes/MedicineRoutes");
 const AppointmentRoute = require("./routes/AppointmentRoutes");
- 
+const StaffRoute = require("./routes/StaffRoutes");
 
 
 const app  = express();
@@ -23,6 +23,7 @@ app.use((req, res, next) => {
 
 app.use("/api", MedicineRoute);
 app.use("/api", AppointmentRoute);
+app.use("/api", StaffRoute);
 
 
 module.exports = app;
