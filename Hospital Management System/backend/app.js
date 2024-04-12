@@ -6,6 +6,7 @@ const MedicineRoute = require("./routes/MedicineRoutes");
 const AppointmentRoute = require("./routes/AppointmentRoutes");
 const StaffRoute = require("./routes/StaffRoutes");
 const PatientRoute = require("./routes/PatientRoutes");
+const DepartmentRoute = require("./routes/DepartmentRoutes");
 
 
 const app  = express();
@@ -26,6 +27,7 @@ app.use("/api", MedicineRoute);
 app.use("/api", AppointmentRoute);
 app.use("/api", StaffRoute);
 app.use("/api", PatientRoute);
+app.use("/api", DepartmentRoute);
 
 
 
