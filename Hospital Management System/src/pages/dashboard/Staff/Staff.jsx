@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-function Staff({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdateForm, setSelectedMedicineId}) {
+function Staff({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdateForm, setSelectedStaffIdId}) {
     
     const [staff, setStaff] = useState([]);
 
 
     const handleUpdateButtonClick = (staffId) => {
-        setSelectedStaffID(staffId);
+        setSelectedStaffIdId(staffId);
         setShowUpdateForm(!showUpdateForm);
     };
     
@@ -24,7 +24,7 @@ function Staff({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdate
     const handleDelete = async (id) => {
         try {
             await axios.delete(`http://localhost:9004/api/staff/delete/${id}`);
-            setMedicine(medicine.filter(item => item.Medicine_ID !== id));
+            setStaff(staff.filter(item => item.Emp_ID !== id));
         } catch (err) {
             console.log(err);
         }
@@ -68,7 +68,7 @@ function Staff({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdate
                             {staff.map((data, i) => (
                                 <tr key={i}>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm" >{data.Emp_Fname}</td>
-                                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_LName}</td>
+                                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_Lname}</td>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Joining_Date}</td>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm" >{data.Emp_type}</td>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Email}</td>
@@ -76,7 +76,7 @@ function Staff({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdate
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm" >{data.Dept_ID}</td>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.SSN}</td>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.DOB}</td>
-                                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date_Seperation}</td>
+                                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date_Separation}</td>
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleUpdateButtonClick(data.Emp_ID)}>
                                             {showUpdateForm ? 'Close Update Form' : 'Update'}

@@ -59,11 +59,10 @@ const FindSingleStaff = async (req, res) => {
   const AddStaff = async (req, res) => {
     try {
         const db = req.db;
-        const sql = "INSERT INTO staff (`Emp_Fname`, `Emp_LName`, `Joining_Date`,`Emp_type`,`Email`,`Address`,`Dept_ID`,`SSN`,`DOB`,`Date_Seperation`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const sql = "INSERT INTO staff (`Emp_Fname`, `Emp_Lname`, `Joining_Date`,`Emp_type`,`Email`,`Address`,`Dept_ID`,`SSN`,`DOB`,`Date_Separation`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         const values = [
-            req.body.name,
             req.body.Emp_Fname,
-            req.body.Emp_LName,
+            req.body.Emp_Lname,
             req.body.Joining_Date,
             req.body.Emp_type,
             req.body.Email,
@@ -71,7 +70,7 @@ const FindSingleStaff = async (req, res) => {
             req.body.Dept_ID,
             req.body.SSN,
             req.body.DOB,
-            req.body.Date_Seperation,
+            req.body.Date_Separation,
             
         ];
 
@@ -100,14 +99,14 @@ const UpdateStaff = async (req, res) => {
     try {
         const db = req.db;
         const { id } = req.params;
-        const { Emp_Fname, Emp_LName, Joining_Date,Emp_type,Email,Address,Dept_ID,SSN,DOB,Date_Seperation} = req.body;
+        const { Emp_Fname, Emp_Lname, Joining_Date, Emp_type, Email,Address, Dept_ID, SSN, DOB, Date_Separation} = req.body;
         
-        if (!id || !Emp_Fname || !Emp_LName || !Joining_Date || !Emp_type || !Email || !Address || !Dept_ID || !SSN || !DOB || !Date_Seperation) {
+        if (!id || !Emp_Fname || !Emp_Lname || !Joining_Date || !Emp_type || !Email || !Address || !Dept_ID || !SSN || !DOB || !Date_Separation) {
             return res.status(400).json({ error: "ID, name, quantity, and cost are required" });
         }
         
-        const sql = "UPDATE staff SET Emp_Fname = ?, Emp_LName = ?, Joining_Date = ?, Emp_type = ?, Email = ?, Address = ?, Dept_ID = ?, SSN = ?, DOB = ?, Date_Seperation = ? WHERE Emp_ID = ?";
-        const values = [Emp_Fname, Emp_LName, Joining_Date, Emp_type,Email,Address,Dept_ID,SSN,DOB,Date_Seperation];
+        const sql = "UPDATE staff SET Emp_Fname = ?, Emp_Lname = ?, Joining_Date = ?, Emp_type = ?, Email = ?, Address = ?, Dept_ID = ?, SSN = ?, DOB = ?, Date_Separation = ? WHERE Emp_ID = ?";
+        const values = [Emp_Fname, Emp_Lname, Joining_Date, Emp_type,Email,Address,Dept_ID,SSN,DOB,Date_Separation, id];
 
         const queryPromise = () => {
             return new Promise((resolve, reject) => {
@@ -135,7 +134,6 @@ const UpdateStaff = async (req, res) => {
         const db = req.db;
         const { id } = req.params;
 
-        // Ensure that the ID is provided
         if (!id) {
             return res.status(400).json({ error: "ID is required" });
         }

@@ -7,7 +7,7 @@ function UpdateStaff({id}) {
 
     const navigate = useNavigate();
     const [emp_Fname, setEmp_Fname] = useState('');
-    const [emp_LName, setEmp_LName] = useState('');
+    const [emp_Lname, setEmp_Lname] = useState('');
     const [joiningDate, setJoining_Date] = useState('');
     const [emp_type, setEmp_type] = useState('');
     const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ function UpdateStaff({id}) {
     const [dept, setDept_ID] = useState('');
     const [socialSecurityNumber, setSSN] = useState('');
     const [dateofBirth, setDOB] = useState('');
-    const [dateSeperation, setDate_Seperation] = useState('');
+    const [dateSeparation, setDate_Separation] = useState('');
 
     console.log(emp_Fname);
 
@@ -26,7 +26,7 @@ function UpdateStaff({id}) {
                 const formattedJoining_Date = new Date(response.data.Joining_Date).toISOString().split('T')[0];
                 const formattedDOB = new Date(response.data.DOB).toISOString().split('T')[0];
                 setEmp_Fname(response.data.Emp_Fname);
-                setEmp_LName(response.data.Emp_LName);
+                setEmp_Lname(response.data.Emp_Lname);
                 setJoining_Date(formattedJoining_Date);
                 setEmp_type(response.data.Emp_type);
                 setEmail(response.data.Email);
@@ -34,7 +34,7 @@ function UpdateStaff({id}) {
                 setDept_ID(response.data.Dept_ID);
                 setSSN(response.data.SSN);
                 setDOB(formattedDOB);
-                setDate_Seperation(response.data.Date_Seperation);
+                setDate_Separation(response.data.Date_Separation);
             } catch (error) {
                 console.error('Error fetching staff:', error);
             }
@@ -47,11 +47,11 @@ function UpdateStaff({id}) {
     const handleUpdateStaff = async () => {
         
         try {
-            const timeWithSeconds = time + ':00';
+            // const timeWithSeconds = time + ':00';
 
             await axios.put(`http://localhost:9004/api/staff/update/${id}`, {  
                 Emp_Fname: emp_Fname,
-                Emp_LName: emp_LName,
+                Emp_Lname: emp_Lname,
                 Joining_Date: joiningDate,
                 Emp_type: emp_type,
                 Email: email,
@@ -59,10 +59,10 @@ function UpdateStaff({id}) {
                 Dept_ID: dept,
                 SSN: socialSecurityNumber,
                 DOB: dateofBirth,
-                Date_Seperation: dateSeperation,
+                Date_Separation: dateSeparation,
         });
         setEmp_Fname(emp_Fname);
-        setEmp_LName(emp_LName);
+        setEmp_Lname(emp_Lname);
         setJoining_Date(joiningDate);
         setEmp_type(emp_type);
         setEmail(email);
@@ -70,7 +70,7 @@ function UpdateStaff({id}) {
         setDept_ID(dept);
         setSSN(socialSecurityNumber);
         setDOB(dateofBirth);
-        setDate_Seperation(dateSeperation);
+        setDate_Separation(dateSeparation);
 
             navigate('/dashboard/staffs');
             window.location.reload();
@@ -91,7 +91,7 @@ function UpdateStaff({id}) {
         <div className='mb-2'>
             <label htmlFor="emp_LName">Lastname </label>
             <input type='text' id="emp_LName" placeholder='Enter Lastname' className='form-control'
-                value={emp_LName} onChange={e => setEmp_LName(e.target.value)} />
+                value={emp_Lname} onChange={e => setEmp_Lname(e.target.value)} />
         </div>
 
         <div className='mb-2'>
@@ -132,7 +132,7 @@ function UpdateStaff({id}) {
         <div className='mb-2'>
             <label htmlFor="dateSeperation">Date_Seperation</label>
             <input type='date' id="dateSeperation" placeholder='Enter dateSeperation' className='form-control'
-                value={dateSeperation} onChange={e => setDate_Seperation(e.target.value)} />
+                value={dateSeparation} onChange={e => setDate_Separation(e.target.value)} />
         </div>
        
         <button type="button" className='btn btn-success' onClick={handleUpdateStaff }>Submit</button>
