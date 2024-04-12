@@ -9,7 +9,7 @@ import {
 import  PatientIcon  from './pages/dashboard/Patient/patient.png'; 
 import  MedicineIcon  from './pages/dashboard/Tables/medicine.png'; 
 import  StafIcon  from './pages/dashboard/Staff/staff.png'; 
-import { Home, Profile, Medicines, Appointments, Patients } from "@/pages/dashboard";
+import { Home, Profile, Medicines, Appointments,Staffs, Patients } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 
@@ -48,8 +48,8 @@ export const routes = [
       {
         icon: <img src={StafIcon} alt="Staf" {...icon} />,
         name: "Staff",
-        path: "/staff",
-        element: <staff />,
+        path: "/staffs",
+        element: <Staffs />,
       },
       {
         icon: <img src={PatientIcon} alt="Patient" {...icon} />,
