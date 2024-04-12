@@ -19,7 +19,7 @@ export function Staffs() {
                 />
                 {showCreateForm && <CreateStaff />}
                 
-                {showUpdateForm && <UpdateAppointment id={selectedAppointmentId} />} 
+                {showUpdateForm && <UpdateStaff id={selectedStaffId} />} 
             </div>
         </>
     );

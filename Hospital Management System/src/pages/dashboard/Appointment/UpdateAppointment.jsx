@@ -50,8 +50,8 @@ function UpdateAppointment({id}) {
             setDoctor(doctor);
             setPatient(patient);
 
-           
-            navigate('/dashboard/home');
+            navigate('/dashboard/appointments');
+            window.location.reload();
         } catch (error) {
             console.error('Error updating appointment:', error);
         }

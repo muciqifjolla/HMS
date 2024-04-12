@@ -34,7 +34,8 @@ function UpdateMedicine({id}) {
             setName(name);
             setQuantity(quantity);
             setCost(cost);
-            navigate('/dashboard/home');
+            navigate('/dashboard/medicines');
+            window.location.reload();
         } catch (error) {
             console.error('Error updating medicine:', error);
         }
@@ -57,7 +58,7 @@ function UpdateMedicine({id}) {
             </div>
 
             <div className='mb-2'>
-                <label htmlFor="medicineCost">Medicine Cost: </label>
+                <label htmlFor="medicineCost">Medicine Cost(on €): </label>
                 <input type='number' id="medicineCost" placeholder='Enter Cost' className='form-control'
                     value={cost} onChange={e => setCost(e.target.value)} />
             </div>

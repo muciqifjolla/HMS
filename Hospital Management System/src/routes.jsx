@@ -7,8 +7,11 @@ import {
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
 import  PatientIcon  from './pages/dashboard/Patient/patient.png'; 
+import  MedicineIcon  from './pages/dashboard/Tables/medicine.png'; 
+import  StafIcon  from './pages/dashboard/Staff/staff.png'; 
 import { Home, Profile, Medicines, Appointments, Patients } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -31,7 +34,7 @@ export const routes = [
         element: <Profile />,
       },
       {
-        icon: <InformationCircleIcon {...icon} />,
+        icon: <img src={MedicineIcon} alt="medicine" {...icon} />,
         name: "medicine",
         path: "/medicines",
         element: <Medicines />,
@@ -43,7 +46,7 @@ export const routes = [
         element: <Appointments />,
       },
       {
-        icon: <TableCellsIcon {...icon} />,
+        icon: <img src={StafIcon} alt="Staf" {...icon} />,
         name: "Staff",
         path: "/staff",
         element: <staff />,

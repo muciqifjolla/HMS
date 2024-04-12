@@ -17,7 +17,8 @@ function CreateMedicine() {
             setName('');
             setQuantity('');
             setCost('');
-            navigate('/dashboard/home');
+            navigate('/dashboard/medicines');
+            window.location.reload();
         } catch (error) {
             console.error('Error adding medicine:', error);
         }

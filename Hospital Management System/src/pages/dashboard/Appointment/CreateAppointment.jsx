@@ -30,6 +30,7 @@ function CreateAppointment() {
             setDoctor('');
             setPatient('');
             navigate('/dashboard/appointments');
+            window.location.reload();
         } catch (error) {
             console.error('Error adding Appointment:', error);
         }

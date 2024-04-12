@@ -26,6 +26,7 @@ const FindAllMedicine = async (req, res) => {
     }
 };
 
+
 const FindSingleMedicine = async (req, res) => {
     try {
         const db = req.db;
@@ -80,7 +81,6 @@ const FindSingleMedicine = async (req, res) => {
         };
 
         await queryPromise();
-
         res.json({ success: true, message: "Medicine added successfully" });
     } catch (error) {
         console.error("Error adding medicine:", error);
@@ -127,7 +127,6 @@ const UpdateMedicine = async (req, res) => {
         const db = req.db;
         const { id } = req.params;
 
-        // Ensure that the ID is provided
         if (!id) {
             return res.status(400).json({ error: "ID is required" });
         }
