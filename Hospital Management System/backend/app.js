@@ -5,6 +5,7 @@ const db = require("./db");
 const MedicineRoute = require("./routes/MedicineRoutes");
 const AppointmentRoute = require("./routes/AppointmentRoutes");
 const StaffRoute = require("./routes/StaffRoutes");
+const PatientRoute = require("./routes/PatientRoutes");
 
 
 const app  = express();
@@ -24,6 +25,8 @@ app.use((req, res, next) => {
 app.use("/api", MedicineRoute);
 app.use("/api", AppointmentRoute);
 app.use("/api", StaffRoute);
+app.use("/api", PatientRoute);
+
 
 
 module.exports = app;
