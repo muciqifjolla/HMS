@@ -6,7 +6,8 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Medicines, Notifications, Appointments } from "@/pages/dashboard";
+import  PatientIcon  from './pages/dashboard/Patient/patient.png'; 
+import { Home, Profile, Medicines, Appointments, Patients } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 const icon = {
@@ -47,13 +48,13 @@ export const routes = [
         path: "/staff",
         element: <staff />,
       },
-    
-      // {
-      //   icon: <InformationCircleIcon {...icon} />,
-      //   name: "notifications",
-      //   path: "/notifications",
-      //   element: <Notifications />,
-      // },
+      {
+        icon: <img src={PatientIcon} alt="Patient" {...icon} />,
+        name: "Patient",
+        path: "/patient",
+        element: <Patients />,
+      }
+
     ],
   },
   {
