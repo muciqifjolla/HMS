@@ -4,5 +4,6 @@ export * from "@/pages/dashboard/medicines";
 export * from "@/pages/dashboard/appointments";
 export * from "@/pages/dashboard/patients";
 export * from "@/pages/dashboard/Staffs";
+export * from "@/pages/dashboard/Departments";
 
 

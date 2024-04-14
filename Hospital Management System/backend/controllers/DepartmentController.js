@@ -18,7 +18,7 @@ const FindAllDepartments = async (req, res) => {
         const data = await queryPromise();
         res.json(data);
     } catch (error) {
-        console.error("Error occurred while fetching patient:", error);
+        console.error("Error occurred while fetching department:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
@@ -57,7 +57,7 @@ const FindSingleDepartment= async (req, res) => {
   const AddDepartment = async (req, res) => {
     try {
         const db = req.db;
-        const sql = "INSERT INTO department (`Dept_head`, `Dept_name`, `Emp_Count`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const sql = "INSERT INTO department (`Dept_head`, `Dept_name`, `Emp_Count`) VALUES (?, ?, ?)";
         const values = [
             req.body.Dept_head,
             req.body.Dept_name,
@@ -96,7 +96,7 @@ const UpdateDepartment = async (req, res) => {
             return res.status(400).json({ error: "ID, Dept_head, Dept_name, Emp_Count are required" });
         }
         
-        const sql = "UPDATE patient SET Dept_head = ?, Dept_name = ?, Emp_Count = ?  WHERE Dept_ID = ?";
+        const sql = "UPDATE department SET Dept_head = ?, Dept_name = ?, Emp_Count = ?  WHERE Dept_ID = ?";
         const values = [Dept_head, Dept_name, Emp_Count, id];
 
         const queryPromise = () => {
@@ -129,7 +129,7 @@ const UpdateDepartment = async (req, res) => {
             return res.status(400).json({ error: "ID is required" });
         }
 
-        const sql = "DELETE FROM patient WHERE Dept_ID = ?";
+        const sql = "DELETE FROM department WHERE Dept_ID = ?";
         const values = [id];
 
         const queryPromise = () => {

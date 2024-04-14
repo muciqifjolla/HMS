@@ -9,7 +9,8 @@ import {
 import  PatientIcon  from './pages/dashboard/Patient/patient.png'; 
 import  MedicineIcon  from './pages/dashboard/Tables/medicine.png'; 
 import  StafIcon  from './pages/dashboard/Staff/staff.png'; 
-import { Home, Profile, Medicines, Appointments,Staffs, Patients } from "@/pages/dashboard";
+import  DepartmentIcon  from './pages/dashboard/Department/department.png';
+import { Home, Profile, Medicines, Appointments,Staffs, Patients, Departments } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 
@@ -56,7 +57,13 @@ export const routes = [
         name: "Patient",
         path: "/patient",
         element: <Patients />,
-      }
+      },
+      {
+      icon: <img src={DepartmentIcon} alt="department" {...icon} />,
+      name: "department",
+      path: "/Departments",
+      element: <Departments />,
+    },
 
     ],
   },
