@@ -34,16 +34,15 @@ function Department({ showCreateForm, setShowCreateForm,showUpdateForm, setShowU
 
     return (
         <div className='container-fluid mt-4'>
-    <h2 className="my-3">Department</h2>
 
-    <button className='btn btn-success mb-3' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
-        {showCreateForm ? 'Close Add Form' : 'Add +'}
+    <button className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
+        {showCreateForm ? 'Close Add Form' : 'Add Department'}
     </button>
 
     <div className="table-responsive">
         <div className="py-8">
             <div>
-                <h2 className="text-2xl font-semibold leading-tight">Department</h2>
+                <h2 className="text-2xl font-semibold leading-tight">Departments</h2>
             </div>
             <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
                 <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">

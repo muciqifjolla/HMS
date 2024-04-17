@@ -49,9 +49,8 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
 
     return (
     <div className='container-fluid mt-4'>
-        <h2 className="my-3">Appointment</h2>
-        <button className='btn btn-success mb-3' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
-            {showCreateForm ? 'Close Add Form' : 'Add +'}
+        <button className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
+            {showCreateForm ? 'Close Add Form' : 'Add Appointment'}
         </button>
         <div className="table-responsive">
             <div>
@@ -108,7 +107,7 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
                                                 <p className="text-gray-900 whitespace-no-wrap">
                                                     {data.Patient_ID} Patient ID
                                                 </p>
-                                                <p className="text-gray-600 whitespace-no-wrap">{data.Doctor_ID} Doctor Id</p>
+                                                <p className="text-gray-600 whitespace-no-wrap">{data.Doctor_ID} Doctor ID</p>
                                             </div>
                                             </div>
                                         </td>

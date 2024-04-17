@@ -44,7 +44,7 @@ function UpdateDepartment({id}) {
         setEmp_Count(emp_Count);
 
 
-            navigate('/dashboard/departments');
+            navigate('/dashboard/department');
             window.location.reload();
         } catch (error) {
             console.error('Error updating department:', error);
@@ -55,19 +55,19 @@ function UpdateDepartment({id}) {
     return (
         <div className='bg-white rounded p-3'>
         <div className='mb-2'>
-            <label htmlFor="dept_head">Department Head</label>
+            <label htmlFor="dept_head">Department Head:  </label>
             <input type='text' id="dept_head" placeholder='Enter Dept Head' className='form-control'
                 value={dept_head} onChange={e => setDept_head(e.target.value)} />
         </div>
 
         <div className='mb-2'>
-            <label htmlFor="dept_name">Department Name </label>
+            <label htmlFor="dept_name">Department Name:   </label>
             <input type='text' id="dept_name" placeholder='Enter Dept Name' className='form-control'
                 value={dept_name} onChange={e => setDept_name(e.target.value)} />
         </div>
 
         <div className='mb-2'>
-            <label htmlFor="emp_Count">Employee Count</label>
+            <label htmlFor="emp_Count">Employee Count:  </label>
             <input type='number' id="emp_Count" placeholder='Enter Employee count' className='form-control'
                 value={emp_Count} onChange={e => setEmp_Count(e.target.value)} />
         </div>
