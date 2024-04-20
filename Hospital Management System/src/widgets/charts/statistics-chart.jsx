@@ -1,3 +1,4 @@
+//e kena thirre te home mrena dashboard mrena pages
 import {
   Card,
   CardHeader,
@@ -17,7 +18,7 @@ export function StatisticsChart({ color, chart, title, description, footer }) {
       <CardBody className="px-6 pt-0">
         <Typography variant="h6" color="blue-gray">
           {title}
-        </Typography>
+        </Typography> 
         <Typography variant="small" className="font-normal text-blue-gray-600">
           {description}
         </Typography>

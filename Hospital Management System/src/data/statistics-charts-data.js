@@ -1,5 +1,5 @@
 import { chartsConfig } from "@/configs";
-
+//charti 1 poshte
 const websiteViewsChart = {
   type: "bar",
   height: 220,
@@ -24,14 +24,14 @@ const websiteViewsChart = {
     },
   },
 };
-
+//charti 2 poshte
 const dailySalesChart = {
   type: "line",
   height: 220,
   series: [
     {
       name: "Sales",
-      data: [50, 40, 300, 320, 500, 350, 200, 230, 500],
+      data: [100, 40, 300, 320, 500, 350, 200, 230, 500],
     },
   ],
   options: {
@@ -45,28 +45,18 @@ const dailySalesChart = {
     },
     xaxis: {
       ...chartsConfig.xaxis,
-      categories: [
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",],
     },
   },
 };
-
+//charti 3 poshte
 const completedTaskChart = {
   type: "line",
   height: 220,
   series: [
     {
       name: "Sales",
-      data: [50, 40, 300, 320, 500, 350, 200, 230, 500],
+      data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
     },
   ],
   options: {
@@ -94,17 +84,19 @@ const completedTaskChart = {
     },
   },
 };
-const completedTasksChart = {
-  ...completedTaskChart,
-  series: [
-    {
-      name: "Tasks",
-      data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
-    },
-  ],
-};
+
+// const completedTasksChart = {
+//   ...completedTaskChart,
+//   series: [
+//     {
+//       name: "Tasks",
+//       data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+//     },
+//   ],
+// };
 
 export const statisticsChartsData = [
+  //texti per chartin e 1 poshte
   {
     color: "white",
     title: "Website View",
@@ -112,6 +104,7 @@ export const statisticsChartsData = [
     footer: "campaign sent 2 days ago",
     chart: websiteViewsChart,
   },
+  //texti per chartin e 2 poshte
   {
     color: "white",
     title: "Daily Sales",
@@ -119,12 +112,13 @@ export const statisticsChartsData = [
     footer: "updated 4 min ago",
     chart: dailySalesChart,
   },
+  //texti per chartin e 3 poshte
   {
     color: "white",
     title: "Completed Tasks",
     description: "Last Campaign Performance",
     footer: "just updated",
-    chart: completedTasksChart,
+    chart: completedTaskChart,
   },
 ];
 

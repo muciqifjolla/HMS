@@ -5,6 +5,7 @@ export const MaterialTailwind = React.createContext(null);
 MaterialTailwind.displayName = "MaterialTailwindContext";
 
 export function reducer(state, action) {
+  //me shume gjase me komentu qita
   switch (action.type) {
     case "OPEN_SIDENAV": {
       return { ...state, openSidenav: action.value };
@@ -28,6 +29,8 @@ export function reducer(state, action) {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
   }
+
+
 }
 
 export function MaterialTailwindControllerProvider({ children }) {

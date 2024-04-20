@@ -1,3 +1,4 @@
+//e kena thirr te dashboard mrena layouts
 import PropTypes from "prop-types";
 import { Link, NavLink } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";

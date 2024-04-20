@@ -2,16 +2,17 @@ import {
   HomeIcon,
   UserCircleIcon,
   TableCellsIcon,
-  InformationCircleIcon,
-  ServerStackIcon,
-  RectangleStackIcon,
+  // InformationCircleIcon,
+  // ServerStackIcon,
+  // RectangleStackIcon,
 } from "@heroicons/react/24/solid";
 import  PatientIcon  from './pages/dashboard/Patient/patient.png'; 
 import  MedicineIcon  from './pages/dashboard/Tables/medicine.png'; 
 import  StafIcon  from './pages/dashboard/Staff/staff.png'; 
 import  DepartmentIcon  from './pages/dashboard/Department/department.png';
+import Home_Page from "./pages/Main_Page/Home_Page";
 import { Home, Profile, Medicines, Appointments,Staffs, Patients, Departments } from "@/pages/dashboard";
-import { SignIn, SignUp } from "@/pages/auth";
+// import { SignIn, SignUp } from "@/pages/auth";
 
 
 const icon = {
@@ -64,6 +65,13 @@ export const routes = [
       path: "/department",
       element: <Departments />,
     },
+    {
+      
+      name: "Main_Page",
+      path: "/Main_Page",
+      element: <Home_Page/>,
+      },
+
 
     ],
   },

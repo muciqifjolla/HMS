@@ -1,3 +1,4 @@
+//e kena thirr te dashboard mrena layouts
 import { useLocation, Link } from "react-router-dom";
 import {
   Navbar,
@@ -67,9 +68,9 @@ export function DashboardNavbar() {
               {page}
             </Typography>
           </Breadcrumbs>
-          <Typography variant="h6" color="blue-gray">
-            {page}
-          </Typography>
+            {/* <Typography variant="h6" color="blue-gray">
+              {page}
+            </Typography> */}
         </div>
         <div className="flex items-center">
           

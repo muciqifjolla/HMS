@@ -1,3 +1,4 @@
+
 import {
   BanknotesIcon,
   UserPlusIcon,
@@ -6,6 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 export const statisticsCardsData = [
+  //charti 1 nalt
   {
     color: "gray",
     icon: BanknotesIcon,
@@ -17,6 +19,7 @@ export const statisticsCardsData = [
       label: "than last week",
     },
   },
+  //charti 2 nalt
   {
     color: "gray",
     icon: UsersIcon,
@@ -28,6 +31,7 @@ export const statisticsCardsData = [
       label: "than last month",
     },
   },
+  //charti 3 nalt
   {
     color: "gray",
     icon: UserPlusIcon,
@@ -39,6 +43,7 @@ export const statisticsCardsData = [
       label: "than yesterday",
     },
   },
+  //charti 4 nalt
   {
     color: "gray",
     icon: ChartBarIcon,

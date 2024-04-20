@@ -1,3 +1,4 @@
+//e kena thirr te dashboard mrena layouts
 import PropTypes from "prop-types";
 import { Typography } from "@material-tailwind/react";
 import { HeartIcon } from "@heroicons/react/24/solid";
@@ -9,8 +10,7 @@ export function Footer({ brandName, brandLink, routes }) {
     <footer className="py-2">
       <div className="flex w-full flex-wrap items-center justify-center gap-6 px-2 md:justify-between">
         <Typography variant="small" className="font-normal text-inherit">
-          {/* &copy; {year}, made with{" "} */}
-          {/* <HeartIcon className="-mt-0.5 inline-block h-3.5 w-3.5 text-red-600" /> by{" "} */}
+
           <a
             href={brandLink}
             target="_blank"
@@ -18,7 +18,7 @@ export function Footer({ brandName, brandLink, routes }) {
           >
             {brandName}
           </a>{" "}
-          {/* for a better web. */}
+          
         </Typography>
         <ul className="flex items-center gap-4">
           {routes.map(({ name, path }) => (
@@ -44,9 +44,7 @@ Footer.defaultProps = {
   brandName: "Hospital Management System",
   brandLink: "http://localhost:5173/dashboard/home",
   routes: [
-    { name: "Hospital Management System", path: "" },
     { name: "About Us", path: "" },
-    { name: "Blog", path: "" },
     { name: "License", path: "" },
   ],
 };

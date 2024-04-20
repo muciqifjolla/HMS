@@ -1,3 +1,6 @@
+
+//Konfigu qysh ka me u dok charti
+
 export const chartsConfig = {
   chart: {
     toolbar: {
