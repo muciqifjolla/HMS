@@ -63,9 +63,9 @@ const FindSingleMedicine = async (req, res) => {
         const db = req.db;
         const sql = "INSERT INTO medicine (`M_name`, `M_Quantity`, `M_Cost`) VALUES (?, ?, ?)";
         const values = [
-            req.body.name,
-            parseInt(req.body.quantity),
-            parseFloat(req.body.cost)
+            req.body.M_name,
+            req.body.M_Quantity,
+            req.body.M_Cost,
         ];
 
         const queryPromise = () => {
@@ -92,14 +92,14 @@ const UpdateMedicine = async (req, res) => {
     try {
         const db = req.db;
         const { id } = req.params;
-        const { name, quantity, cost } = req.body;
+        const { M_name, M_Quantity, M_Cost } = req.body;
         
-        if (!id || !name || !quantity || !cost) {
+        if (!id || !M_name || !M_Quantity || !M_Cost) {
             return res.status(400).json({ error: "ID, name, quantity, and cost are required" });
         }
         
         const sql = "UPDATE medicine SET M_name = ?, M_Quantity = ?, M_Cost = ? WHERE Medicine_ID = ?";
-        const values = [name, quantity, cost, id];
+        const values = [M_name, M_Quantity, M_Cost, id];
 
         const queryPromise = () => {
             return new Promise((resolve, reject) => {

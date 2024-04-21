@@ -1,7 +1,7 @@
 //e kena thirr te dashboard mrena layouts
 import PropTypes from "prop-types";
 import { Typography } from "@material-tailwind/react";
-import { HeartIcon } from "@heroicons/react/24/solid";
+
 
 export function Footer({ brandName, brandLink, routes }) {
   const year = new Date().getFullYear();
@@ -9,6 +9,7 @@ export function Footer({ brandName, brandLink, routes }) {
   return (
     <footer className="py-2">
       <div className="flex w-full flex-wrap items-center justify-center gap-6 px-2 md:justify-between">
+        {/* pjesa e pare e footerit */}
         <Typography variant="small" className="font-normal text-inherit">
 
           <a
@@ -20,6 +21,8 @@ export function Footer({ brandName, brandLink, routes }) {
           </a>{" "}
           
         </Typography>
+
+        {/* pjesa e dyte e footerit */}
         <ul className="flex items-center gap-4">
           {routes.map(({ name, path }) => (
             <li key={name}>

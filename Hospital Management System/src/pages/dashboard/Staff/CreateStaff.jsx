@@ -56,54 +56,54 @@ function CreateStaff() {
         <div className='container mt-4'>
             <div className='bg-white rounded p-3'>
                 <div className='mb-2'>
-                    <label htmlFor="emp_Fname">Name: </label>
+                    <label htmlFor="emp_Fname">First Name: </label>
                     <input type='text' id="emp_Fname" placeholder='Enter Name' className='form-control'
                         value={emp_Fname} onChange={e => setEmp_Fname(e.target.value)} />
                 </div>
 
                 <div className='mb-2'>
-                    <label htmlFor="emp_LName">Lastname   </label>
+                    <label htmlFor="emp_LName">Last Name: </label>
                     <input type='text' id="emp_LName" placeholder='Enter Lastname' className='form-control'
                         value={emp_LName} onChange={e => setEmp_LName(e.target.value)} />
                 </div>
 
                 <div className='mb-2'>
-                    <label htmlFor="joiningDate">Joining Date  </label>
+                    <label htmlFor="joiningDate">Joining Date:  </label>
                     <input type='date' id="joiningDate" placeholder='Enter joiningDate' className='form-control'
                         value={joiningDate} onChange={e => setJoining_Date(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="emp_type">Employee Type  </label>
+                    <label htmlFor="emp_type">Employee Type:  </label>
                     <input type='text' id="emp_type" placeholder='Enter employee type' className='form-control'
                         value={emp_type} onChange={e => setEmp_type(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="email">Email  </label>
+                    <label htmlFor="email">Email:  </label>
                     <input type='email' id="email" placeholder='Enter email' className='form-control'
                         value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="address">Address  </label>
+                    <label htmlFor="address">Address:  </label>
                     <input type='text' id="address" placeholder='Enter address' className='form-control'
                         value={address} onChange={e => setAddress(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="dept">Department  </label>
+                    <label htmlFor="dept">Department:  </label>
                     <input type='number' id="dept" placeholder='Enter dept' className='form-control'
                         value={dept} onChange={e => setDept_ID(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="socialSecurityNumber">SSN  </label>
+                    <label htmlFor="socialSecurityNumber">SSN:  </label>
                     <input type='text' id="socialSecurityNumber" placeholder='Enter SSN' className='form-control'
                         value={socialSecurityNumber} onChange={e => setSSN(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="dateofBirth">DOB  </label>
+                    <label htmlFor="dateofBirth">DOB:  </label>
                     <input type='date' id="dateofBirth" placeholder='Enter dateofBirth' className='form-control'
                         value={dateofBirth} onChange={e => setDOB(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="dateSeperation">Date_Seperation  </label>
+                    <label htmlFor="dateSeperation">Date_Seperation:  </label>
                     <input type='date' id="dateSeperation" placeholder='Enter dateSeperation' className='form-control'
                         value={dateSeperation} onChange={e => setDate_Seperation(e.target.value)} />
                 </div>

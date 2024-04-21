@@ -30,7 +30,13 @@ function UpdateMedicine({id}) {
     const handleUpdateMedicine = async () => {
         
         try {
-            await axios.put(`http://localhost:9004/api/medicine/update/${id}`, { name, quantity, cost});
+            await axios.put(`http://localhost:9004/api/medicine/update/${id}`, { 
+                
+            M_name: name,
+            M_Quantity: quantity,
+            M_Cost: cost,
+            
+            });
             setName(name);
             setQuantity(quantity);
             setCost(cost);

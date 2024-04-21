@@ -81,47 +81,47 @@ function UpdatePatient({id}) {
     return (
         <div className='bg-white rounded p-3'>
             <div className='mb-2'>
-                    <label htmlFor="patient_Fname">First name  </label>
+                    <label htmlFor="patient_Fname">First name:  </label>
                     <input type='text' id="patient_Fname" placeholder='Enter Firstname' className='form-control'
                         value={patient_Fname} onChange={e => setPatient_Fname(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="patient_Lname">Last name  </label>
+                    <label htmlFor="patient_Lname">Last name:  </label>
                     <input type='text' id="patient_Lname" placeholder='Enter Lastname' className='form-control'
                         value={patient_Lname} onChange={e => setPatient_Lname(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="blood_type">Blood Type  </label>
+                    <label htmlFor="blood_type">Blood Type:  </label>
                     <input type='text' id="blood_type" placeholder='Enter Blood type' className='form-control'
                         value={blood_type} onChange={e => setBlood_type(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="email">Email  </label>
+                    <label htmlFor="email">Email:  </label>
                     <input type='email' id="email" placeholder='Enter email' className='form-control'
                         value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="gender">Gender  </label>
+                    <label htmlFor="gender">Gender:  </label>
                     <input type='text' id="gender" placeholder='Enter Gender' className='form-control'
                         value={gender} onChange={e => setGender(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="conditionn">Conditionn  </label>
+                    <label htmlFor="conditionn">Condition:  </label>
                     <input type='text' id="conditionn" placeholder='Enter Conditionn' className='form-control'
                         value={conditionn} onChange={e => setConditionn(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="admission_Date">Admission Date  </label>
+                    <label htmlFor="admission_Date">Admission Date:  </label>
                     <input type='date' id="admission_Date" placeholder='Enter Admission Date' className='form-control'
                         value={admission_Date} onChange={e => setAdmission_Date(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="discharge_Date">Discharge Date  </label>
+                    <label htmlFor="discharge_Date">Discharge Date:  </label>
                     <input type='date' id="discharge_Date" placeholder='Enter Discharge Date' className='form-control'
                         value={discharge_Date} onChange={e => setDischarge_Date(e.target.value)} />
                 </div>
                 <div className='mb-2'>
-                    <label htmlFor="phone">Phone  </label>
+                    <label htmlFor="phone">Phone:  </label>
                     <input type='text' id="phone" placeholder='Enter Phone' className='form-control'
                         value={phone} onChange={e => setPhone(e.target.value)} />
                 </div>

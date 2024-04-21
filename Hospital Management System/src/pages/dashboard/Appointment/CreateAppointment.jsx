@@ -41,7 +41,7 @@ function CreateAppointment() {
         <div className='container mt-4'>
             <div className='bg-white rounded p-3'>
                 <div className='mb-2'>
-                    <label htmlFor="Scheduled_On">Scheduled</label>
+                    <label htmlFor="Scheduled_On">Scheduled: </label>
                     <input type='date' id="Scheduled_On" placeholder='Enter Scheduled_On' className='form-control'
                         value={scheduled_On} onChange={e => setScheduled_On(e.target.value)} />
                 </div>
