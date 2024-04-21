@@ -6,6 +6,7 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
     
     const [appointment, setAppointment] = useState([]);
 
+    console.log(appointment)
 
     const handleUpdateButtonClick = (appointmentId) => {
         setSelectedAppointmentIdId(appointmentId);
@@ -105,9 +106,9 @@ function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShow
                                             <div className="flex">
                                             <div className="ml-3">
                                                 <p className="text-gray-900 whitespace-no-wrap">
-                                                    {data.Patient_ID} Patient ID
+                                                    Patient: <span className="underline">{data.patient_full_name}</span>  
                                                 </p>
-                                                <p className="text-gray-600 whitespace-no-wrap">{data.Doctor_ID} Doctor ID</p>
+                                                <p className="text-gray-600 whitespace-no-wrap">Doctor <span className='underline'>{data.doctor_full_name}</span></p>
                                             </div>
                                             </div>
                                         </td>

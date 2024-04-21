@@ -65,14 +65,6 @@ export const routes = [
       path: "/department",
       element: <Departments />,
     },
-    {
-      
-      name: "Main_Page",
-      path: "/Main_Page",
-      element: <Home_Page/>,
-      },
-
-
     ],
   },
   // {

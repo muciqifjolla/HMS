@@ -12,11 +12,11 @@ import Comment from './Comment';
 function HomePage() {
     const settings = {
         infinite: true,
-        speed: 400,
+        speed: 4,
         slidesToShow: 1,
         slidesToScroll: 1,
         autoplay: true,
-        autoplaySpeed: 1200,
+        autoplaySpeed: 4200,
         centerMode: true, 
         centerPadding: '0px' 
     };
@@ -25,7 +25,7 @@ function HomePage() {
         <div className="min-h-screen flex flex-col">
             <Header/>
             <br/>
-            <Slider {...settings} className="slider-container" style={{ height: '350px', marginTop: '10px', marginBottom: '10px' }}>
+            <Slider {...settings} className="slider-container flex items-center justify-center w-full" style={{ height: '350px', marginTop: '10px', marginBottom: '10px' }}>
                 <div className="slide-item" style={{ marginLeft: '400px', marginRight: '420px' }}>
                     <img src="/src/pages/Main_Page/1.jpg" alt="Slide 1" style={{ height: '400px', width: '1200px'}} className="rounded-lg shadow" />
                 </div>

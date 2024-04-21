@@ -1,7 +1,26 @@
 const FindAllAppointments = async (req, res) => {
     try {
         const db = req.db;
-        const sql = "SELECT * FROM appointment";
+        const sql = `
+            SELECT 
+                appointment.*, 
+                CONCAT(patient.Patient_Fname, ' ', patient.Patient_Lname) AS patient_full_name,
+                doctor.Doctor_ID AS doctor_id,
+                CONCAT(staff.Emp_Fname, ' ', staff.Emp_Lname) AS doctor_full_name
+            FROM 
+                appointment 
+            INNER JOIN 
+                patient 
+            ON 
+                appointment.Patient_ID = patient.Patient_ID
+            INNER JOIN
+                doctor
+            ON
+                appointment.Doctor_ID = doctor.Doctor_ID
+            INNER JOIN
+                staff
+            ON
+                doctor.Emp_ID = staff.Emp_ID`;
 
         const queryPromise = () => {
             return new Promise((resolve, reject) => {
@@ -18,11 +37,10 @@ const FindAllAppointments = async (req, res) => {
         const data = await queryPromise();
         res.json(data);
     } catch (error) {
-        console.error("Error occurred while fetching appointment:", error);
+        console.error("Error occurred while fetching appointments:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-};
-
+};  
 const FindSingleAppointment = async (req, res) => {
     try {
         const db = req.db;

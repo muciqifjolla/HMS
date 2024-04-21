@@ -8,10 +8,22 @@ function Header() {
         <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">HMS</span>
         
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-          <button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-            <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo"/>
-          </button>
+            <div className="p-10">
+              <div className="dropdown inline-block relative">
+                <button className="bg-white text-gray-700 font-semibold py-2 px-4 rounded inline-flex items-center">
+                  <span className="mr-1">Username</span>
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/> </svg>
+                </button>
+                <ul className="dropdown-menu absolute hidden text-gray-700 pt-1 z-40">
+                  <li className="">
+                    <Link to="/dashboard/" className="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Dasboard</Link>
+                    </li>
+                  <li className=""><a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#">Sign Out</a></li>
+                </ul>
+            </div>
         </div>
+                    
+          </div>
 
         <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
           <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
