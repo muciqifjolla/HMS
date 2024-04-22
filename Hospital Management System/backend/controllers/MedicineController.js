@@ -1,168 +1,82 @@
-
-
+const Medicine = require('../models/Medicine');
 
 const FindAllMedicine = async (req, res) => {
     try {
-        const db = req.db;
-        const sql = "SELECT * FROM medicine";
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
-            });
-        };
-
-        const data = await queryPromise();
-        res.json(data);
+        const medicines = await Medicine.findAll();
+        res.json(medicines);
     } catch (error) {
-        console.error("Error occurred while fetching medicine:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error('Error fetching all medicines:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 
 const FindSingleMedicine = async (req, res) => {
     try {
-        const db = req.db;
-        const sql = "SELECT * FROM medicine WHERE Medicine_ID = ?";
-        const medicineId = req.params.id;
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, [medicineId], (err, data) => {
-                    if (err) {
-                        console.error("Error fetching medicine:", err);
-                        res.status(500).json({ error: "Internal Server Error" });
-                    } else {
-                        if (data.length === 0) {
-                            res.status(404).json({ error: "Medicine not found" });
-                        } else {
-                            res.json(data[0]);
-                        }
-                    }
-                });
-            });
-        };
-
-        const data = await queryPromise();
-        res.json(data);
+        const medicine = await Medicine.findByPk(req.params.id);
+        if (!medicine) {
+            res.status(404).json({ error: 'Medicine not found' });
+            return;
+        }
+        res.json(medicine);
     } catch (error) {
-        console.error("Error occurred while fetching medicine:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  const AddMedicine = async (req, res) => {
-    try {
-        const db = req.db;
-        const sql = "INSERT INTO medicine (`M_name`, `M_Quantity`, `M_Cost`) VALUES (?, ?, ?)";
-        const values = [
-            req.body.M_name,
-            req.body.M_Quantity,
-            req.body.M_Cost,
-        ];
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, values, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
-            });
-        };
-
-        await queryPromise();
-        res.json({ success: true, message: "Medicine added successfully" });
-    } catch (error) {
-        console.error("Error adding medicine:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error('Error fetching single medicine:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-  
+
+const AddMedicine = async (req, res) => {
+    try {
+        const { M_name, M_Quantity, M_Cost } = req.body;
+        const newMedicine = await Medicine.create({
+            M_name,
+            M_Quantity,
+            M_Cost,
+        });
+        res.json({ success: true, message: 'Medicine added successfully', data: newMedicine });
+    } catch (error) {
+        console.error('Error adding medicine:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 const UpdateMedicine = async (req, res) => {
     try {
-        const db = req.db;
-        const { id } = req.params;
         const { M_name, M_Quantity, M_Cost } = req.body;
-        
-        if (!id || !M_name || !M_Quantity || !M_Cost) {
-            return res.status(400).json({ error: "ID, name, quantity, and cost are required" });
+        const updated = await Medicine.update(
+            { M_name, M_Quantity, M_Cost },
+            { where: { Medicine_ID: req.params.id } }
+        );
+        if (updated[0] === 0) {
+            res.status(404).json({ error: 'Medicine not found or not updated' });
+            return;
         }
-        
-        const sql = "UPDATE medicine SET M_name = ?, M_Quantity = ?, M_Cost = ? WHERE Medicine_ID = ?";
-        const values = [M_name, M_Quantity, M_Cost, id];
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, values, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
-            });
-        };
-
-        await queryPromise();
-        res.json({ success: true, message: "Medicine updated successfully" });
-
-    }catch (error) {
-        console.error("Error updating medicine:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  const DeleteMedicine = async (req, res) => {
-    try {
-        const db = req.db;
-        const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({ error: "ID is required" });
-        }
-
-        const sql = "DELETE FROM medicine WHERE Medicine_ID = ?";
-        const values = [id];
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, values, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
-        };
-
-        await queryPromise();
-
-        res.json({ success: true, message: "Medicine deleted successfully" });
+        res.json({ success: true, message: 'Medicine updated successfully' });
     } catch (error) {
-        console.error("Error deleting medicine:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error('Error updating medicine:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
+const DeleteMedicine = async (req, res) => {
+    try {
+        const deleted = await Medicine.destroy({
+            where: { Medicine_ID: req.params.id },
+        });
+        if (deleted === 0) {
+            res.status(404).json({ error: 'Medicine not found' });
+            return;
+        }
+        res.json({ success: true, message: 'Medicine deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting medicine:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 module.exports = {
     FindAllMedicine,
     FindSingleMedicine,
     AddMedicine,
     UpdateMedicine,
-    DeleteMedicine
+    DeleteMedicine,
 };
-
-
-

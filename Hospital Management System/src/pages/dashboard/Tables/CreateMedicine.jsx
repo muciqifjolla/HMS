@@ -8,11 +8,44 @@ function CreateMedicine() {
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
     const [cost, setCost] = useState('');
+    const [alertMessage, setAlertMessage] = useState('');
     const navigate = useNavigate();
 
 
     const handleAddMedicine = async () => {
         try {
+            if (!name.trim()) {
+                setAlertMessage("Medicine name cannot be empty.");
+                return;
+            }
+
+            if (name.length < 5) {
+                setAlertMessage("Medicine name must be at least 5 characters long.");
+                return;
+            }
+
+            if (!quantity) {
+                setAlertMessage("Quantity is required.");
+                return;
+            }
+
+            if (quantity <1) {
+                setAlertMessage("Quantity must be at least 1.");
+                return;
+            }
+
+            if (!cost) {
+                setAlertMessage("Cost is required.");
+                return;
+            }
+
+            if (cost <1) {
+                setAlertMessage("Cost must be at least 1.");
+                return;
+            }
+
+            setAlertMessage(''); 
+
             await axios.post("http://localhost:9004/api/medicine/create",  {
                 M_name: name,
                 M_Quantity: quantity,
@@ -21,6 +54,7 @@ function CreateMedicine() {
             setName('');
             setQuantity('');
             setCost('');
+
             navigate('/dashboard/medicines');
             window.location.reload();
         } catch (error) {
@@ -31,6 +65,13 @@ function CreateMedicine() {
 
     return (
         <div className='container mt-4'>
+
+
+{alertMessage && (
+                <div className='alert alert-warning'>
+                    {alertMessage}
+                </div>
+            )}
             <div className='bg-white rounded p-3'>
                 <div className='mb-2'>
                     <label htmlFor="medicineName">Medicine Name: </label>
@@ -51,6 +92,8 @@ function CreateMedicine() {
                 </div>
                 <button type="button" className='btn btn-success' onClick={handleAddMedicine}>Submit</button>
             </div>
+
+
         </div>
     );
 }
