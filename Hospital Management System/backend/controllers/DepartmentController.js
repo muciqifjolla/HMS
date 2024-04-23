@@ -1,157 +1,78 @@
-const FindAllDepartments = async (req, res) => {
-    try {
-        const db = req.db;
-        const sql = "SELECT * FROM department";
+const Department = require('../models/Department');
 
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
+    const FindAllDepartments = async (req, res) => {
+        try {
+            const departments = await Department.findAll();
+            res.json(departments);
+        } catch (error) {
+            console.error('Error fetching all departments:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    };
+
+    const FindSingleDepartment = async (req, res) => {
+        try {
+            const department = await Department.findByPk(req.params.id);
+            if (!department) {
+                res.status(404).json({ error: 'Department not found' });
+                return;
+            }
+            res.json(department);
+        } catch (error) {
+            console.error('Error fetching single department:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    };
+
+    const AddDepartment = async (req, res) => {
+        try {
+            const { Dept_head, Dept_name, Emp_Count } = req.body;
+            const newDepartment = await Department.create({
+                Dept_head,
+                Dept_name,
+                Emp_Count,
             });
-        };
-
-        const data = await queryPromise();
-        res.json(data);
-    } catch (error) {
-        console.error("Error occurred while fetching department:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
-
-const FindSingleDepartment= async (req, res) => {
-    try {
-        const db = req.db;
-        const sql = "SELECT * FROM department WHERE Dept_ID = ?";
-        const departmentId = req.params.id;
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, [departmentId], (err, data) => {
-                    if (err) {
-                        console.error("Error fetching department:", err);
-                        res.status(500).json({ error: "Internal Server Error" });
-                    } else {
-                        if (data.length === 0) {
-                            res.status(404).json({ error: "Department not found" });
-                        } else {
-                            res.json(data[0]);
-                        }
-                    }
-                });
-            });
-        };
-
-        const data = await queryPromise();
-        res.json(data);
-    } catch (error) {
-        console.error("Error occurred while fetching department:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  const AddDepartment = async (req, res) => {
-    try {
-        const db = req.db;
-        const sql = "INSERT INTO department (`Dept_head`, `Dept_name`, `Emp_Count`) VALUES (?, ?, ?)";
-        const values = [
-            req.body.Dept_head,
-            req.body.Dept_name,
-            req.body.Emp_Count,
-
-        ];
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, values, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
-            });
-        };
-
-        await queryPromise();
-
-        res.json({ success: true, message: "Department added successfully" });
-    } catch (error) {
-        console.error("Error adding department:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
+            res.json({ success: true, message: 'Department added successfully', data: newDepartment });
+        } catch (error) {
+            console.error('Error adding department:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    };
   
-const UpdateDepartment = async (req, res) => {
-    try {
-        const db = req.db;
-        const { id } = req.params;
-        const { Dept_head, Dept_name, Emp_Count } = req.body;
-        
-        if (!id || !Dept_head || !Dept_name || !Emp_Count ) {
-            return res.status(400).json({ error: "ID, Dept_head, Dept_name, Emp_Count are required" });
+    const UpdateDepartment = async (req, res) => {
+        try {
+            const { Dept_head, Dept_name, Emp_Count } = req.body;
+            const updated = await Department.update(
+                { Dept_head, Dept_name, Emp_Count },
+                { where: { Dept_ID: req.params.id } }
+            );
+            if (updated[0] === 0) {
+                res.status(404).json({ error: 'Department not found or not updated' });
+                return;
+            }
+            res.json({ success: true, message: 'Department updated successfully' });
+        } catch (error) {
+            console.error('Error updating department:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
-        
-        const sql = "UPDATE department SET Dept_head = ?, Dept_name = ?, Emp_Count = ?  WHERE Dept_ID = ?";
-        const values = [Dept_head, Dept_name, Emp_Count, id];
+    };
 
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, values, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
+    const DeleteDepartment = async (req, res) => {
+        try {
+            const deleted = await Department.destroy({
+                where: { Dept_ID: req.params.id },
             });
-        };
-
-        await queryPromise();
-        res.json({ success: true, message: "Department updated successfully" });
-
-    }catch (error) {
-        console.error("Error updating department:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  const DeleteDepartment = async (req, res) => {
-    try {
-        const db = req.db;
-        const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({ error: "ID is required" });
+            if (deleted === 0) {
+                res.status(404).json({ error: 'Department not found' });
+                return;
+            }
+            res.json({ success: true, message: 'Department deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting department:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
-
-        const sql = "DELETE FROM department WHERE Dept_ID = ?";
-        const values = [id];
-
-        const queryPromise = () => {
-            return new Promise((resolve, reject) => {
-                db.query(sql, values, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
-        };
-
-        await queryPromise();
-
-        res.json({ success: true, message: "Department deleted successfully" });
-    } catch (error) {
-        console.error("Error deleting department:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
+    };
+    
 
 
 module.exports = {
