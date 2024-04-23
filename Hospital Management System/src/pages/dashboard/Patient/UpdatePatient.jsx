@@ -13,7 +13,8 @@ function UpdatePatient({id}) {
     const [admission_Date, setAdmission_Date] = useState('');
     const [discharge_Date, setDischarge_Date] = useState('');
     const [phone, setPhone] = useState('');
-
+    const [alertMessage, setAlertMessage] = useState('');
+    const [originalData, setOriginalData] = useState({});
     const navigate = useNavigate();
 
     
@@ -22,8 +23,9 @@ function UpdatePatient({id}) {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`http://localhost:9004/api/patient/${id}`);
-                const formattedAdmission_Date= new Date(response.data.Admission_Date).toISOString().split('T')[0];
+                const formattedAdmission_Date = new Date(response.data.Admission_Date).toISOString().split('T')[0];
                 const formattedDischarge_Date = new Date(response.data.Discharge_Date).toISOString().split('T')[0];
+                setOriginalData(response.data); // corrected parameter name
                 setPatient_Fname(response.data.Patient_Fname);
                 setPatient_Lname(response.data.Patient_Lname);
                 setBlood_type(response.data.Blood_type);
@@ -37,7 +39,7 @@ function UpdatePatient({id}) {
                 console.error('Error fetching patient:', error);
             }
         };
-
+    
         fetchData();
     }, []);
 
@@ -45,7 +47,72 @@ function UpdatePatient({id}) {
     const handleUpdatePatient = async () => {
         
         try {
+            
+            if (!patient_Fname.trim()) {
+                setAlertMessage("Patient name cannot be empty.");
+                return;
+            }
 
+            if (
+                patient_Fname === originalData.Patient_Fname &&
+                patient_Lname === originalData.Patient_Lname &&
+                blood_type === originalData.Blood_type &&
+                email === originalData.Email&&
+                gender === originalData.Gender&&
+                conditionn === originalData.Conditionn&&
+                admission_Date === originalData.Admission_Date&&
+                discharge_Date === originalData.Discharge_Date&&
+                phone === originalData.Phone
+            ) {
+                setAlertMessage("Data must be changed before updating.");
+                return;
+            }
+
+            if (patient_Fname.length < 5) {
+                setAlertMessage("Patient name must be at least 5 characters long.");
+                return;
+            }
+
+            if (!patient_Lname.trim()) {
+                setAlertMessage("Patient surname cannot be empty.");
+                return;
+            }
+
+            if (patient_Lname.length < 5) {
+                setAlertMessage("Patient surname must be at least 5 characters long.");
+                return;
+            }
+
+            if (!blood_type) {
+                setAlertMessage("Blood type is required.");
+                return;
+            }
+
+            if (!email) {
+                setAlertMessage("Email is required.");
+                return;
+            }
+            if (!gender) {
+                setAlertMessage("Gender is required.");
+                return;
+            }
+            if (!conditionn) {
+                setAlertMessage("Conditionn is required.");
+                return;
+            }
+            if (!admission_Date) {
+                setAlertMessage("Admission date is required.");
+                return;
+            }
+            if (!discharge_Date) {
+                setAlertMessage("Discharge date is required.");
+                return;
+            }
+            if (!phone) {
+                setAlertMessage("Phone is required.");
+                return;
+            }
+            setAlertMessage(''); 
             await axios.put(`http://localhost:9004/api/patient/update/${id}`, {  
 
             
@@ -69,7 +136,7 @@ function UpdatePatient({id}) {
            setDischarge_Date(discharge_Date);
            setPhone(phone);
 
-           navigate('/dashboard/patient', { replace: true });
+           navigate('/dashboard/patient');
             
             window.location.reload();
         } catch (error) {
@@ -79,6 +146,12 @@ function UpdatePatient({id}) {
 
     
     return (
+        <div className='container mt-4'>
+        {alertMessage && (
+            <div className='alert alert-warning'>
+                {alertMessage}
+            </div>
+        )}
         <div className='bg-white rounded p-3'>
             <div className='mb-2'>
                     <label htmlFor="patient_Fname">First name:  </label>
@@ -127,7 +200,7 @@ function UpdatePatient({id}) {
                 </div>
             <button type="button" className='btn btn-success' onClick={handleUpdatePatient}>Submit</button>
         </div>
-    
+    </div>
     );
 
 }

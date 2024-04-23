@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 function CreatePatient() {
 
     
@@ -14,12 +15,65 @@ function CreatePatient() {
     const [admission_Date, setAdmission_Date] = useState('');
     const [discharge_Date, setDischarge_Date] = useState('');
     const [phone, setPhone] = useState('');
+    const [alertMessage, setAlertMessage] = useState('');
     const navigate = useNavigate();
 
 
     const handleAddPatient = async () => {
         try {
-    
+            if (!patient_Fname.trim()) {
+                setAlertMessage("Patient name cannot be empty.");
+                return;
+            }
+
+            if (patient_Fname.length < 5) {
+                setAlertMessage("Patient name must be at least 5 characters long.");
+                return;
+            }
+
+            if (!patient_Lname.trim()) {
+                setAlertMessage("Patient surname cannot be empty.");
+                return;
+            }
+
+            if (patient_Lname.length < 5) {
+                setAlertMessage("Patient surname must be at least 5 characters long.");
+                return;
+            }
+
+            if (!blood_type) {
+                setAlertMessage("Blood type is required.");
+                return;
+            }
+
+            if (!email) {
+                setAlertMessage("Email is required.");
+                return;
+            }
+            if (!gender) {
+                setAlertMessage("Gender is required.");
+                return;
+            }
+            if (!conditionn) {
+                setAlertMessage("Conditionn is required.");
+                return;
+            }
+            if (!admission_Date) {
+                setAlertMessage("Admission date is required.");
+                return;
+            }
+            if (!discharge_Date) {
+                setAlertMessage("Discharge date is required.");
+                return;
+            }
+            if (!phone) {
+                setAlertMessage("Phone is required.");
+                return;
+            }
+
+            setAlertMessage(''); 
+
+          
             await axios.post("http://localhost:9004/api/patient/create", {
                 Patient_Fname: patient_Fname,
                 Patient_Lname: patient_Lname,
@@ -53,6 +107,11 @@ function CreatePatient() {
 
     return (
         <div className='container mt-4'>
+        {alertMessage && (
+                <div className='alert alert-warning'>
+                    {alertMessage}
+                </div>
+            )}    
             <div className='bg-white rounded p-3'>
                 <div className='mb-2'>
                     <label htmlFor="patient_Fname">First name:  </label>

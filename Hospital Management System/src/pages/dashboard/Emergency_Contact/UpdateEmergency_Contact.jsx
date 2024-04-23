@@ -10,6 +10,7 @@ function UpdateEmergency_Contact({id}) {
     const [relation, setrelation] = useState('');
     const [patientID, setpatientID] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
+    const [originalData, setOriginalData] = useState({});
     const navigate = useNavigate();
 
 
@@ -41,7 +42,15 @@ function UpdateEmergency_Contact({id}) {
                 setAlertMessage("Emergency Contact name cannot be empty.");
                 return;
             }
-
+            if (
+                name === originalData.Contact_Name &&
+                phone === originalData.Phone &&
+                relation === originalData.Relation &&
+                patientID === originalData.Patient_ID
+            ) {
+                setAlertMessage("Data must be changed before updating.");
+                return;
+            }
             if (name.length < 5) {
                 setAlertMessage("Emergency Contact name must be at least 5 characters long.");
                 return;

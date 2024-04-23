@@ -6,6 +6,7 @@ const sequelize = require("./config/database");
 const MedicineRoute = require("./routes/MedicineRoutes");
 const Emergency_ContactRoute = require("./routes/Emergency_ContactRoutes");
 const AppointmentRoutes = require('./routes/AppointmentRoutes');
+const PatientRoutes = require('./routes/PatientRoutes');
 
 // Other routes if needed...
 
@@ -29,7 +30,10 @@ app.listen(PORT, () => {
 
 app.use("/api", MedicineRoute);
 app.use("/api", Emergency_ContactRoute);
-app.use("/api", AppointmentRoutes)
+app.use("/api", AppointmentRoutes);
+app.use("/api", PatientRoutes);
+
+
 // Other routes if needed...
 
 module.exports = app;

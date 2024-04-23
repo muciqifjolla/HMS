@@ -1,5 +1,13 @@
 const express = require("express");
-const { FindAllPatients , FindSinglepatientPatient, AddPatient , UpdatePatient, DeletePatient} = require("../controllers/PatientController");
+const{ 
+        FindAllPatients, 
+        FindSinglepatientPatient, 
+        AddPatient, 
+        UpdatePatient, 
+        DeletePatient
+     } = require("../controllers/PatientController");
+
+     
 const router = express.Router();
 
 router.get("/patient", FindAllPatients);
