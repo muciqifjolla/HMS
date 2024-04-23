@@ -5,6 +5,8 @@ require("dotenv").config();
 const sequelize = require("./config/database");
 const MedicineRoute = require("./routes/MedicineRoutes");
 const Emergency_ContactRoute = require("./routes/Emergency_ContactRoutes");
+const AppointmentRoutes = require('./routes/AppointmentRoutes');
+
 // Other routes if needed...
 
 const app = express();
@@ -27,6 +29,7 @@ app.listen(PORT, () => {
 
 app.use("/api", MedicineRoute);
 app.use("/api", Emergency_ContactRoute);
+app.use("/api", AppointmentRoutes)
 // Other routes if needed...
 
 module.exports = app;
