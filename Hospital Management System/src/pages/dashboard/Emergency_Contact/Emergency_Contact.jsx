@@ -22,13 +22,19 @@ function Emergency_Contact({ showCreateForm, setShowCreateForm,showUpdateForm, s
 
 
     const handleDelete = async (id) => {
-        try {
+        // Display a confirmation dialog
+        const confirmDelete = window.confirm('Are you sure you want to delete this emergency contact?');
+        
+        if (confirmDelete) {
+          try {
             await axios.delete(`http://localhost:9004/api/emergency_contact/delete/${id}`);
-            setEmergency_Contact(emergency_contact.filter(item => item.Contact_ID !== id));
-        } catch (err) {
-            console.log(err);
+            setEmergency_Contact(emergency_contact.filter((item) => item.Contact_ID !== id));
+          } catch (err) {
+            console.log('Error deleting emergency contact:', err);
+          }
         }
-    }
+      };
+      
 
 
 

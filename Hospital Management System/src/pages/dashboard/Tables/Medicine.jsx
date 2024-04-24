@@ -22,14 +22,17 @@ function Medicine({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpd
 
 
     const handleDelete = async (id) => {
-        try {
+        // Display a confirmation dialog
+        const confirmDelete = window.confirm('Are you sure you want to delete this item?');
+        if (confirmDelete) {
+          try {
             await axios.delete(`http://localhost:9004/api/medicine/delete/${id}`);
-            setMedicine(medicine.filter(item => item.Medicine_ID !== id));
-        } catch (err) {
+            setMedicine(medicine.filter((item) => item.Medicine_ID !== id));
+          } catch (err) {
             console.log(err);
+          }
         }
-    }
-
+      };
 
 
     return (

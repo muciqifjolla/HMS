@@ -8,6 +8,7 @@ const Emergency_ContactRoute = require("./routes/Emergency_ContactRoutes");
 const AppointmentRoutes = require('./routes/AppointmentRoutes');
 const PatientRoutes = require('./routes/PatientRoutes');
 const DepartmentRoutes = require('./routes/DepartmentRoutes');
+const InsuranceRoutes = require('./routes/InsuranceRoutes');
 // Other routes if needed...
 
 const app = express();
@@ -33,7 +34,7 @@ app.use("/api", Emergency_ContactRoute);
 app.use("/api", AppointmentRoutes);
 app.use("/api", PatientRoutes);
 app.use("/api", DepartmentRoutes);
-
+app.use("/api", InsuranceRoutes);
 
 // Other routes if needed...
 

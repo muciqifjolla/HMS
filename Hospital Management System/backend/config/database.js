@@ -11,5 +11,5 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT || 3306,     // MySQL port
   }
 );
-
+``
 module.exports = sequelize; // Export Sequelize instance for use in other files
