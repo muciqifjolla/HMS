@@ -1,103 +1,136 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorModal from '../../../components/ErrorModal';
 
-function CreateEmergency_Contact() {
+function CreateEmergencyContact() {
+  const [formData, setFormData] = useState({
+    Contact_Name: '',
+    Phone: '',
+    Relation: '',
+    Patient_ID: '',
+  });
 
-    
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [relation, setrelation] = useState('');
-    const [patientID, setpatientID] = useState('');
-    const [alertMessage, setAlertMessage] = useState('');
-    const navigate = useNavigate();
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-    const handleAddEmergency_Contact = async () => {
-        try {
-            if (!name.trim()) {
-                setAlertMessage("Emergency Contact name cannot be empty.");
-                return;
-            }
+  const handleAddEmergencyContact = async () => {
+    try {
+      const response = await axios.post('http://localhost:9004/api/emergency_contact/create', formData);
+      console.log(response.data);
+      navigate('/dashboard/emergency_contact');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error adding emergency contact:', error);
+      showAlert('Error adding emergency contact. Please try again.');
+    }
+  };
 
-            if (name.length < 5) {
-                setAlertMessage("Emergency Contact name must be at least 5 characters long.");
-                return;
-            }
+  const handleValidation = () => {
+    const { Contact_Name, Phone, Relation, Patient_ID } = formData;
+    const phoneRegex = /^(?:\+\d{1,3}\s?)?\d{3}(?:\d{6,7})$/;
 
-            if (!phone) {
-                setAlertMessage("Phone is required.");
-                return;
-            }
+    if (Contact_Name === '' || Phone === '' || Relation === '' || Patient_ID === '') {
+      showAlert('All fields are required.');
+      return;
+    }
 
-            if (!relation) {
-                setAlertMessage("Relation is required.");
-                return;
-            }
+    if (!phoneRegex.test(Phone)) {
+      showAlert('Please enter a valid phone number (e.g., 044111222).');
+      return;
+    }
 
-            if (patientID <1) {
-                setAlertMessage("Patient ID must be at least 1.");
-                return;
-            }
+    handleAddEmergencyContact(); // All validations passed
+  };
 
-            setAlertMessage(''); 
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    setShowErrorModal(true);
+  };
 
-            await axios.post("http://localhost:9004/api/emergency_contact/create",  {
-                Contact_Name: name,
-                Phone: phone,
-                Relation: relation,
-                Patient_ID: patientID,
-            });
-            setName('');
-            setPhone('');
-            setrelation('');
-            setpatientID('');
-            navigate('/dashboard/emergency_contact');
-            window.location.reload();
-        } catch (error) {
-            console.error('Error adding emergency_contact:', error);
-        }
-    };
-
-
-    return (
-        <div className='container mt-4'>
-
-
-{alertMessage && (
-                <div className='alert alert-warning'>
-                    {alertMessage}
-                </div>
-            )}
-            <div className='bg-white rounded p-3'>
-                <div className='mb-2'>
-                    <label htmlFor="emergencyName">Emergency Contact Name: </label>
-                    <input type='text' id="emergencyName" placeholder='Enter Name' className='form-control'
-                        value={name} onChange={e => setName(e.target.value)} />
-                </div>
-
-                <div className='mb-2'>
-                    <label htmlFor="emergencyPhone">Emergency Contact Phone: </label>
-                    <input type='number' id="medicineQuantity" placeholder='Enter Phone' className='form-control'
-                        value={phone} onChange={e => setPhone(e.target.value)} />
-                </div>
-
-                <div className='mb-2'>
-                    <label htmlFor="emergencyRelation">Emergency Contact Relation: </label>
-                    <input type='text' id="medicineCost" placeholder='Enter Relation' className='form-control'
-                        value={relation} onChange={e => setrelation(e.target.value)} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="emergencyPatientID">Patient ID: </label>
-                    <input type='number' id="emergencyPatientID" placeholder='Enter Patient ID' className='form-control'
-                        value={patientID} onChange={e => setpatientID(e.target.value)} />
-                </div>
-                <button type="button" className='btn btn-success' onClick={handleAddEmergency_Contact}>Submit</button>
-            </div>
-
-
+  return (
+    <div className='container mt-4'>
+      {showErrorModal && (
+        <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
+      )}
+      <div className='bg-white rounded p-3'>
+        <div className='mb-2'>
+          <label htmlFor='Contact_Name'>Emergency Contact Name:</label>
+          <input
+            type='text'
+            id='Contact_Name'
+            name='Contact_Name'
+            placeholder='Enter Name'
+            className='form-control'
+            value={formData.Contact_Name}
+            onChange={handleChange}
+          />
         </div>
-    );
+
+        <div className='mb-2'>
+          <label htmlFor='Phone'>Emergency Contact Phone:</label>
+          <input
+            type='text'
+            id='Phone'
+            name='Phone'
+            placeholder='Enter Phone'
+            className='form-control'
+            value={formData.Phone}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className='mb-2'>
+          <label htmlFor='Relation'>Relation:</label>
+          <select
+            id='Relation'
+            name='Relation'
+            className='form-control'
+            value={formData.Relation}
+            onChange={handleChange}
+          >
+            <option value=''>Select Relation</option>
+            <option value='Mother'>Mother</option>
+            <option value='Father'>Father</option>
+            <option value='Sister'>Sister</option>
+            <option value='Brother'>Brother</option>
+            <option value='Close family Member'>Close Family Member</option>
+            <option value='Friend'>Friend</option>
+          </select>
+        </div>
+
+        <div className='mb-2'>
+          <label htmlFor='Patient_ID'>Patient ID:</label>
+          <input
+            type='number'
+            id='Patient_ID'
+            name='Patient_ID'
+            placeholder='Enter Patient ID'
+            className='form-control'
+            value={formData.Patient_ID}
+            onChange={handleChange}
+          />
+        </div>
+
+        <button
+          type='button'
+          className='btn btn-success'
+          onClick={handleValidation}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  );
 }
 
-export default CreateEmergency_Contact;
+export default CreateEmergencyContact;

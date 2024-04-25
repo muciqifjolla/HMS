@@ -1,43 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 
-
-function Insurance({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdateForm, setSelectedInsuranceId}) {
-    
+function Insurance({
+    showCreateForm,
+    setShowCreateForm,
+    showUpdateForm,
+    setShowUpdateForm,
+    setSelectedInsuranceId,
+}) {
     const [insurance, setInsurance] = useState([]);
-
+    const [deleteInsuranceId, setDeleteInsuranceId] = useState(null);
 
     const handleUpdateButtonClick = (insuranceId) => {
         setSelectedInsuranceId(insuranceId);
         setShowUpdateForm(!showUpdateForm);
     };
-    
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/insurance')
-            .then(res => setInsurance(res.data))
-            .catch(err => console.log(err));
+        axios
+            .get('http://localhost:9004/api/insurance')
+            .then((res) => setInsurance(res.data))
+            .catch((err) => console.error('Error fetching insurance:', err));
     }, []);
 
+    const handleDelete = (id) => {
+        setDeleteInsuranceId(id);
+    };
 
-
-    const handleDelete = async (id) => {
-        // Display a confirmation dialog
-        const confirmDelete = window.confirm('Are you sure you want to delete this item?');
-        if (confirmDelete) {
-          try {
-            await axios.delete(`http://localhost:9004/api/insurance/delete/${id}`);
-            setInsurance(insurance.filter((item) => item.Policy_Number !== id));
-          } catch (err) {
-            console.log(err);
-          }
+    const handleDeleteConfirm = async () => {
+        try {
+            await axios.delete(`http://localhost:9004/api/insurance/delete/${deleteInsuranceId}`);
+            setInsurance(insurance.filter((data) => data.Policy_Number !== deleteInsuranceId));
+            
+            if (showUpdateForm) {
+                setShowUpdateForm(false);
+            }
+            
+            if (showCreateForm) {
+                setShowCreateForm(false);
+            }
+        } catch (err) {
+            console.error('Error deleting insurance:', err);
         }
-      };
+        setDeleteInsuranceId(null);
+    };
+
 
 
     return (
         <div className='container-fluid mt-4'>
+{deleteInsuranceId && (
+                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+                    <div className="bg-white p-8 mx-auto rounded-lg">
+                        <h2 className="text-lg font-bold mb-4">Confirm Deletion</h2>
+                        <p>Are you sure you want to delete this insurance?</p>
+                        <div className="flex justify-end">
+                            <button
+                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
+                                onClick={handleDeleteConfirm}
+                            >
+                                Delete
+                            </button>
+                            <button
+                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                onClick={() => setDeleteInsuranceId(null)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
     <button className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
         {showCreateForm ? 'Close Add Form' : 'Add Insurance'}
@@ -84,12 +117,20 @@ function Insurance({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUp
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Optical}</td>
 
                                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleUpdateButtonClick(data.Policy_Number)}>
-                                            {showUpdateForm ? 'Close Update Form' : 'Update'}
-                                        </button>
-                                    </td>
-                                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                        <button className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={() => handleDelete(data.Policy_Number)} style={{ borderRadius: '0.5rem', padding: '5px 10px' }}>Delete</button>
+                                    <button
+                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                onClick={() => handleUpdateButtonClick(data.Policy_Number)}
+                                            >
+                                                {showUpdateForm ? 'Close Update Form' : 'Update'}
+                                            </button>
+                                        </td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <button
+                                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                                                onClick={() => handleDelete(data.Policy_Number)}
+                                            >
+                                                Delete
+                                            </button>
                                     </td>
                                 </tr>
                             ))}

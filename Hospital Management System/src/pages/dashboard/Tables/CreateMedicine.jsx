@@ -1,99 +1,119 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorModal from '../../../components/ErrorModal';
 
 function CreateMedicine() {
+    const [formData, setFormData] = useState({
+        M_name: '',
+        M_Quantity: '',
+        M_Cost: '',
+    });
 
-    
-    const [name, setName] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [cost, setCost] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
+    const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
 
     const handleAddMedicine = async () => {
         try {
-            if (!name.trim()) {
-                setAlertMessage("Medicine name cannot be empty.");
-                return;
-            }
-
-            if (name.length < 5) {
-                setAlertMessage("Medicine name must be at least 5 characters long.");
-                return;
-            }
-
-            if (!quantity) {
-                setAlertMessage("Quantity is required.");
-                return;
-            }
-
-            if (quantity <1) {
-                setAlertMessage("Quantity must be at least 1.");
-                return;
-            }
-
-            if (!cost) {
-                setAlertMessage("Cost is required.");
-                return;
-            }
-
-            if (cost <1) {
-                setAlertMessage("Cost must be at least 1.");
-                return;
-            }
-
-            setAlertMessage(''); 
-
-            await axios.post("http://localhost:9004/api/medicine/create",  {
-                M_name: name,
-                M_Quantity: quantity,
-                M_Cost: cost,
-            });
-            setName('');
-            setQuantity('');
-            setCost('');
-
+            await axios.post('http://localhost:9004/api/medicine/create', formData);
             navigate('/dashboard/medicines');
-            window.location.reload();
+            window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
             console.error('Error adding medicine:', error);
+            showAlert('Error adding medicine. Please try again.');
         }
     };
 
+    const handleValidation = () => {
+        const { M_name, M_Quantity, M_Cost } = formData;
+
+        // Ensure all required fields are filled
+        if (!M_name.trim() || M_Quantity ==='' || M_Cost === '') {
+            showAlert('All fields are required');
+            return;
+        }
+        if(M_Quantity < 1){
+            showAlert('Quantity can not be less than 1');
+            return;
+        }
+        if(M_Cost < 1){
+            showAlert('Cost can not be less than 1');
+            return;
+        }
+
+        // Proceed with form submission after successful validation
+        handleAddMedicine();
+    };
+
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setShowErrorModal(true);
+        // Automatically hide the error modal after 3 seconds
+        setTimeout(() => {
+            setAlertMessage('');
+            setShowErrorModal(false);
+        }, 3000);
+    };
 
     return (
         <div className='container mt-4'>
-
-
-{alertMessage && (
-                <div className='alert alert-warning'>
-                    {alertMessage}
-                </div>
+            {showErrorModal && (
+                <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
             )}
             <div className='bg-white rounded p-3'>
                 <div className='mb-2'>
-                    <label htmlFor="medicineName">Medicine Name: </label>
-                    <input type='text' id="medicineName" placeholder='Enter Name' className='form-control'
-                        value={name} onChange={e => setName(e.target.value)} />
+                    <label htmlFor='medicineName'>Medicine Name:</label>
+                    <input
+                        type='text'
+                        id='medicineName'
+                        name='M_name'
+                        placeholder='Enter Medicine Name'
+                        className='form-control'
+                        value={formData.M_name}
+                        onChange={handleChange}
+                    />
                 </div>
-
                 <div className='mb-2'>
-                    <label htmlFor="medicineQuantity">Medicine Quantity: </label>
-                    <input type='number' id="medicineQuantity" placeholder='Enter Quantity' className='form-control'
-                        value={quantity} onChange={e => setQuantity(e.target.value)} />
+                    <label htmlFor='medicineQuantity'>Quantity:</label>
+                    <input
+                        type='number'
+                        id='medicineQuantity'
+                        name='M_Quantity'
+                        placeholder='Enter Quantity'
+                        className='form-control'
+                        value={formData.M_Quantity}
+                        onChange={handleChange}
+                    />
                 </div>
-
-                <div className='mb-2'>
-                    <label htmlFor="medicineCost">Medicine Cost: </label>
-                    <input type='number' id="medicineCost" placeholder='Enter Cost' className='form-control'
-                        value={cost} onChange={e => setCost(e.target.value)} />
+                <div class='mb-2'>
+                    <label htmlFor='medicineCost'>Cost:</label>
+                    <input
+                        type='number'
+                        id='medicineCost'
+                        name='M_Cost'
+                        placeholder='Enter Cost'
+                        className='form-control'
+                        value={formData.M_Cost}
+                        onChange={handleChange}
+                    />
                 </div>
-                <button type="button" className='btn btn-success' onClick={handleAddMedicine}>Submit</button>
+                <button
+                    type='button'
+                    className='btn btn-success'
+                    onClick={handleValidation}
+                >
+                    Submit
+                </button>
             </div>
-
-
         </div>
     );
 }
