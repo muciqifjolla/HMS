@@ -28,6 +28,26 @@ const FindSinglepatientPatient = async (req, res) => {
 const AddPatient = async (req, res) => {
     try {
         const { Patient_Fname, Patient_Lname, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
+        
+        // Validation logic
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
+        const bloodTypeRegex = /^(A|B|AB|O)[+-]$/; // Blood type regex
+
+        if (
+            !Patient_Fname ||
+            !Patient_Lname ||
+            !Blood_type.match(bloodTypeRegex) ||
+            !Email.match(emailRegex) ||
+            !Gender ||
+            !Conditionn ||
+            !Admission_Date ||
+            !Discharge_Date ||
+            !Phone.match(phoneRegex)
+        ) {
+            return res.status(400).json({ error: 'Invalid input data.' });
+        }
+
         const newPatient = await Patient.create({
             Patient_Fname,
             Patient_Lname,
