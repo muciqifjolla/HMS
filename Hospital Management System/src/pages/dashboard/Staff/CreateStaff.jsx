@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 function CreateStaff() {
 
-    
+    const [emp_ID, setEmp_ID] = useState('');
     const [emp_Fname, setEmp_Fname] = useState('');
     const [emp_LName, setEmp_LName] = useState('');
     const [joiningDate, setJoining_Date] = useState('');
@@ -23,6 +23,7 @@ function CreateStaff() {
 
     
             await axios.post("http://localhost:9004/api/staff/create", {
+                Emp_ID: emp_ID,
                 Emp_Fname: emp_Fname,
                 Emp_Lname: emp_LName,
                 Joining_Date: joiningDate,
@@ -34,6 +35,7 @@ function CreateStaff() {
                 DOB: dateofBirth,
                 Date_Separation: dateSeperation,
             });
+            setEmp_ID('');
             setEmp_Fname('');
             setEmp_LName('');
             setJoining_Date('');
@@ -55,6 +57,11 @@ function CreateStaff() {
     return (
         <div className='container mt-4'>
             <div className='bg-white rounded p-3'>
+                {/* <div className='mb-2'>
+                        <label htmlFor="emp_Fname">EmpID: </label>
+                        <input type='number' id="emp_ID" placeholder='Enter ID' className='form-control'
+                            value={emp_ID} onChange={e => setEmp_ID(e.target.value)} />
+                    </div> */}
                 <div className='mb-2'>
                     <label htmlFor="emp_Fname">First Name: </label>
                     <input type='text' id="emp_Fname" placeholder='Enter Name' className='form-control'
