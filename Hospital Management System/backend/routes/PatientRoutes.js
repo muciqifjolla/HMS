@@ -4,7 +4,8 @@ const{
         FindSinglepatientPatient, 
         AddPatient, 
         UpdatePatient, 
-        DeletePatient
+        DeletePatient,
+        CheckPatientExistence 
      } = require("../controllers/PatientController");
 
      
@@ -15,6 +16,7 @@ router.get("/patient/:id", FindSinglepatientPatient);
 router.post("/patient/create", AddPatient);
 router.put("/patient/update/:id", UpdatePatient);
 router.delete("/patient/delete/:id", DeletePatient);
+router.get('/patient/check/:id', CheckPatientExistence); 
 
 
 

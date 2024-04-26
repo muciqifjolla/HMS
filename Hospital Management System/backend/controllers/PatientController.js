@@ -100,10 +100,26 @@ const DeletePatient = async (req, res) => {
     }
 };
 
+const CheckPatientExistence = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const patient = await Patient.findByPk(id);
+        if (!patient) {
+            res.status(404).json({ error: 'Patient not found' });
+            return;
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error checking patient existence:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     FindAllPatients,
     FindSinglepatientPatient,
     AddPatient,
     UpdatePatient,
     DeletePatient,
+    CheckPatientExistence
 };

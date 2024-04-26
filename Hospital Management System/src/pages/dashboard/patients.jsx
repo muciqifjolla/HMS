@@ -7,18 +7,33 @@ export function Patients() {
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [selectedPatientId, setSelectedPatientIdId] = useState(null); 
+    const [selectedPatientId, setSelectedPatientId] = useState(null); // Corrected state name
+    
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        if (showUpdateForm) {
+            setShowUpdateForm(false); 
+        }
+    };
+
+    const handleUpdateFormToggle = () => {
+        setShowUpdateForm(!showUpdateForm);
+        if (showCreateForm) {
+            setShowCreateForm(false); 
+        }
+    };
+
     return (
         <>
             <div> 
                 <Patient
-                   
-                    setShowCreateForm={setShowCreateForm}
-                    setShowUpdateForm={setShowUpdateForm} 
-                    setSelectedPatientIdId={setSelectedPatientIdId} 
+                    showCreateForm={showCreateForm}
+                    setShowCreateForm={handleCreateFormToggle}
+                    showUpdateForm={showUpdateForm} 
+                    setShowUpdateForm={handleUpdateFormToggle} 
+                    setSelectedPatientId={setSelectedPatientId} // Corrected state setter function name
                 />
                 {showCreateForm && <CreatePatient />}
-                
                 {showUpdateForm && <UpdatePatient id={selectedPatientId} />} 
             </div>
         </>

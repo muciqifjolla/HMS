@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import Medicine from "./Medicine/Medicine";
-import CreateMedicine from "./Medicine/CreateMedicine";
-import UpdateMedicine from "./Medicine/UpdateMedicine";
+import Room from "./Room/Room";
+import CreateRoom from "./Room/CreateRoom";
+import UpdateRoom from "./Room/UpdateRoom";
 
-export function Medicines() {
+export function Rooms() {
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [selectedMedicineId, setSelectedMedicineId] = useState(null); 
+    const [selectedRoomId, setSelectedRoomId] = useState(null); // Corrected state name
 
     const handleCreateFormToggle = () => {
         setShowCreateForm(!showCreateForm);
@@ -22,26 +22,21 @@ export function Medicines() {
             setShowCreateForm(false); // Ensure create form is closed
         }
     };
-
-
-
     return (
         <>
             <div> 
-                <Medicine
-                   
+                <Room
                     showCreateForm={showCreateForm}
                     setShowCreateForm={handleCreateFormToggle}
-                    showUpdateForm={showUpdateForm}
+                    showUpdateForm={showUpdateForm} 
                     setShowUpdateForm={handleUpdateFormToggle}
-                    setSelectedMedicineId={setSelectedMedicineId}
+                    setSelectedRoomId={setSelectedRoomId} // Corrected state setter function name
                 />
-                {showCreateForm && <CreateMedicine />}
-                
-                {showUpdateForm && <UpdateMedicine id={selectedMedicineId} />} 
+                {showCreateForm && <CreateRoom />}
+                {showUpdateForm && <UpdateRoom id={selectedRoomId} />} 
             </div>
         </>
     );
 }
 
-export default Medicines;
+export default Rooms;

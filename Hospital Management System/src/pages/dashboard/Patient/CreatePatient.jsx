@@ -32,18 +32,13 @@ function CreatePatient() {
         try {
             const response = await axios.post('http://localhost:9004/api/patient/create', formData);
             console.log(response.data);
-            // Handle success response
             navigate('/dashboard/patient');
             window.location.reload();
         } catch (error) {
             console.error('Error adding Patient:', error);
-            // Handle error response
             setAlertMessage('Error adding patient. Please try again.');
-            setShowErrorModal(true); // Show the error modal
-            setTimeout(() => {
-                setAlertMessage('');
-                setShowErrorModal(false); // Hide the error modal after 3 seconds
-            }, 3000);
+            setShowErrorModal(true); 
+            
         }
     };
 
@@ -72,14 +67,13 @@ function CreatePatient() {
             showAlert('Please enter a valid phone number (like: 044111222)');
             return;
         }
-    
-        // If all validations pass, submit the form
+  
         handleAddPatient();
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
-        setShowErrorModal(true); // Show the error modal without timeout
+        setShowErrorModal(true); 
     };
     
 

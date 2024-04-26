@@ -86,7 +86,7 @@ function UpdatePatient({ id }) {
                 setShowErrorModal(true);
                 return;
             }
-
+            
             await axios.put(`http://localhost:9004/api/patient/update/${id}`, {
                 Patient_Fname: patient_Fname,
                 Patient_Lname: patient_Lname,
