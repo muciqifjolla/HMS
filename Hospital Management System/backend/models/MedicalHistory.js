@@ -2,6 +2,13 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const MedicalHistory = sequelize.define('MedicalHistory', {
+   Record_ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+    
+
     Patient_ID: {
         type: DataTypes.INTEGER,
         primaryKey: true,

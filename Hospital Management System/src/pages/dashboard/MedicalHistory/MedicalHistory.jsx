@@ -25,12 +25,6 @@ function MedicalHistory({ showCreateForm, setShowCreateForm, showUpdateForm, set
         }
     };
 
-    function formatDate(dateString) {
-        const options = { month: 'short', day: 'numeric', year: 'numeric' };
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', options);
-    }
-
     return (
         <div className='container-fluid mt-4'>
             <button className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
@@ -50,9 +44,6 @@ function MedicalHistory({ showCreateForm, setShowCreateForm, showUpdateForm, set
                                     <thead>
                                         <tr>
                                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Record ID
-                                            </th>
-                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                                 Patient ID
                                             </th>
                                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -62,16 +53,16 @@ function MedicalHistory({ showCreateForm, setShowCreateForm, showUpdateForm, set
                                                 Pre-Conditions
                                             </th>
                                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Actions
+                                                Update
+                                            </th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                                Delete
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {medicalHistories.map((data, i) => (
                                             <tr key={i}>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                    <p className="text-gray-900 whitespace-no-wrap">{data.Record_ID}</p>
-                                                </td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                     <p className="text-gray-900 whitespace-no-wrap">{data.Patient_ID}</p>
                                                 </td>
@@ -85,7 +76,9 @@ function MedicalHistory({ showCreateForm, setShowCreateForm, showUpdateForm, set
                                                     <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleUpdateButtonClick(data.Record_ID)}>
                                                         {showUpdateForm ? 'Close Update Form' : 'Update'}
                                                     </button>
-                                                    <button className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2' onClick={() => handleDelete(data.Record_ID)}>Delete</button>
+                                                </td>
+                                                <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
+                                                    <button className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={() => handleDelete(data.Record_ID)}>Delete</button>
                                                 </td>
                                             </tr>
                                         ))}

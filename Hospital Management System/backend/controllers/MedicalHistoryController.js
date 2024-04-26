@@ -33,8 +33,7 @@ const AddMedicalHistory = async (req, res) => {
             return res.status(400).json({ error: 'Patient ID, Allergies, and Pre-Conditions are required.' });
         }
 
-        // Assuming Patient_ID should be validated as well (e.g., existence in the database)
-        // You may add further validation logic as needed
+   
         
         const newMedicalHistory = await MedicalHistory.create({
             Patient_ID,
@@ -50,10 +49,10 @@ const AddMedicalHistory = async (req, res) => {
 
 const UpdateMedicalHistory = async (req, res) => {
     try {
-        const { Allergies, Pre_Conditions } = req.body;
+        const { Patient_ID , Allergies, Pre_Conditions } = req.body;
         const updated = await MedicalHistory.update(
-            { Allergies, Pre_Conditions },
-            { where: { id: req.params.id } } // Assuming id is the primary key of MedicalHistory
+            { Patient_ID , Allergies, Pre_Conditions },
+            { where: { Record_ID: req.params.id } } // Assuming id is the primary key of MedicalHistory
         );
         if (updated[0] === 0) {
             res.status(404).json({ error: 'Medical history not found or not updated' });
@@ -68,19 +67,25 @@ const UpdateMedicalHistory = async (req, res) => {
 
 const DeleteMedicalHistory = async (req, res) => {
     try {
+        const medicalHistoryId = req.params.id;
+        console.log('Deleting medical history with ID:', medicalHistoryId); // Log the ID received from the client
+
         const deleted = await MedicalHistory.destroy({
-            where: { id: req.params.id } // Assuming id is the primary key of MedicalHistory
+            where: { Record_ID: medicalHistoryId }
         });
+
         if (deleted === 0) {
             res.status(404).json({ error: 'Medical history not found' });
             return;
         }
+
         res.json({ success: true, message: 'Medical history deleted successfully' });
     } catch (error) {
         console.error('Error deleting medical history:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 module.exports = {
     FindAllMedicalHistorys,

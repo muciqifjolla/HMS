@@ -9,7 +9,6 @@ function CreateMedicalHistory() {
         Allergies: '',
         Pre_Conditions: ''
     });
-
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();

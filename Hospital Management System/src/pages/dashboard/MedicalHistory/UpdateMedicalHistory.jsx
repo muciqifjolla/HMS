@@ -30,7 +30,7 @@ function UpdateMedicalHistory({ id }) {
 
     const handleUpdateMedicalHistory = async () => {
         try {
-            if (!patient_ID.trim() || !allergies.trim() || !pre_Conditions.trim()) {
+            if (!patient_ID || !allergies.trim() || !pre_Conditions.trim()) {
                 setAlertMessage('All fields are required.');
                 setShowErrorModal(true);
                 return;
