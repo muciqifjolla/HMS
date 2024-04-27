@@ -8,13 +8,29 @@ export function Departments() {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedDepartmentId, setSelectedDepartmentIdId] = useState(null); 
+   
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        if (showUpdateForm) {
+            setShowUpdateForm(false); // Ensure update form is closed
+        }
+    };
+
+    const handleUpdateFormToggle = () => {
+        setShowUpdateForm(!showUpdateForm);
+        if (showCreateForm) {
+            setShowCreateForm(false); // Ensure create form is closed
+        }
+    };
+
     return (
         <>
             <div> 
                 <Department
-                   
-                    setShowCreateForm={setShowCreateForm}
-                    setShowUpdateForm={setShowUpdateForm} 
+                    showCreateForm={showCreateForm}
+                    setShowCreateForm={handleCreateFormToggle}
+                    showUpdateForm={showUpdateForm}
+                    setShowUpdateForm={handleUpdateFormToggle}
                     setSelectedDepartmentIdId={setSelectedDepartmentIdId} 
                 />
                 {showCreateForm && <CreateDepartment />}

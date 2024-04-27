@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 
-function Department({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdateForm, setSelectedDepartmentIdId}) {
-    
+function Department({ 
+    showCreateForm, 
+    setShowCreateForm,
+    showUpdateForm, 
+    setShowUpdateForm, 
+    setSelectedDepartmentIdId
+}) {
     const [department, setDepartment] = useState([]);
-
+    const [deleteDepartmentId, setDeleteDepartmentId] = useState(null);
 
     const handleUpdateButtonClick = (departmentId) => {
         setSelectedDepartmentIdId(departmentId);
@@ -19,21 +23,57 @@ function Department({ showCreateForm, setShowCreateForm,showUpdateForm, setShowU
             .catch(err => console.log(err));
     }, []);
 
+    const handleDelete = (id) => {
+        setDeleteDepartmentId(id);
+    };
 
-
-    const handleDelete = async (id) => {
+    const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/department/delete/${id}`);
-            setDepartment(department.filter(item => item.Dept_ID !== id));
+            await axios.delete(`http://localhost:9004/api/department/delete/${deleteDepartmentId}`);
+            setDepartment(department.filter((item) => item.Dept_ID !== deleteDepartmentId));
+
+            // Close the update form if open
+            if (showUpdateForm) {
+                setShowUpdateForm(false);
+            }
+            
+            // Close the create form if open
+            if (showCreateForm) {
+                setShowCreateForm(false);
+            }
+            
         } catch (err) {
             console.log(err);
         }
-    }
+        setDeleteDepartmentId(null);
+    };
 
 
 
     return (
         <div className='container-fluid mt-4'>
+         {deleteDepartmentId && (
+                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+                    <div className="bg-white p-8 mx-auto rounded-lg">
+                        <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
+                        <p className="mb-4">Are you sure you want to delete this department record?</p>
+                        <div className="flex justify-end">
+                            <button
+                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
+                                onClick={handleDeleteConfirm}
+                            >
+                                Delete
+                            </button>
+                            <button
+                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                onClick={() => setDeleteDepartmentId(null)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
     <button className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
         {showCreateForm ? 'Close Add Form' : 'Add Department'}
