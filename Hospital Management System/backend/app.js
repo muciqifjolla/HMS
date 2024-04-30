@@ -12,7 +12,7 @@ const InsuranceRoutes = require('./routes/InsuranceRoutes');
 const StaffRoutes = require('./routes/StaffRoutes');
 const MedicalHistoryRoutes = require('./routes/MedicalHistoryRoutes');
 const RoomRoutes = require('./routes/RoomRoutes');
-
+const NurseRoutes = require('./routes/NurseRoutes');
 
 const app = express();
 app.use(express.json());
@@ -41,5 +41,6 @@ app.use("/api", InsuranceRoutes);
 app.use("/api", StaffRoutes);
 app.use("/api", MedicalHistoryRoutes);
 app.use("/api", RoomRoutes);
+app.use("/api", NurseRoutes);
 
 module.exports = app;

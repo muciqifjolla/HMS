@@ -84,10 +84,27 @@ const DeleteStaff = async (req, res) => {
     }
 };
 
+
+const CheckStaffExistence = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const staff = await Staff.findByPk(id);
+        if (!staff) {
+            res.status(404).json({ error: 'Staff not found' });
+            return;
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error checking staff existence:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     FindAllStaff,
     FindSingleStaff,
     AddStaff,
     UpdateStaff,
     DeleteStaff,
+    CheckStaffExistence
 };

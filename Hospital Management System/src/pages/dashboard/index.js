@@ -9,6 +9,8 @@ export * from "@/pages/dashboard/emergency_contact";
 export * from "@/pages/dashboard/insurance";
 export * from "@/pages/dashboard/medicalhistory";
 export * from "@/pages/dashboard/room";
+export * from "@/pages/dashboard/nurse";
+
 
 
 
