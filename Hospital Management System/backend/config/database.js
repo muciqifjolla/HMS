@@ -1,5 +1,4 @@
-// backend/config/database.js
-const { Sequelize } = require('sequelize'); // Importing Sequelize
+const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(
   process.env.DATABASE || 'hms', // Database name
@@ -11,5 +10,14 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT || 3306,     // MySQL port
   }
 );
-``
-module.exports = sequelize; // Export Sequelize instance for use in other files
+
+// Test the connection
+sequelize.authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch((error) => {
+    console.error('Unable to connect to the database:', error);
+  });
+
+module.exports = sequelize;

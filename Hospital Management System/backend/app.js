@@ -13,6 +13,7 @@ const StaffRoutes = require('./routes/StaffRoutes');
 const MedicalHistoryRoutes = require('./routes/MedicalHistoryRoutes');
 const RoomRoutes = require('./routes/RoomRoutes');
 const NurseRoutes = require('./routes/NurseRoutes');
+const UserRoutes = require('./routes/UserRoutes');
 
 const app = express();
 app.use(express.json());
@@ -42,5 +43,6 @@ app.use("/api", StaffRoutes);
 app.use("/api", MedicalHistoryRoutes);
 app.use("/api", RoomRoutes);
 app.use("/api", NurseRoutes);
+app.use("/api", UserRoutes);
 
 module.exports = app;
