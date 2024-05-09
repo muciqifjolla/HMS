@@ -1,28 +1,44 @@
 import React, { useState } from 'react';
-import MedicalHistoryComponent from "./MedicalHistory/MedicalHistory"; // Rename the import
-import CreateMedicalHistory from "./MedicalHistory/CreateMedicalHistory";
-import UpdateMedicalHistory from "./MedicalHistory/UpdateMedicalHistory";
+import MedicalHistory from "./MedicalHistory/MedicalHistory";
 
-export function MedicalHistory() {
+import CreateMedicalHistory from "./MedicalHistory/CreateMedicalHistory";
+import UpdateMedicalHistory  from "./MedicalHistory/UpdateMedicalHistory";
+
+export function MedicalHistorys() {
+
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [selectedMedicalHistoryId, setSelectedMedicalHistoryId] = useState(null);
+    const [selectedMedicalHistoryId, setSelectedMedicalHistoryId] = useState(null); 
+    
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        if (showUpdateForm) {
+            setShowUpdateForm(false); 
+        }
+    };
+
+    const handleUpdateFormToggle = () => {
+        setShowUpdateForm(!showUpdateForm);
+        if (showCreateForm) {
+            setShowCreateForm(false); 
+        }
+    };
 
     return (
         <>
-            <div>
-                <MedicalHistoryComponent // Use the renamed import here
+            <div> 
+                <MedicalHistory 
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={setShowCreateForm}
-                    showUpdateForm={showUpdateForm}
-                    setShowUpdateForm={setShowUpdateForm}
-                    setSelectedMedicalHistoryId={setSelectedMedicalHistoryId}
+                    setShowCreateForm={handleCreateFormToggle}
+                    showUpdateForm={showUpdateForm} 
+                    setShowUpdateForm={handleUpdateFormToggle} 
+                    setSelectedMedicalHistoryId={setSelectedMedicalHistoryId} 
                 />
                 {showCreateForm && <CreateMedicalHistory />}
-                {showUpdateForm && <UpdateMedicalHistory id={selectedMedicalHistoryId} />}
+                {showUpdateForm && <UpdateMedicalHistory id={selectedMedicalHistoryId} />} 
             </div>
         </>
     );
 }
 
-export default MedicalHistory;
+export default MedicalHistorys;

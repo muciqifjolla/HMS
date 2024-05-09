@@ -1,7 +1,7 @@
 
 
 
-import { Home, Profile, Medicines, Appointments,MedicalHistory,Staffs, Patients, Departments, Emergency_Contacts, Insurances, Rooms, Nurses, Users } from "@/pages/dashboard";
+import { Home, Profile, Medicines, Appointments,MedicalHistorys,Staffs, Patients, Departments, Emergency_Contacts, Insurances, Rooms, Nurses, Users} from "@/pages/dashboard";
 
 // import { SignIn, SignUp } from "@/pages/auth";
 
@@ -65,8 +65,8 @@ export const routes = [
 
         ),
         name: "medical history",
-        path: "/medicalhistory",
-        element: <MedicalHistory />,
+        path: "/medicalhistorys",
+        element: <MedicalHistorys />,
       },
       {
         icon: (

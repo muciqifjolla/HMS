@@ -51,9 +51,9 @@ function UpdateMedicalHistory({ id }) {
                 Allergies: allergies,
                 Pre_Conditions: pre_Conditions
             });
-
-            navigate('/dashboard/medicalhistory');
-            window.location.reload();
+           
+            navigate('/dashboard/medicalhistorys');
+            
         } catch (error) {
             console.error('Error updating medical history:', error);
         }
