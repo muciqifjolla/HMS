@@ -102,7 +102,7 @@ function User({
                                         <tr key={user.user_id}>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.email}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.username}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.full_name}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.fullName}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.phone}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <button

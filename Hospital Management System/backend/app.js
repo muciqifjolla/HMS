@@ -16,23 +16,21 @@ const NurseRoutes = require('./routes/NurseRoutes');
 const UserRoutes = require('./routes/UserRoutes');
 
 const app = express();
+
+// Middleware to parse JSON data
 app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 9004;
 
 // Ensure database connection is established
-//MOS E HEK QITA POSHT PREJ RRESHTIT 17-22 se bohet berllog 
 // sequelize.authenticate().then(() => {
 //     console.log("Database connected");
 // }).catch((err) => {
 //     console.error("Unable to connect to the database:", err);
 // });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
+// Define your routes
 app.use("/api", MedicineRoute);
 app.use("/api", Emergency_ContactRoute);
 app.use("/api", AppointmentRoutes);
@@ -44,5 +42,9 @@ app.use("/api", MedicalHistoryRoutes);
 app.use("/api", RoomRoutes);
 app.use("/api", NurseRoutes);
 app.use("/api", UserRoutes);
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
 
 module.exports = app;

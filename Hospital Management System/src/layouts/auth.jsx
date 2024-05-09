@@ -23,12 +23,12 @@ export function Auth() {
     // },
     {
       name: "sign up",
-      path: "/auth/sign-up",
+      path: "/auth/register/register",
       icon: UserPlusIcon,
     },
     {
       name: "sign in",
-      path: "/auth/sign-in",
+      path: "/auth/login/login",
       icon: ArrowRightOnRectangleIcon,
     },
   ];

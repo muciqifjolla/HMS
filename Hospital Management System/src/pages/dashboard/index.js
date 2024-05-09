@@ -10,6 +10,7 @@ export * from "@/pages/dashboard/insurance";
 export * from "@/pages/dashboard/medicalhistory";
 export * from "@/pages/dashboard/room";
 export * from "@/pages/dashboard/nurse";
+export * from "@/pages/dashboard/users";
 
 
 

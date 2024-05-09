@@ -21,7 +21,7 @@ function UpdateUser({ id }) {
                 setOriginalData(data);
                 setEmail(data.email);
                 setUsername(data.username);
-                setFullName(data.full_name);
+                setFullName(data.fullName);
                 setPhone(data.phone);
             } catch (error) {
                 console.error('Error fetching user:', error);
@@ -57,7 +57,7 @@ function UpdateUser({ id }) {
         if (
             email === originalData.email &&
             username === originalData.username &&
-            fullName === originalData.full_name &&
+            fullName === originalData.fullName &&
             phone === originalData.phone
         ) {
             showAlert("Data must be changed before updating.");
@@ -68,7 +68,7 @@ function UpdateUser({ id }) {
             await axios.put(`http://localhost:9004/api/users/update/${id}`, {
                 email: email,
                 username: username,
-                full_name: fullName,
+                fullName: fullName,
                 phone: phone,
             });
 

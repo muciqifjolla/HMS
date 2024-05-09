@@ -26,8 +26,8 @@ function CreateUser() {
 
     const handleAddUser = async () => {
         try {
-            await axios.post('http://localhost:9004/api/user/create', formData);
-            navigate('/dashboard/users');
+            await axios.post('http://localhost:9004/api/users/create', formData);
+            navigate('/dashboard/user');
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
             console.error('Error adding user:', error);

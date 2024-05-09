@@ -29,30 +29,31 @@ const FindSingleUser = async (req, res) => {
 
 const AddUser = async (req, res) => {
     try {
-        const { email, username, password, full_name, phone } = req.body;
-        
+        const { email, username, password, fullName, phone } = req.body;
         // Hash the password before storing it in the database
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        const newUser = await User.create({
-            email,
-            username,
-            password: hashedPassword,
-            full_name,
-            phone,
-        });
-        res.json({ success: true, message: 'User added successfully', data: newUser });
+            const newUser = await User.create({
+                email,
+                username,
+                password: hashedPassword,
+                fullName,
+                phone,
+            });
+            res.json({ success: true, message: 'User added successfully', data: newUser });
     } catch (error) {
         console.error('Error adding user:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error });
     }
 };
 
 const UpdateUser = async (req, res) => {
     try {
-        const { email, username, password, full_name, phone } = req.body;
+        console.log('Request body:', req.body);
+
+        const { email, username, password, fullName, phone } = req.body;
         const updated = await User.update(
-            { email, username, password, full_name, phone },
+            { email, username, password, fullName, phone },
             { where: { user_id: req.params.id } }
         );
         if (updated[0] === 0) {
