@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-
+const Patient = require('./Patient');
 
 const Insurance = sequelize.define('Insurance', {
   Policy_Number: {
@@ -51,11 +51,9 @@ const Insurance = sequelize.define('Insurance', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-
-
 }, {
   tableName: 'insurance', 
   timestamps: false,              
 });
-
+Insurance.belongsTo(Patient, {foreignKey: 'Patient_ID'});
 module.exports = Insurance; 

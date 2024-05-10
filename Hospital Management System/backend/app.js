@@ -14,6 +14,7 @@ const MedicalHistoryRoutes = require('./routes/MedicalHistoryRoutes');
 const RoomRoutes = require('./routes/RoomRoutes');
 const NurseRoutes = require('./routes/NurseRoutes');
 const UserRoutes = require('./routes/UserRoutes');
+const RatingRoutes = require('./routes/RatingRoutes');
 
 const app = express();
 
@@ -42,6 +43,8 @@ app.use("/api", MedicalHistoryRoutes);
 app.use("/api", RoomRoutes);
 app.use("/api", NurseRoutes);
 app.use("/api", UserRoutes);
+app.use("/api", RatingRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

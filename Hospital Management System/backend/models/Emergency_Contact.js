@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-
+const Patient = require('./Patient');
 // Define the Emergency_Contact model
 const Emergency_Contact = sequelize.define('Emergency_Contact', {
   Contact_ID: {
@@ -32,5 +32,5 @@ const Emergency_Contact = sequelize.define('Emergency_Contact', {
   tableName: 'emergency_contact', // Correct table name
   timestamps: false,              // No automatic timestamps
 });
-
+Emergency_Contact.belongsTo(Patient, {foreignKey: 'Patient_ID'});
 module.exports = Emergency_Contact; // Correct module export

@@ -46,7 +46,7 @@ const Login = () => {
                     </div>
                     <div className="footerDiv flex">
                         <span className="text">Don't have an account?</span>
-                        <Link to={'/auth/register/register'}>
+                        <Link to={'/'}>
                             <button className='btn'>Sign Up</button>
                         </Link>
                     </div>
