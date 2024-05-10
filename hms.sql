@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2024 at 04:11 PM
+-- Generation Time: May 10, 2024 at 05:48 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -232,6 +232,21 @@ CREATE TABLE `prescription` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `rating`
+--
+
+CREATE TABLE `rating` (
+  `Rating_ID` int(11) NOT NULL,
+  `Patient_ID` int(11) NOT NULL,
+  `Emp``_ID` int(11) NOT NULL,
+  `Rating` tinyint(4) NOT NULL,
+  `Comments` text DEFAULT NULL,
+  `Date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `roles`
 --
 
@@ -409,6 +424,14 @@ ALTER TABLE `prescription`
   ADD KEY `Medicine_ID` (`Medicine_ID`);
 
 --
+-- Indexes for table `rating`
+--
+ALTER TABLE `rating`
+  ADD PRIMARY KEY (`Rating_ID`),
+  ADD KEY `Patient_ID` (`Patient_ID`),
+  ADD KEY `Staff_ID` (`Emp``_ID`);
+
+--
 -- Indexes for table `roles`
 --
 ALTER TABLE `roles`
@@ -522,6 +545,12 @@ ALTER TABLE `prescription`
   MODIFY `Prescription_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `rating`
+--
+ALTER TABLE `rating`
+  MODIFY `Rating_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
@@ -615,6 +644,13 @@ ALTER TABLE `prescription`
   ADD CONSTRAINT `prescription_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
   ADD CONSTRAINT `prescription_ibfk_2` FOREIGN KEY (`Doctor_ID`) REFERENCES `doctor` (`Doctor_ID`),
   ADD CONSTRAINT `prescription_ibfk_3` FOREIGN KEY (`Medicine_ID`) REFERENCES `medicine` (`Medicine_ID`);
+
+--
+-- Constraints for table `rating`
+--
+ALTER TABLE `rating`
+  ADD CONSTRAINT `fk_rating_patient` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
+  ADD CONSTRAINT `fk_rating_staff` FOREIGN KEY (`_ID`) REFERENCES `staff` (`Emp_ID`);
 
 --
 -- Constraints for table `room`
