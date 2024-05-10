@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2024 at 05:48 PM
+-- Generation Time: May 10, 2024 at 06:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -238,7 +238,7 @@ CREATE TABLE `prescription` (
 CREATE TABLE `rating` (
   `Rating_ID` int(11) NOT NULL,
   `Patient_ID` int(11) NOT NULL,
-  `Emp``_ID` int(11) NOT NULL,
+  `Emp_ID` int(11) NOT NULL,
   `Rating` tinyint(4) NOT NULL,
   `Comments` text DEFAULT NULL,
   `Date` date NOT NULL
@@ -429,7 +429,7 @@ ALTER TABLE `prescription`
 ALTER TABLE `rating`
   ADD PRIMARY KEY (`Rating_ID`),
   ADD KEY `Patient_ID` (`Patient_ID`),
-  ADD KEY `Staff_ID` (`Emp``_ID`);
+  ADD KEY `Emp_ID` (`Emp_ID`);
 
 --
 -- Indexes for table `roles`
@@ -649,28 +649,14 @@ ALTER TABLE `prescription`
 -- Constraints for table `rating`
 --
 ALTER TABLE `rating`
-  ADD CONSTRAINT `fk_rating_patient` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
-  ADD CONSTRAINT `fk_rating_staff` FOREIGN KEY (`_ID`) REFERENCES `staff` (`Emp_ID`);
+  ADD CONSTRAINT `rating_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
+  ADD CONSTRAINT `rating_ibfk_2` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`);
 
 --
 -- Constraints for table `room`
 --
 ALTER TABLE `room`
   ADD CONSTRAINT `room_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`);
-
---
--- Constraints for table `staff`
---
-ALTER TABLE `staff`
-  ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`Dept_ID`) REFERENCES `department` (`Dept_ID`),
-  ADD CONSTRAINT `staff_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
-
---
--- Constraints for table `userrole`
---
-ALTER TABLE `userrole`
-  ADD CONSTRAINT `userrole_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `userrole_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
