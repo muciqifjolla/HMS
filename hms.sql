@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Mar 29, 2024 at 02:43 PM
--- Server version: 5.7.33
--- PHP Version: 8.3.3
+-- Host: 127.0.0.1
+-- Generation Time: May 10, 2024 at 04:11 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,7 +34,7 @@ CREATE TABLE `appointment` (
   `Time` time NOT NULL,
   `Doctor_ID` int(11) NOT NULL,
   `Patient_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -52,7 +52,7 @@ CREATE TABLE `bill` (
   `Patient_ID` int(11) NOT NULL,
   `Room_ID` int(11) NOT NULL,
   `Medicine_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -65,7 +65,14 @@ CREATE TABLE `department` (
   `Dept_head` varchar(100) DEFAULT NULL,
   `Dept_name` varchar(100) NOT NULL,
   `Emp_Count` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `department`
+--
+
+INSERT INTO `department` (`Dept_ID`, `Dept_head`, `Dept_name`, `Emp_Count`) VALUES
+(1, 'test', 'test', 1);
 
 -- --------------------------------------------------------
 
@@ -78,7 +85,7 @@ CREATE TABLE `doctor` (
   `Qualifications` varchar(255) NOT NULL,
   `Emp_ID` int(11) NOT NULL,
   `Specialization` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -92,7 +99,7 @@ CREATE TABLE `emergency_contact` (
   `Phone` varchar(20) NOT NULL,
   `Relation` varchar(50) NOT NULL,
   `Patient_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -112,7 +119,7 @@ CREATE TABLE `insurance` (
   `Maternity` tinyint(1) DEFAULT NULL,
   `Dental` tinyint(1) DEFAULT NULL,
   `Optical` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -127,7 +134,7 @@ CREATE TABLE `lab_screening` (
   `Doctor_ID` int(11) DEFAULT NULL,
   `Test_Cost` decimal(10,2) DEFAULT NULL,
   `Date` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -140,7 +147,7 @@ CREATE TABLE `medical_history` (
   `Patient_ID` int(11) NOT NULL,
   `Allergies` varchar(255) DEFAULT NULL,
   `Pre_Conditions` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -153,7 +160,14 @@ CREATE TABLE `medicine` (
   `M_name` varchar(100) NOT NULL,
   `M_Quantity` int(11) NOT NULL,
   `M_Cost` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `medicine`
+--
+
+INSERT INTO `medicine` (`Medicine_ID`, `M_name`, `M_Quantity`, `M_Cost`) VALUES
+(1, 'test', 2, 25.00);
 
 -- --------------------------------------------------------
 
@@ -165,7 +179,7 @@ CREATE TABLE `nurse` (
   `Nurse_ID` int(11) NOT NULL,
   `Patient_ID` int(11) NOT NULL,
   `Emp_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -184,7 +198,7 @@ CREATE TABLE `patient` (
   `Admission_Date` date NOT NULL,
   `Discharge_Date` date DEFAULT NULL,
   `Phone` varchar(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -198,7 +212,7 @@ CREATE TABLE `payroll` (
   `Bonus` decimal(10,2) DEFAULT NULL,
   `Emp_ID` int(11) NOT NULL,
   `IBAN` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -213,7 +227,18 @@ CREATE TABLE `prescription` (
   `Dosage` varchar(100) NOT NULL,
   `Doctor_ID` int(11) NOT NULL,
   `Medicine_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `roles`
+--
+
+CREATE TABLE `roles` (
+  `role_id` int(11) NOT NULL,
+  `role_name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -226,7 +251,7 @@ CREATE TABLE `room` (
   `Room_type` varchar(20) NOT NULL,
   `Patient_ID` int(11) DEFAULT NULL,
   `Room_cost` decimal(10,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -245,8 +270,44 @@ CREATE TABLE `staff` (
   `Dept_ID` int(11) DEFAULT NULL,
   `SSN` varchar(20) DEFAULT NULL,
   `DOB` date DEFAULT NULL,
-  `Date_Separation` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `Date_Separation` date DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `userrole`
+--
+
+CREATE TABLE `userrole` (
+  `user_id` int(11) NOT NULL,
+  `role_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `fullName` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `email`, `username`, `password`, `fullName`, `phone`) VALUES
+(4, 'Fjolla@gmail.com', 'fjolla', '$2b$10$iUnapl6Y8ZIUwWP9Tej4buaEPHMcj7djRQYjtDbsPqRxsfwrtgm6C', 'Fjolla Test1', '045123123'),
+(5, 'test@gmail.com', 'test', '$2b$10$qBY.toDodk3U18k6pircmeVtgQY27BNDEYWn4QyqpQp6MtdJxenF2', 'test1234', '045123123'),
+(6, 'egz@gmail.com', 'gmail', '$2b$10$GFkEHkqlPDO9E4ktZURl2ew8blwsLfw7UGN6vABMfbFSVc0.9SIe.', 'test1234', '4123123123123');
 
 --
 -- Indexes for dumped tables
@@ -348,6 +409,13 @@ ALTER TABLE `prescription`
   ADD KEY `Medicine_ID` (`Medicine_ID`);
 
 --
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`role_id`),
+  ADD UNIQUE KEY `role_name` (`role_name`);
+
+--
 -- Indexes for table `room`
 --
 ALTER TABLE `room`
@@ -359,7 +427,23 @@ ALTER TABLE `room`
 --
 ALTER TABLE `staff`
   ADD PRIMARY KEY (`Emp_ID`),
-  ADD KEY `Dept_ID` (`Dept_ID`);
+  ADD KEY `Dept_ID` (`Dept_ID`),
+  ADD KEY `role_id` (`role_id`);
+
+--
+-- Indexes for table `userrole`
+--
+ALTER TABLE `userrole`
+  ADD PRIMARY KEY (`user_id`,`role_id`),
+  ADD KEY `role_id` (`role_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -381,7 +465,7 @@ ALTER TABLE `bill`
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
-  MODIFY `Dept_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Dept_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `doctor`
@@ -411,7 +495,7 @@ ALTER TABLE `medical_history`
 -- AUTO_INCREMENT for table `medicine`
 --
 ALTER TABLE `medicine`
-  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `nurse`
@@ -438,16 +522,28 @@ ALTER TABLE `prescription`
   MODIFY `Prescription_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `room`
 --
 ALTER TABLE `room`
-  MODIFY `Room_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Room_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
   MODIFY `Emp_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
@@ -530,7 +626,15 @@ ALTER TABLE `room`
 -- Constraints for table `staff`
 --
 ALTER TABLE `staff`
-  ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`Dept_ID`) REFERENCES `department` (`Dept_ID`);
+  ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`Dept_ID`) REFERENCES `department` (`Dept_ID`),
+  ADD CONSTRAINT `staff_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
+
+--
+-- Constraints for table `userrole`
+--
+ALTER TABLE `userrole`
+  ADD CONSTRAINT `userrole_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `userrole_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
