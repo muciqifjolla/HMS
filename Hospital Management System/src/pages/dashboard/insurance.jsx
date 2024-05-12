@@ -1,41 +1,48 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-import Insurance from "./Insurance/Insurance"
+import Insurance from "./Insurance/Insurance";
 import UpdateInsurance from './Insurance/UpdateInsurance';
 import CreateInsurance from './Insurance/CreateInsurance';
+
 export function Insurances() {
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedInsuranceId, setSelectedInsuranceId] = useState(null); 
 
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
+    const handleUpdateButtonClick = (insuranceId) => {
+        setSelectedInsuranceId(insuranceId);
+        setShowUpdateForm((prevState) => prevState === insuranceId ? null : insuranceId);
+        setShowCreateForm(false); // Close create form if open
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/insurance/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+            // Fetch and update insurance list here if needed
+        } catch (error) {
+            console.error('Error deleting insurance:', error);
         }
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
-        }
-    };
     return (
         <>
             <div> 
                 <Insurance
-                   
-                   showCreateForm={showCreateForm}
-                   setShowCreateForm={handleCreateFormToggle}
-                   showUpdateForm={showUpdateForm}
-                   setShowUpdateForm={handleUpdateFormToggle}
-                   setSelectedInsuranceId={setSelectedInsuranceId}
+                    showCreateForm={showCreateForm}
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm}
+                    setSelectedInsuranceId={setSelectedInsuranceId}
+                    showUpdateForm={showUpdateForm}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateInsurance />}
                 
-                {showUpdateForm && <UpdateInsurance id={selectedInsuranceId} />} 
+                {showCreateForm && <CreateInsurance />}
+                {showUpdateForm && <UpdateInsurance id={selectedInsuranceId} setShowUpdateForm={setShowUpdateForm} />} 
             </div>
         </>
     );

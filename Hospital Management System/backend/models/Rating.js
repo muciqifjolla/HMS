@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Patient = require('./Patient');
 const EMP = require('./Staff');
 
 const Rating = sequelize.define('Rating', {
@@ -8,13 +7,6 @@ const Rating = sequelize.define('Rating', {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-  },
-  Patient_ID: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'patient', 
-      key: 'Patient_ID', 
-    },
   },
   Emp_ID: {
     type: DataTypes.INTEGER,
@@ -41,7 +33,6 @@ const Rating = sequelize.define('Rating', {
   timestamps: false,   
 });
 
-Rating.belongsTo(Patient, { foreignKey: 'Patient_ID' });
 Rating.belongsTo(EMP, { foreignKey: 'Emp_ID' });
 
 

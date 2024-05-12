@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import Medicine from "./Medicine/Medicine";
 import CreateMedicine from "./Medicine/CreateMedicine";
 import UpdateMedicine from "./Medicine/UpdateMedicine";
@@ -9,36 +10,41 @@ export function Medicines() {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedMedicineId, setSelectedMedicineId] = useState(null); 
 
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
+    const handleUpdateButtonClick = (medicineId) => {
+        setSelectedMedicineId(medicineId);
+        setShowUpdateForm((prevState) => prevState === medicineId ? null : medicineId);
+        setShowCreateForm(false); // Close create form if open
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/medicine/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+            // Fetch and update medicine list here if needed
+        } catch (error) {
+            console.error('Error deleting medicine:', error);
         }
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
-        }
-    };
-
-
+    
 
     return (
         <>
             <div> 
+            
                 <Medicine
-                   
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
-                    showUpdateForm={showUpdateForm}
-                    setShowUpdateForm={handleUpdateFormToggle}
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm}
                     setSelectedMedicineId={setSelectedMedicineId}
+                    showUpdateForm={showUpdateForm}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateMedicine />}
                 
-                {showUpdateForm && <UpdateMedicine id={selectedMedicineId} />} 
+                {showCreateForm && <CreateMedicine />}
+                {showUpdateForm && <UpdateMedicine id={selectedMedicineId} setShowUpdateForm={setShowUpdateForm} />} 
             </div>
         </>
     );

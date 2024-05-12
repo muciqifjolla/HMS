@@ -3,13 +3,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
-function CreateMedicine() {
+function CreateRating() {
     const [formData, setFormData] = useState({
-        Patient_ID: '',
         Emp_ID: '',
         Rating: '',
         Comments: '',
-        Date: '',
+        Date: new Date().toISOString().slice(0, 10), // Default to today's date
     });
 
     const [alertMessage, setAlertMessage] = useState('');
@@ -31,25 +30,20 @@ function CreateMedicine() {
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
             console.error('Error adding rating:', error);
-            // console.log(error);
-            showAlert('Error adding ratin11g. Please try again.');
+            showAlert('Error adding rating. Please try again.');
         }
     };
 
     const handleValidation = () => {
-        const { Patient_ID, Emp_ID, Rating, Comments,  Date} = formData;
+        const { Emp_ID, Rating, Comments, Date } = formData;
 
         // Ensure all required fields are filled
-        if (Patient_ID ==='' || Emp_ID==='' || Rating==='' || !Comments.trim() || Date ==='') {
+        if (Emp_ID === '' || Rating === '' || !Comments.trim()) {
             showAlert('All fields are required');
             return;
         }
-        if(Patient_ID < 1){
-            showAlert('Patient ID can not be less than 1');
-            return;
-        }
-        if(Emp_ID < 1){
-            showAlert('Staff ID can not be less than 1');
+        if (Emp_ID < 1) {
+            showAlert('Staff ID cannot be less than 1');
             return;
         }
 
@@ -74,18 +68,6 @@ function CreateMedicine() {
             )}
             <div className='bg-white rounded p-3'>
                 <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient_ID:</label>
-                    <input
-                        type='number'
-                        id='Patient_ID'
-                        name='Patient_ID'
-                        placeholder='Enter Patient_ID'
-                        className='form-control'
-                        value={formData.Patient_ID}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
                     <label htmlFor='Emp_ID'>Emp_ID:</label>
                     <input
                         type='number'
@@ -98,35 +80,35 @@ function CreateMedicine() {
                     />
                 </div>
                 <div className='mb-2'>
-                <label htmlFor='Rating'>Rating:</label>
-                <select
-                    id='Rating'
-                    name='Rating'
-                    className='form-control'
-                    value={formData.Rating}
-                    onChange={handleChange}
-                >
-                    <option value='' disabled>Select Rating</option>
-                    <option value='1'>1</option>
-                    <option value='2'>2</option>
-                    <option value='3'>3</option>
-                    <option value='4'>4</option>
-                    <option value='5'>5</option>
-                </select>
+                    <label htmlFor='Rating'>Rating:</label>
+                    <select
+                        id='Rating'
+                        name='Rating'
+                        className='form-control'
+                        value={formData.Rating}
+                        onChange={handleChange}
+                    >
+                        <option value='' disabled>Select Rating</option>
+                        <option value='1'>1</option>
+                        <option value='2'>2</option>
+                        <option value='3'>3</option>
+                        <option value='4'>4</option>
+                        <option value='5'>5</option>
+                    </select>
                 </div>
                 <div className='mb-2'>
-                <label htmlFor='Comment'>Comment:</label>
-                <input
-                    type='text'
-                    id='Comment'
-                    name='Comments' // Changed to 'Comments' to match formData
-                    placeholder='Enter Comment'
-                    className='form-control'
-                    value={formData.Comments} // Updated to match formData's 'Comments' property
-                    onChange={handleChange} // This should work as expected with the corrected name
-                />
+                    <label htmlFor='Comment'>Comment:</label>
+                    <input
+                        type='text'
+                        id='Comment'
+                        name='Comments'
+                        placeholder='Enter Comment'
+                        className='form-control'
+                        value={formData.Comments}
+                        onChange={handleChange}
+                    />
                 </div>
-                <div class='mb-2'>
+                <div className='mb-2'>
                     <label htmlFor='Date'>Date:</label>
                     <input
                         type='date'
@@ -136,6 +118,7 @@ function CreateMedicine() {
                         className='form-control'
                         value={formData.Date}
                         onChange={handleChange}
+                        disabled // Disable user input for date
                     />
                 </div>
                 <button
@@ -150,4 +133,4 @@ function CreateMedicine() {
     );
 }
 
-export default CreateMedicine;
+export default CreateRating;

@@ -121,43 +121,51 @@ function CreateInsurance() {
         {/* Provider */}
         <div className='mb-2'>
           <label htmlFor='Provider'>Provider:</label>
-          <input
+          <select
             type='text'
             name='Provider'
             placeholder='Enter Provider'
             className='form-control'
             value={formData.Provider}
             onChange={handleChange}
-          />
+          >
+          <option value=''>Select Yes/NO</option>
+          <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+          </select>
         </div>
 
         {/* Plan */}
         <div className='mb-2'>
-  <label htmlFor='Plan'>Plan:</label>
-  <select
-    id='Plan'
-    name='Plan'
-    className='form-control'
-    value={formData.Plan}
-    onChange={handleChange}
-  >
-    <option value=''>Select Yes or No</option>
-    <option value='Yes'>Yes</option>
-    <option value='No'>No</option>
-  </select>
-</div>
+          <label htmlFor='Plan'>Plan:</label>
+          <select
+            id='Plan'
+            name='Plan'
+            className='form-control'
+            value={formData.Plan}
+            onChange={handleChange}
+          >
+          <option value=''>Select Yes/NO</option>
+          <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+          </select>
+        </div>
 
         {/* Co-Pay */}
         <div className='mb-2'>
           <label htmlFor='Co_Pay'>Co-Pay:</label>
-          <input
+          <select
             type='text'
             name='Co_Pay'
             placeholder='Enter Co-Pay'
             className='form-control'
             value={formData.Co_Pay}
             onChange={handleChange}
-          />
+          >
+          <option value=''>Select Yes/NO</option>
+          <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+          </select>
         </div>
 
         {/* Coverage */}
@@ -170,59 +178,59 @@ function CreateInsurance() {
             value={formData.Coverage}
             onChange={handleChange}
           >
-            <option value=''>Select Yes or No</option>
-            <option value='Yes'>Yes</option>
-            <option value='No'>No</option>
+             <option value=''>Select Coverage</option>
+            <option value='25%'>25%</option>
+          <option value='50%'>50%</option>
+          <option value='75%'>75%</option>
+          <option value='100%'>100%</option>
+
           </select>
         </div>
 
-        {/* Maternity */}
         <div className='mb-2'>
-          <label htmlFor='Maternity'>Maternity:</label>
-          <select
-            id='Maternity'
-            name='Maternity'
-            className='form-control'
-            value={formData.Maternity}
-            onChange={handleChange}
-          >
-            <option value=''>Select Yes or No</option>
-            <option value='Yes'>Yes</option>
-            <option value='No'>No</option>
-          </select>
-        </div>
+  <label htmlFor='Maternity'>Maternity:</label>
+  <select
+    id='Maternity'
+    name='Maternity'
+    className='form-control'
+    value={formData.Maternity}
+    onChange={handleChange}
+  >
+     <option value=''>Select Yes/NO</option>
+   <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+  </select>
+</div>
 
-        {/* Dental */}
-        <div class='mb-2'>
-          <label htmlFor='Dental'>Dental:</label>
-          <select
-            id='Dental'
-            name='Dental'
-            className='form-control'
-            value={formData.Dental}
-            onChange={handleChange}
-          >
-            <option value=''>Select Yes or No</option>
-            <option value='Yes'>Yes</option>
-            <option value='No'>No</option>
-          </select>
-        </div>
+<div className='mb-2'>
+  <label htmlFor='Dental'>Dental:</label>
+  <select
+    id='Dental'
+    name='Dental'
+    className='form-control'
+    value={formData.Dental}
+    onChange={handleChange}
+  >
+     <option value=''>Select Yes/NO</option>
+    <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+  </select>
+</div>
 
-        {/* Optical */}
-        <div className='mb-2'>
-          <label htmlFor='Optical'>Optical:</label>
-          <select
-            id='Optical'
-            name='Optical'
-            className='form-control'
-            value={formData.Optical}
-            onChange={handleChange}
-          >
-            <option value=''>Select Yes or No</option>
-            <option value='Yes'>Yes</option>
-            <option value='No'>No</option>
-          </select>
-        </div>
+<div className='mb-2'>
+  <label htmlFor='Optical'>Optical:</label>
+  <select
+    id='Optical'
+    name='Optical'
+    className='form-control'
+    value={formData.Optical}
+    onChange={handleChange}
+  >
+     <option value=''>Select Yes/NO</option>
+   <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+  </select>
+</div>
 
         <button
           type='button'

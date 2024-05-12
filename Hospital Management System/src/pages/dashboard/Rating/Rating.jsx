@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function Medicine({
+function Rating({
     showCreateForm,
     setShowCreateForm,
     showUpdateForm,
@@ -10,10 +10,14 @@ function Medicine({
 }) {
     const [rating, setRating] = useState([]);
     const [deleteRatingId, setDeleteRatingId] = useState(null);
+    const [employees, setEmployees] = useState([]);
 
     const handleUpdateButtonClick = (ratingId) => {
         setSelectedRatingId(ratingId);
-        setShowUpdateForm(!showUpdateForm);
+        setShowUpdateForm((prevState) => prevState === ratingId ? null : ratingId);
+        if (showCreateForm) {
+            setShowCreateForm(false); // Close create form if open
+        }
     };
 
     useEffect(() => {
@@ -21,23 +25,48 @@ function Medicine({
             .get('http://localhost:9004/api/rating')
             .then((res) => setRating(res.data))
             .catch((err) => console.log(err));
+        
+
+            
+        // Fetch employee data
+        axios
+            .get('http://localhost:9004/api/staff')
+            .then((res) => setEmployees(res.data))
+            .catch((err) => console.log(err));
+
+      
     }, []);
 
     const handleDelete = (id) => {
         setDeleteRatingId(id);
     };
 
+    function calculateDaysLeft(targetDate) {
+        const currentDate = new Date();
+        const target = new Date(targetDate);
+        const differenceMs = target - currentDate;
+        const differenceDays = Math.ceil(differenceMs / (1000 * 60 * 60 * 24));
+        return differenceDays;
+    }
+
+    function formatDate(dateString) {
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        const date = new Date(dateString);
+        const formattedDate = date.toLocaleDateString('en-US', options);
+        return `${formattedDate}`;
+    }
+
     const handleDeleteConfirm = async () => {
         try {
             await axios.delete(`http://localhost:9004/api/rating/delete/${deleteRatingId}`);
             setRating(rating.filter((item) => item.Rating_ID !== deleteRatingId));
 
-            // Close the update form if open
+            
             if (showUpdateForm) {
                 setShowUpdateForm(false);
             }
             
-            // Close the create form if open
+            
             if (showCreateForm) {
                 setShowCreateForm(false);
             }
@@ -48,6 +77,26 @@ function Medicine({
         setDeleteRatingId(null);
     };
 
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        setShowUpdateForm(false); // Ensure update form is closed
+    };
+
+    // Function to get employee name by ID
+    const getEmployeeName = (empId) => {
+        console.log("Employee ID:", empId);
+        console.log("Employees:", employees);
+    
+        const employee = employees.find(emp => emp.id === empId);
+        console.log("Found Employee:", employee);
+    
+        if (employee) {
+            return `${employee.Emp_Fname} ${employee.Emp_Lname}`;
+        } else {
+            return 'Unknown';
+        }
+    };
+    
     return (
         <div className="container-fluid mt-4">
             {deleteRatingId && (
@@ -76,9 +125,9 @@ function Medicine({
             <button
                 className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 style={{ borderRadius: '0.5rem' }}
-                onClick={() => setShowCreateForm(!showCreateForm)}
+                onClick={handleCreateFormToggle}
             >
-                {showCreateForm ? 'Close Add Form' : 'Add'}
+                {showCreateForm ? 'Close' : 'Add Rating'}
             </button>
 
             <div className="table-responsive">
@@ -89,11 +138,11 @@ function Medicine({
                             <table className="min-w-full leading-normal">
                                 <thead>
                                     <tr>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient(ID)</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Employ(ID)</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Employee</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Rating(1-5)</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Comments</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Data</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">(ID)</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
                                     </tr>
@@ -101,17 +150,17 @@ function Medicine({
                                 <tbody>
                                     {rating.map((data, i) => (
                                         <tr key={i}>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Patient_ID}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_ID}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getEmployeeName(data.Emp_Fname)}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Rating}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Comments}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{formatDate(data.Date)}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Rating_ID}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <button
                                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                                     onClick={() => handleUpdateButtonClick(data.Rating_ID)}
                                                 >
-                                                    {showUpdateForm ? 'Close Update Form' : 'Update'}
+                                                    {showUpdateForm === data.Rating_ID ? 'Close' : 'Update'}
                                                 </button>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -134,4 +183,4 @@ function Medicine({
     );
 }
 
-export default Medicine;
+export default Rating;

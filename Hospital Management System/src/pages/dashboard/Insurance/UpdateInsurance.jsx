@@ -175,80 +175,111 @@ function UpdateInsurance({ id }) {
                 </div>
                 <div className="mb-2">
                     <label htmlFor="provider">Provider:</label>
-                    <input
+                    <select
                         type="text"
                         id="provider"
                         placeholder="Enter Provider"
                         className="form-control"
                         value={provider}
                         onChange={(e) => setProvider(e.target.value)}
-                    />
+                    >
+                    <option value=''>Select Yes/NO</option>
+                        <option value='No'>No</option>
+                        <option value='Yes'>Yes</option>
+                        </select>
                 </div>
                 <div className="mb-2">
                     <label htmlFor="plan">Plan:</label>
-                    <input
+                    <select
                         type="text"
                         id="plan"
                         placeholder="Enter Plan"
                         className="form-control"
                         value={plan}
                         onChange={(e) => setPlan(e.target.value)}
-                    />
+                    >
+                    <option value=''>Select Yes/NO</option>
+          <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+          </select>
                 </div>
-                <div className="mb-2">
-                    <label htmlFor="coPay">Co-Pay:</label>
-                    <input
-                        type="text"
-                        id="coPay"
-                        placeholder="Enter Co-Pay"
-                        className="form-control"
-                        value={coPay}
-                        onChange={(e) => setCoPay(e.target.value)}
-                    />
-                </div>
+                <div className='mb-2'>
+  <label htmlFor='Co_Pay'>Co-Pay:</label>
+  <select
+    id='Co_Pay'
+    name='Co_Pay'
+    className='form-control'
+    value={coPay}
+    onChange={(e) => setCoPay(e.target.value)}
+  >
+  <option value=''>Select Yes/NO</option>
+          <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+          </select>
+</div>
                 <div className="mb-2">
                     <label htmlFor="coverage">Coverage:</label>
-                    <input
+                    <select
                         type="text"
                         id="coverage"
                         placeholder="Enter Coverage"
                         className="form-control"
                         value={coverage}
                         onChange={(e) => setCoverage(e.target.value)}
-                    />
+                    >
+                    <option value=''>Select Coverage</option>
+            <option value='25%'>25%</option>
+          <option value='50%'>50%</option>
+          <option value='75%'>75%</option>
+          <option value='100%'>100%</option>
+
+          </select>
                 </div>
+
                 <div className="mb-2">
                     <label htmlFor="maternity">Maternity:</label>
-                    <input
+                    <select
                         type="text"
                         id="maternity"
                         placeholder="Enter Maternity"
                         className="form-control"
                         value={maternity}
                         onChange={(e) => setMaternity(e.target.value)}
-                    />
+                    >
+                        <option value=''>Select Yes/NO</option>
+   <option value='No'>No</option>
+          <option value='Yes'>Yes</option>
+  </select>
                 </div>
                 <div className="mb-2">
                     <label htmlFor="dental">Dental:</label>
-                    <input
+                    <select
                         type="text"
                         id="dental"
                         placeholder="Enter Dental"
                         className="form-control"
                         value={dental}
                         onChange={(e) => setDental(e.target.value)}
-                    />
+                        >
+                        <option value=''>Select Yes/NO</option>
+                      <option value='No'>No</option>
+                             <option value='Yes'>Yes</option>
+                     </select>
                 </div>
                 <div className="mb-2">
                     <label htmlFor="optical">Optical:</label>
-                    <input
+                    <select
                         type="text"
                         id="optical"
                         placeholder="Enter Optical"
                         className="form-control"
                         value={optical}
                         onChange={(e) => setOptical(e.target.value)}
-                    />
+                        >
+                        <option value=''>Select Yes/NO</option>
+                      <option value='No'>No</option>
+                             <option value='Yes'>Yes</option>
+                     </select>
                 </div>
                 <button type="button" className="btn btn-success" onClick={handleUpdateInsurance}>
                     Submit

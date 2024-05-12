@@ -10,10 +10,14 @@ function Emergency_Contact({
 }) {
     const [emergencyContacts, setEmergencyContacts] = useState([]);
     const [deleteContactId, setDeleteContactId] = useState(null);
+    const [patients, setPatients] = useState([]);
 
     const handleUpdateButtonClick = (contactId) => {
         setSelectedEmergency_ContactId(contactId);
-        setShowUpdateForm(!showUpdateForm);
+        setShowUpdateForm((prevState) => prevState === contactId ? null : contactId);
+        if (showCreateForm) {
+            setShowCreateForm(false); // Close create form if open
+        }
     };
 
     useEffect(() => {
@@ -21,6 +25,14 @@ function Emergency_Contact({
             .get('http://localhost:9004/api/emergency_contact')
             .then((res) => setEmergencyContacts(res.data))
             .catch((err) => console.error('Error fetching emergency contacts:', err));
+
+
+            axios
+            .get('http://localhost:9004/api/patient')
+            .then((res) => setPatients(res.data))
+            .catch((err) => console.log(err));
+
+
     }, []);
 
     const handleDelete = (id) => {
@@ -46,7 +58,26 @@ function Emergency_Contact({
         }
         setDeleteContactId(null);
     };
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        setShowUpdateForm(false); // Ensure update form is closed
+    };
+
+
+    const getPatientName = (patientId) => { 
+        console.log("Patient ID:", patientId);
+        console.log("Patients:", patients);
     
+        const patient = patients.find(pat => pat.id === patientId);
+        console.log("Found Patient:", patient);
+    
+        if (patient) {
+            return `${patient.Patient_Fname} ${patient.Patient_Lname}`;
+        } else {
+            return 'Unknown';
+        }
+    };
+
 
     return (
         <div className="container-fluid mt-4">
@@ -73,12 +104,13 @@ function Emergency_Contact({
                 </div>
             )}
 
-            <button
-                className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => setShowCreateForm(!showCreateForm)}
-            >
-                {showCreateForm ? 'Close Add Form' : 'Add Emergency Contact'}
-            </button>
+                <button
+                    className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    style={{ borderRadius: '0.5rem' }}
+                    onClick={handleCreateFormToggle}
+                >
+                    {showCreateForm ? 'Close' : 'Add Medicine'}
+                </button>
 
             <div className="table-responsive">
                 <div className="py-8">
@@ -89,34 +121,34 @@ function Emergency_Contact({
                                 <thead>
                                     <tr>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Contact ID</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Phone</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Relation</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient ID</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">(ID)</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {emergencyContacts.map((contact, index) => (
-                                        <tr key={index}>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{contact.Contact_Name}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{contact.Contact_ID}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{contact.Phone}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{contact.Relation}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{contact.Patient_ID}</td>
+                                    {emergencyContacts.map((data, i) => (
+                                        <tr key={i}>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Contact_Name}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Phone}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Relation}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getPatientName(data.Patient_Fname)}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Contact_ID}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <button
                                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleUpdateButtonClick(contact.Contact_ID)}
+                                                    onClick={() => handleUpdateButtonClick(data.Contact_ID)}
                                                 >
-                                                    {showUpdateForm ? 'Close Update Form' : 'Update'}
+                                                    {showUpdateForm ===data.Contact_ID? 'Close' : 'Update'}
                                                 </button>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <button
                                                     className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleDelete(contact.Contact_ID)}
+                                                    onClick={() => handleDelete(data.Contact_ID)}
                                                 >
                                                     Delete
                                                 </button>

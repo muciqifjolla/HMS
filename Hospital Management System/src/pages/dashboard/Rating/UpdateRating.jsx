@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal'; // Ensure this component exists for error handling
 
-function UpdateMedicine({ id }) {
-    const [patient_ID, setPatient_ID] = useState('');
+function UpdateRating({ id }) {
     const [emp_ID, setEmp_ID] = useState('');
     const [rating, setRating] = useState('');
     const [comments, setComments] = useState('');
-    const [date, setDate] = useState(false);
+    const [date, setDate] = useState(new Date().toISOString().slice(0, 10)); // Default to today's date
     const [originalData, setOriginalData] = useState({});
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -20,7 +19,6 @@ function UpdateMedicine({ id }) {
                 const response = await axios.get(`http://localhost:9004/api/rating/${id}`);
                 const data = response.data;
                 setOriginalData(data);
-                setPatient_ID(data.Patient_ID);
                 setEmp_ID(data.Emp_ID);
                 setRating(data.Rating);
                 setComments(data.Comments);
@@ -46,7 +44,6 @@ function UpdateMedicine({ id }) {
     const handleUpdateRating = async () => {
         // Basic validation
         if (
-            patient_ID === originalData.Patient_ID &&
             emp_ID === originalData.Emp_ID &&
             rating === originalData.Rating &&
             comments === originalData.Comments &&
@@ -59,41 +56,29 @@ function UpdateMedicine({ id }) {
             showAlert("Comment name cannot be empty.");
             return;
         }
-        if (!date.trim()) {
-            showAlert("Date name cannot be empty.");
-            return;
-        }
         if (!rating || (rating<1 || rating>5)) {
-            showAlert("Rating must be whith in 1-5.");
+            showAlert("Rating must be within 1-5.");
             return;
         }
-
-        if (!patient_ID || patient_ID < 1) {
-            showAlert("Patient ID must be at least 1.");
-            return;
-        }
-
         if (!emp_ID || emp_ID < 1) {
-            showAlert("Employe ID must be at least 1.");
+            showAlert("Employee ID must be at least 1.");
             return;
         }
-
-        
 
         try {
+            const currentDate = new Date().toISOString().slice(0, 10); // Get current date
             await axios.put(`http://localhost:9004/api/rating/update/${id}`, {
-                Patient_ID: patient_ID,
                 Emp_ID: emp_ID,
                 Rating: rating,
                 Comments: comments,
-                Date: date,
+                Date: currentDate, // Update to current date
             });
 
-            navigate('/dashboard/rating')// Navigate to the medicines dashboard after updating
+            navigate('/dashboard/rating'); // Navigate to the medicines dashboard after updating
             window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating rating:', error);
-            showAlert('Error updating ra11ting. Please try again.');
+            showAlert('Error updating rating. Please try again.');
         }
     };
 
@@ -103,19 +88,6 @@ function UpdateMedicine({ id }) {
                 <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
             )}
             <div className="bg-white rounded p-3">
-                <div className="mb-2">
-                    <label htmlFor="Patient ID">Patient ID:</label>
-                    <input
-                       type='number'
-                       id='Patient ID'
-                       name='Patient_ID'
-                       placeholder='Enter Patient ID'
-                       className='form-control'
-                        value={patient_ID}
-                        onChange={(e) => setPatient_ID(e.target.value)}
-                    />
-                </div>
-
                 <div className="mb-2">
                     <label htmlFor="Staff ID">Emp_ID:</label>
                     <input
@@ -171,6 +143,7 @@ function UpdateMedicine({ id }) {
                          className='form-control'
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
+                        disabled // Disable user input for date
                     />
                 </div>
 
@@ -183,4 +156,4 @@ function UpdateMedicine({ id }) {
     );
 }
 
-export default UpdateMedicine;
+export default UpdateRating;

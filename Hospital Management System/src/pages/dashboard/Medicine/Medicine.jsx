@@ -4,8 +4,8 @@ import axios from 'axios';
 function Medicine({
     showCreateForm,
     setShowCreateForm,
-    showUpdateForm,
     setShowUpdateForm,
+    showUpdateForm,
     setSelectedMedicineId,
 }) {
     const [medicine, setMedicine] = useState([]);
@@ -13,7 +13,10 @@ function Medicine({
 
     const handleUpdateButtonClick = (medicineId) => {
         setSelectedMedicineId(medicineId);
-        setShowUpdateForm(!showUpdateForm);
+        setShowUpdateForm((prevState) => prevState === medicineId ? null : medicineId);
+        if (showCreateForm) {
+            setShowCreateForm(false); // Close create form if open
+        }
     };
 
     useEffect(() => {
@@ -31,21 +34,21 @@ function Medicine({
         try {
             await axios.delete(`http://localhost:9004/api/medicine/delete/${deleteMedicineId}`);
             setMedicine(medicine.filter((item) => item.Medicine_ID !== deleteMedicineId));
-
-            // Close the update form if open
-            if (showUpdateForm) {
-                setShowUpdateForm(false);
-            }
-            
-            // Close the create form if open
             if (showCreateForm) {
                 setShowCreateForm(false);
             }
-            
+            if(showUpdateForm){
+                setShowUpdateForm(false);
+            }
         } catch (err) {
             console.log(err);
         }
         setDeleteMedicineId(null);
+    };
+
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        setShowUpdateForm(false); // Ensure update form is closed
     };
 
     return (
@@ -73,13 +76,17 @@ function Medicine({
                 </div>
             )}
 
-            <button
-                className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                style={{ borderRadius: '0.5rem' }}
-                onClick={() => setShowCreateForm(!showCreateForm)}
-            >
-                {showCreateForm ? 'Close Add Form' : 'Add Medicine'}
-            </button>
+                <button
+                    className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    style={{ borderRadius: '0.5rem' }}
+                    onClick={handleCreateFormToggle}
+                >
+                    {showCreateForm ? 'Close' : 'Add Medicine'}
+                </button>
+
+
+           
+
 
             <div className="table-responsive">
                 <div className="py-8">
@@ -90,9 +97,9 @@ function Medicine({
                                 <thead>
                                     <tr>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Quantity</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cost (€)</th>
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">(ID)</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
                                     </tr>
@@ -101,15 +108,15 @@ function Medicine({
                                     {medicine.map((data, i) => (
                                         <tr key={i}>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.M_name}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Medicine_ID}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.M_Quantity}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.M_Cost}</td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Medicine_ID}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <button
                                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                                     onClick={() => handleUpdateButtonClick(data.Medicine_ID)}
                                                 >
-                                                    {showUpdateForm ? 'Close Update Form' : 'Update'}
+                                                    {showUpdateForm === data.Medicine_ID ? 'Close' : 'Update'}
                                                 </button>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">

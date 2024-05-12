@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Medicine from "./Rating/Rating";
+import Rating from "./Rating/Rating";
 import CreateRating from "./Rating/CreateRating";
-import UpdateRating from "./Rating/UpdateRating";
+import UpdateRating from "./Rating/UpdateRating"
 
 export function Ratings() {
 
@@ -9,34 +9,38 @@ export function Ratings() {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedRatingId, setSelectedRatingId] = useState(null); 
 
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
-        }
+    const handleUpdateButtonClick = (ratingId) => {
+        setSelectedRatingId(ratingId);
+        setShowUpdateForm((prevState) => prevState === ratingId ? null : ratingId);
+        setShowCreateForm(false); // Close create form if open
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
+    const handleDelete = async (id) => {
+        try {
+            // Assuming you have an endpoint for deleting ratings
+            await axios.delete(`http://localhost:9004/api/rating/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+            // Fetch and update rating list here if needed
+        } catch (error) {
+            console.error('Error deleting rating:', error);
         }
     };
 
     return (
         <>
             <div> 
-                <Medicine
-                   
+                <Rating
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
-                    showUpdateForm={showUpdateForm}
-                    setShowUpdateForm={handleUpdateFormToggle}
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm}
                     setSelectedRatingId={setSelectedRatingId}
+                    showUpdateForm={showUpdateForm}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete}
                 />
                 {showCreateForm && <CreateRating />}
-                
-                {showUpdateForm && <UpdateRating id={selectedRatingId} />} 
+                {showUpdateForm && <UpdateRating id={selectedRatingId} setShowUpdateForm={setShowUpdateForm} />} 
             </div>
         </>
     );

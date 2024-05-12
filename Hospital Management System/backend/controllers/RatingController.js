@@ -26,9 +26,8 @@ const FindSingleRating = async (req, res) => {
 
 const AddRating = async (req, res) => {
     try {
-        const {Patient_ID, Emp_ID, Rating, Comments, Date} = req.body;
+        const {Emp_ID, Rating, Comments, Date} = req.body;
         const newRating = await Ratingg.create({
-            Patient_ID,
             Emp_ID,
             Rating,
             Comments,
@@ -43,9 +42,9 @@ const AddRating = async (req, res) => {
 
 const UpdateRating = async (req, res) => {
     try {
-        const {Patient_ID, Emp_ID , Rating, Comments, Date} = req.body;
+        const {Emp_ID , Rating, Comments, Date} = req.body;
         const updated = await Ratingg.update(
-            { Patient_ID, Emp_ID , Rating, Comments, Date},
+            {Emp_ID , Rating, Comments, Date},
             { where: { Rating_ID: req.params.id } }
         );
         if (updated[0] === 0) {

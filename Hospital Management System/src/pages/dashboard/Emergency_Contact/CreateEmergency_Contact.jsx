@@ -13,6 +13,7 @@ function CreateEmergencyContact() {
 
   const [alertMessage, setAlertMessage] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
+  
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -26,7 +27,7 @@ function CreateEmergencyContact() {
   const handleAddEmergencyContact = async () => {
     try {
       const response = await axios.post('http://localhost:9004/api/emergency_contact/create', formData);
-      console.log(response.data);
+      // console.log(response.data);
       navigate('/dashboard/emergency_contact');
       window.location.reload();
     } catch (error) {
@@ -53,9 +54,14 @@ function CreateEmergencyContact() {
   };
 
   const showAlert = (message) => {
-    setAlertMessage(message);
-    setShowErrorModal(true);
-  };
+        setAlertMessage(message);
+        setShowErrorModal(true);
+        // Automatically hide the error modal after 3 seconds
+        setTimeout(() => {
+            setAlertMessage('');
+            setShowErrorModal(false);
+        }, 3000);
+    };
 
   return (
     <div className='container mt-4'>

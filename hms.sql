@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2024 at 08:52 PM
+-- Generation Time: May 12, 2024 at 07:23 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -67,13 +67,6 @@ CREATE TABLE `department` (
   `Emp_Count` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `department`
---
-
-INSERT INTO `department` (`Dept_ID`, `Dept_head`, `Dept_name`, `Emp_Count`) VALUES
-(1, 'test', 'test', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -108,17 +101,17 @@ CREATE TABLE `emergency_contact` (
 --
 
 CREATE TABLE `insurance` (
-  `Policy_Number` varchar(20) NOT NULL,
+  `Policy_Number` int(20) NOT NULL,
   `Patient_ID` int(11) NOT NULL,
   `Ins_Code` varchar(10) NOT NULL,
-  `End_Date` date DEFAULT NULL,
+  `End_Date` date NOT NULL,
   `Provider` varchar(100) NOT NULL,
   `Plan` varchar(100) NOT NULL,
-  `Co_Pay` decimal(10,2) DEFAULT NULL,
-  `Coverage` varchar(255) DEFAULT NULL,
-  `Maternity` tinyint(1) DEFAULT NULL,
-  `Dental` tinyint(1) DEFAULT NULL,
-  `Optical` tinyint(1) DEFAULT NULL
+  `Co_Pay` varchar(100) NOT NULL,
+  `Coverage` varchar(100) NOT NULL,
+  `Maternity` varchar(100) NOT NULL,
+  `Dental` varchar(100) NOT NULL,
+  `Optical` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -161,13 +154,6 @@ CREATE TABLE `medicine` (
   `M_Quantity` int(11) NOT NULL,
   `M_Cost` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `medicine`
---
-
-INSERT INTO `medicine` (`Medicine_ID`, `M_name`, `M_Quantity`, `M_Cost`) VALUES
-(1, 'test', 2, 25.00);
 
 -- --------------------------------------------------------
 
@@ -237,7 +223,6 @@ CREATE TABLE `prescription` (
 
 CREATE TABLE `rating` (
   `Rating_ID` int(11) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
   `Emp_ID` int(11) NOT NULL,
   `Rating` tinyint(4) NOT NULL,
   `Comments` text DEFAULT NULL,
@@ -428,7 +413,6 @@ ALTER TABLE `prescription`
 --
 ALTER TABLE `rating`
   ADD PRIMARY KEY (`Rating_ID`),
-  ADD KEY `Patient_ID` (`Patient_ID`),
   ADD KEY `Emp_ID` (`Emp_ID`);
 
 --
@@ -500,7 +484,13 @@ ALTER TABLE `doctor`
 -- AUTO_INCREMENT for table `emergency_contact`
 --
 ALTER TABLE `emergency_contact`
-  MODIFY `Contact_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Contact_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `insurance`
+--
+ALTER TABLE `insurance`
+  MODIFY `Policy_Number` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `lab_screening`
@@ -518,7 +508,7 @@ ALTER TABLE `medical_history`
 -- AUTO_INCREMENT for table `medicine`
 --
 ALTER TABLE `medicine`
-  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `nurse`
@@ -530,7 +520,7 @@ ALTER TABLE `nurse`
 -- AUTO_INCREMENT for table `patient`
 --
 ALTER TABLE `patient`
-  MODIFY `Patient_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Patient_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `payroll`
@@ -548,7 +538,7 @@ ALTER TABLE `prescription`
 -- AUTO_INCREMENT for table `rating`
 --
 ALTER TABLE `rating`
-  MODIFY `Rating_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Rating_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -566,7 +556,7 @@ ALTER TABLE `room`
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
-  MODIFY `Emp_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Emp_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -649,9 +639,7 @@ ALTER TABLE `prescription`
 -- Constraints for table `rating`
 --
 ALTER TABLE `rating`
-  ADD CONSTRAINT `fk_rating_patient` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
   ADD CONSTRAINT `fk_rating_staff` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`),
-  ADD CONSTRAINT `rating_ibfk_1` FOREIGN KEY (`Patient_ID`) REFERENCES `patient` (`Patient_ID`),
   ADD CONSTRAINT `rating_ibfk_2` FOREIGN KEY (`Emp_ID`) REFERENCES `staff` (`Emp_ID`);
 
 --
