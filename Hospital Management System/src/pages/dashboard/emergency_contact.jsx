@@ -39,8 +39,8 @@ export function Emergency_Contacts() {
                     handleUpdateButtonClick={handleUpdateButtonClick}
                     handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateEmergency_Contact />}
-                {showUpdateForm && <UpdateEmergency_Contact id={selectedEmergency_ContactId} setShowUpdateForm={setShowUpdateForm} />}
+                {showCreateForm && <CreateEmergency_Contact onClose={() => setShowCreateForm(false)} />}
+                {showUpdateForm && <UpdateEmergency_Contact id={selectedEmergency_ContactId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>}
             </div>
         </>
     );

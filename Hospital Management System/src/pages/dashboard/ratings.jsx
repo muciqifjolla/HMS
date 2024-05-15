@@ -39,8 +39,8 @@ export function Ratings() {
                     handleUpdateButtonClick={handleUpdateButtonClick}
                     handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateRating />}
-                {showUpdateForm && <UpdateRating id={selectedRatingId} setShowUpdateForm={setShowUpdateForm} />} 
+                {showCreateForm && <CreateRating onClose={() => setShowCreateForm(false)}/>}
+                {showUpdateForm && <UpdateRating id={selectedRatingId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>} 
             </div>
         </>
     );

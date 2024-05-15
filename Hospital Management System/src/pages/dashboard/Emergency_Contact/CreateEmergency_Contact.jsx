@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
-function CreateEmergencyContact() {
+function CreateEmergencyContact({onClose}) {
   const [formData, setFormData] = useState({
     Contact_Name: '',
     Phone: '',
@@ -64,13 +64,15 @@ function CreateEmergencyContact() {
     };
 
   return (
-    <div className='container mt-4'>
-      {showErrorModal && (
-        <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-      )}
-      <div className='bg-white rounded p-3'>
+    <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
+    <div className='bg-white p-8 mx-auto rounded-lg w-96'>
+        {showErrorModal && (
+            <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
+        )}
+        <h1 className='text-lg font-bold mb-4'>Add Insurance</h1>
+        {/* Patient ID */}
         <div className='mb-2'>
-          <label htmlFor='Contact_Name'>Emergency Contact Name:</label>
+          <label htmlFor='Contact_Name'>Name:</label>
           <input
             type='text'
             id='Contact_Name'
@@ -83,7 +85,7 @@ function CreateEmergencyContact() {
         </div>
 
         <div className='mb-2'>
-          <label htmlFor='Phone'>Emergency Contact Phone:</label>
+          <label htmlFor='Phone'>Phone:</label>
           <input
             type='text'
             id='Phone'
@@ -126,16 +128,22 @@ function CreateEmergencyContact() {
             onChange={handleChange}
           />
         </div>
-
-        <button
-          type='button'
-          className='btn btn-success'
-          onClick={handleValidation}
-        >
-          Submit
-        </button>
-      </div>
+        <div className='flex justify-end'>
+            <button
+                className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                onClick={handleValidation}
+            >
+                Submit
+            </button>
+            <button
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
+                onClick={onClose} // Call the onClose function passed from props
+            >
+                Cancel
+            </button>
+        </div>
     </div>
+</div>
   );
 }
 

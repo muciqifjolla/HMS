@@ -27,6 +27,24 @@ const FindSingleMedicine = async (req, res) => {
 const AddMedicine = async (req, res) => {
     try {
         const { M_name, M_Quantity, M_Cost } = req.body;
+        
+        // Validate input fields
+        if (!M_name || !M_Quantity || !M_Cost) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (M_name.length < 2) {
+            return res.status(400).json({ error: 'Medicine name must be at least 2 characters long' });
+        }
+
+        if (parseInt(M_Quantity) < 1 || isNaN(parseInt(M_Quantity))) {
+            return res.status(400).json({ error: 'Medicine quantity must be at least 1' });
+        }
+
+        if (parseFloat(M_Cost) < 1 || isNaN(parseFloat(M_Cost))) {
+            return res.status(400).json({ error: 'Medicine cost must be at least 1' });
+        }
+
         const newMedicine = await Medicine.create({
             M_name,
             M_Quantity,
@@ -42,6 +60,24 @@ const AddMedicine = async (req, res) => {
 const UpdateMedicine = async (req, res) => {
     try {
         const { M_name, M_Quantity, M_Cost } = req.body;
+
+        // Validate input fields
+        if (!M_name || !M_Quantity || !M_Cost) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (M_name.length < 2) {
+            return res.status(400).json({ error: 'Medicine name must be at least 2 characters long' });
+        }
+
+        if (parseInt(M_Quantity) < 1 || isNaN(parseInt(M_Quantity))) {
+            return res.status(400).json({ error: 'Medicine quantity must be at least 1' });
+        }
+
+        if (parseFloat(M_Cost) < 1 || isNaN(parseFloat(M_Cost))) {
+            return res.status(400).json({ error: 'Medicine cost must be at least 1' });
+        }
+
         const updated = await Medicine.update(
             { M_name, M_Quantity, M_Cost },
             { where: { Medicine_ID: req.params.id } }

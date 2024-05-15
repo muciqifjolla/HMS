@@ -26,7 +26,19 @@ const FindSingleRating = async (req, res) => {
 
 const AddRating = async (req, res) => {
     try {
-        const {Emp_ID, Rating, Comments, Date} = req.body;
+        const { Emp_ID, Rating, Comments, Date } = req.body;
+
+        // Validation
+        if (!Emp_ID || !Rating || !Comments || !Date) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        if(Emp_ID<1){
+            return res.status(400).json({ error: 'Staff ID cannot be less than 1' });
+        }
+        if (Comments.length > 30) {
+            return res.status(400).json({ error: 'Comments must be maximum 30 characters long' });
+        }
+
         const newRating = await Ratingg.create({
             Emp_ID,
             Rating,
@@ -36,15 +48,27 @@ const AddRating = async (req, res) => {
         res.json({ success: true, message: 'Rating added successfully', data: newRating });
     } catch (error) {
         console.error('Error adding rating:', error);
-        res.status(500).json({ error: 'Internal Server1 Error' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
 const UpdateRating = async (req, res) => {
     try {
-        const {Emp_ID , Rating, Comments, Date} = req.body;
+        const { Emp_ID, Rating, Comments, Date } = req.body;
+
+        // Validation
+        if (!Emp_ID || !Rating || !Comments || !Date) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        if(Emp_ID<1){
+            return res.status(400).json({ error: 'Staff ID cannot be less than 1' });
+        }
+        if (Comments.length > 30) {
+            return res.status(400).json({ error: 'Comments must be maximum 30 characters long' });
+        }
+
         const updated = await Ratingg.update(
-            {Emp_ID , Rating, Comments, Date},
+            { Emp_ID, Rating, Comments, Date },
             { where: { Rating_ID: req.params.id } }
         );
         if (updated[0] === 0) {
@@ -57,6 +81,7 @@ const UpdateRating = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 const DeleteRating = async (req, res) => {
     try {

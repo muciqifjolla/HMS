@@ -27,6 +27,19 @@ const FindSingleInsurance = async (req, res) => {
 const AddInsurance = async (req, res) => {
     try {
         const {Patient_ID, Ins_Code, End_Date, Provider, Plan, Co_Pay, Coverage, Maternity, Dental, Optical} = req.body;
+
+        // Validation
+        if (!Ins_Code || Ins_Code.length < 6) {
+            return res.status(400).json({ error: 'Ins_Code must be at least 6 characters long' });
+        }
+        if (!End_Date) {
+            return res.status(400).json({ error: 'End_Date cannot be empty' });
+        }
+        if (!Provider) {
+            return res.status(400).json({ error: 'Provider cannot be empty' });
+        }
+        // Similarly, add validations for other fields (Plan, Co_Pay, Coverage, Maternity, Dental, Optical)
+
         const newInsurance = await Insurance.create({
             Patient_ID,
             Ins_Code,
@@ -49,6 +62,19 @@ const AddInsurance = async (req, res) => {
 const UpdateInsurance = async (req, res) => {
     try {
         const { Patient_ID, Ins_Code, End_Date, Provider, Plan, Co_Pay, Coverage, Maternity, Dental, Optical } = req.body;
+
+        // Validation
+        if (!Ins_Code || Ins_Code.length < 6) {
+            return res.status(400).json({ error: 'Ins_Code must be at least 6 characters long' });
+        }
+        if (!End_Date) {
+            return res.status(400).json({ error: 'End_Date cannot be empty' });
+        }
+        if (!Provider) {
+            return res.status(400).json({ error: 'Provider cannot be empty' });
+        }
+        // Similarly, add validations for other fields (Plan, Co_Pay, Coverage, Maternity, Dental, Optical)
+
         const updated = await Insurance.update(
             { Patient_ID, Ins_Code, End_Date, Provider, Plan, Co_Pay, Coverage, Maternity, Dental, Optical },
             { where: { Policy_Number: req.params.id } }

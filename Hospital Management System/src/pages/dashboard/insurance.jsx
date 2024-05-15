@@ -6,7 +6,6 @@ import UpdateInsurance from './Insurance/UpdateInsurance';
 import CreateInsurance from './Insurance/CreateInsurance';
 
 export function Insurances() {
-
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedInsuranceId, setSelectedInsuranceId] = useState(null); 
@@ -41,8 +40,8 @@ export function Insurances() {
                     handleDelete={handleDelete}
                 />
                 
-                {showCreateForm && <CreateInsurance />}
-                {showUpdateForm && <UpdateInsurance id={selectedInsuranceId} setShowUpdateForm={setShowUpdateForm} />} 
+                {showCreateForm && <CreateInsurance onClose={() => setShowCreateForm(false)}/>}
+                {showUpdateForm && <UpdateInsurance id={selectedInsuranceId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>} 
             </div>
         </>
     );

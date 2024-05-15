@@ -42,9 +42,9 @@ export function Medicines() {
                     handleUpdateButtonClick={handleUpdateButtonClick}
                     handleDelete={handleDelete}
                 />
-                
-                {showCreateForm && <CreateMedicine />}
-                {showUpdateForm && <UpdateMedicine id={selectedMedicineId} setShowUpdateForm={setShowUpdateForm} />} 
+
+                {showCreateForm && <CreateMedicine onClose={() => setShowCreateForm(false)}/>}
+                {showUpdateForm && <UpdateMedicine id={selectedMedicineId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>} 
             </div>
         </>
     );

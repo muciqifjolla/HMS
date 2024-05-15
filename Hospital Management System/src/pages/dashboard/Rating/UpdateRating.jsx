@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal'; // Ensure this component exists for error handling
 
-function UpdateRating({ id }) {
+function UpdateRating({ id, onClose}) {
     const [emp_ID, setEmp_ID] = useState('');
     const [rating, setRating] = useState('');
     const [comments, setComments] = useState('');
@@ -64,6 +64,11 @@ function UpdateRating({ id }) {
             showAlert("Employee ID must be at least 1.");
             return;
         }
+        if(comments.length>30){
+            showAlert('Limit of characters reached(30)');
+            return;
+        }
+
 
         try {
             const currentDate = new Date().toISOString().slice(0, 10); // Get current date
@@ -83,12 +88,13 @@ function UpdateRating({ id }) {
     };
 
     return (
-        <div className="container mt-4">
+        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+        <div className="bg-white p-8 mx-auto rounded-lg w-96">
             {showErrorModal && (
                 <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
             )}
-            <div className="bg-white rounded p-3">
-                <div className="mb-2">
+            <h1 className="text-lg font-bold mb-4">Update Rating</h1>
+                <div className="mb-4">
                     <label htmlFor="Staff ID">Emp_ID:</label>
                     <input
                         type='number'
@@ -101,7 +107,7 @@ function UpdateRating({ id }) {
                     />
                 </div>
 
-                <div className='mb-2'>
+                <div className='mb-4'>
                 <label htmlFor='Rating'>Rating:</label>
                 <select
                     type='number'
@@ -120,7 +126,7 @@ function UpdateRating({ id }) {
                 </select>
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                     <label htmlFor="Comments">Comments:</label>
                     <input
                         type='text'
@@ -133,7 +139,7 @@ function UpdateRating({ id }) {
                     />
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                     <label htmlFor="Date">Date:</label>
                     <input
                          type='date'
@@ -148,11 +154,20 @@ function UpdateRating({ id }) {
                 </div>
 
 
-                <button type="button" className="btn btn-success" onClick={handleUpdateRating}>
+                <div className="flex justify-end">
+                <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateRating}>
                     Submit
                 </button>
+                <button
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
+                    onClick={onClose} // Call the onClose function passed from props
+                >
+                    Cancel
+                </button>
+            </div>
             </div>
         </div>
+
     );
 }
 
