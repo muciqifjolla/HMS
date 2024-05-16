@@ -17,27 +17,17 @@ const Login = () => {
     const loginUser = (e) => {
         e.preventDefault();
         Axios.post('http://localhost:9004/login', {
-            LoginUserName: loginUserName,
-            LoginPassword: loginPassword
+            username: loginUserName, // Aligning with backend
+            password: loginPassword // Aligning with backend
         })
         .then((response) => {
             if (response.data.message || loginUserName === '' || loginPassword === '') {
                 setErrorMessage('Credentials Don\'t Exist!');
             } else {
-                const userId = response.data.userId;
-                // Assuming the server returns the user's role ID
-                Axios.get(`http://localhost:9004/userRole/${userId}`)
-                .then((roleResponse) => {
-                    const roleId = roleResponse.data.roleId;
-                    // Store the role ID in session or state for authorization purposes
-                    // For simplicity, let's assume storing in a state variable
-                    // setUserRole(roleId);
-                    navigateTo('/dashboard');
-                })
-                .catch((error) => {
-                    setErrorMessage('An error occurred while fetching user role.');
-                    console.error('Error fetching user role:', error);
-                });
+                const token = response.data.token;
+                // Store the token in localStorage or state for authentication purposes
+                localStorage.setItem('token', token);
+                navigateTo('/dashboard'); // Redirect to the dashboard after successful login
             }
         })
         .catch((error) => {

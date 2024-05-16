@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Register.css';
 import '../../auth/App.css';
-import { Link } from 'react-router-dom'; // Removed useHistory import
+import { Link } from 'react-router-dom';
 import Axios from 'axios';
 import video from '../../auth/LoginAssets/video.mp4';
 import logo from '../../auth/LoginAssets/llogo.png';
@@ -14,17 +14,23 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const createUser = () => {
-        Axios.post('http://localhost:9004/register', {
-            Email: email,
-            UserName: userName,
-            Password: password
+        Axios.post('http://localhost:3002/register', {
+            email,
+            username: userName, // Aligning with backend
+            password
         }).then((response) => {
-            // Redirect logic can be handled elsewhere if needed
-            console.log('User has been registered successfully.');
+            if (response.data.message || email === '' || userName === '' || password === '') {
+                setErrorMessage('Invalid registration details');
+            } else {
+                // Redirect logic can be handled elsewhere if needed
+                console.log('User has been registered successfully.');
+            }
         }).catch((error) => {
             console.error('Error registering user:', error);
+            setErrorMessage('An error occurred while registering. Please try again later.');
         });
     };
     
@@ -49,11 +55,13 @@ const Register = () => {
                         <img src={logo} alt="Logo Image" />
                     </div>
                     <form action="" className='form grid'>
+                        <span className="errorMessage">{errorMessage}</span>
                         <div className="inputDiv">
                             <label htmlFor="email">Email</label>
                             <div className="input flex">
                                 <MdMarkEmailRead className='icon'/>
                                 <input type="email" name="" id="email" placeholder='Enter Email' 
+                                value={email}
                                 onChange={(event)=>{ setEmail(event.target.value) }}/>
                             </div>
                         </div>
@@ -62,6 +70,7 @@ const Register = () => {
                             <div className="input flex">
                                 <FaUserShield className='icon'/>
                                 <input type="text" name="" id="username" placeholder='Enter Username' 
+                                value={userName}
                                 onChange={(event)=>{ setUserName(event.target.value) }}/>
                             </div>
                         </div>
@@ -70,6 +79,7 @@ const Register = () => {
                             <div className="input flex">
                                 <BsFillShieldLockFill  className='icon'/>
                                 <input type="password" name="" id="password" placeholder='Enter password'
+                                value={password}
                                 onChange={(event)=>{ setPassword(event.target.value) }} />
                             </div>
                         </div>
