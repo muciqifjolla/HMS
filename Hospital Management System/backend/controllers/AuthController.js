@@ -11,24 +11,27 @@ const loginUser = async (req, res) => {
   
       // Find the user in the database by username
       const user = await User.findOne({ where: { username } });
-  
+      
       // If user does not exist, return an error
       if (!user) {
         return res.status(401).json({ message: 'Invalid username or password' });
       }
-  
+      
       // Compare the provided password with the hashed password in the database
       const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log(isPasswordValid);
   
       // If passwords do not match, return an error
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Invalid username or password' });
       }
   
+      let JWT_SECRET= '03df719212d1d7a1f9b9930d0a7b161955ff9ba6d0c1509658bb8d204309ebb3';
+
       // If username and password are correct, generate a JWT token
       const token = jwt.sign(
         { userId: user.user_id, username: user.username, role: user.role }, 
-        process.env.JWT_SECRET, 
+        JWT_SECRET, 
         { expiresIn: '1h' } // Token expires in 1 hour
       );
   

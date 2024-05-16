@@ -12,11 +12,14 @@ const Login = () => {
     const [loginUserName, setLoginUserName] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [token, setToken] = useState('');
+    console.log(token);
+    
     const navigateTo = useNavigate();
 
     const loginUser = (e) => {
         e.preventDefault();
-        Axios.post('http://localhost:9004/login', {
+        Axios.post('http://localhost:9004/api/login', {
             username: loginUserName, // Aligning with backend
             password: loginPassword // Aligning with backend
         })
@@ -24,9 +27,9 @@ const Login = () => {
             if (response.data.message || loginUserName === '' || loginPassword === '') {
                 setErrorMessage('Credentials Don\'t Exist!');
             } else {
-                const token = response.data.token;
+                setToken(response.data.token);
                 // Store the token in localStorage or state for authentication purposes
-                localStorage.setItem('token', token);
+                localStorage.setItem('token', response.data.token);
                 navigateTo('/dashboard'); // Redirect to the dashboard after successful login
             }
         })

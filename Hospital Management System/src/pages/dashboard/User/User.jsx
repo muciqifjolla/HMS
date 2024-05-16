@@ -16,12 +16,30 @@ function User({
         setShowUpdateForm(!showUpdateForm);
     };
 
+
     useEffect(() => {
-        axios
-            .get('http://localhost:9004/api/users')
-            .then((res) => setUsers(res.data))
-            .catch((err) => console.log(err));
-    }, []);
+        // Get the token from localStorage
+        const token = localStorage.getItem('token');
+
+        // Check if token exists
+        if (token) {
+            // Include the token in the Authorization header
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            };
+
+            // Make a GET request to the /api/users endpoint with the token
+            axios
+                .get('http://localhost:9004/api/users', config)
+                .then((res) => setUsers(res.data))
+                .catch((err) => console.log(err));
+        } else {
+            console.log('Token not found in localStorage');
+        }
+    }, []); // Empty dependency array means this effect runs once after initial render
+
 
     const handleDelete = (id) => {
         setDeleteUserId(id);

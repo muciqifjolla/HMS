@@ -40,6 +40,7 @@ const AddUser = async (req, res) => {
                 fullName,
                 phone,
             });
+            
             res.json({ success: true, message: 'User added successfully', data: newUser });
     } catch (error) {
         console.error('Error adding user:', error);
