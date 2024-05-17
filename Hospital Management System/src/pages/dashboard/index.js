@@ -12,6 +12,7 @@ export * from "@/pages/dashboard/room";
 export * from "@/pages/dashboard/nurse";
 export * from "@/pages/dashboard/users";
 export * from "@/pages/dashboard/ratings";
+export * from "@/pages/dashboard/doctors";
 
 
 

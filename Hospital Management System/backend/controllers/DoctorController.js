@@ -1,0 +1,113 @@
+const Doctor = require('../models/Doctor');
+
+const FindAllDoctors = async (req, res) => {
+    try {
+        const doctors = await Doctor.findAll();
+        res.json(doctors);
+    } catch (error) {
+        console.error('Error fetching all doctors:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const FindSingleDoctor = async (req, res) => {
+    try {
+        const doctor = await Doctor.findByPk(req.params.id);
+        if (!doctor) {
+            res.status(404).json({ error: 'Doctor not found' });
+            return;
+        }
+        res.json(doctor);
+    } catch (error) {
+        console.error('Error fetching single doctor:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const AddDoctor = async (req, res) => {
+    try {
+        const { Qualifications, Emp_ID, Specialization, user_id } = req.body;
+
+        // Validation
+        if (!Qualifications) {
+            return res.status(400).json({ error: 'Qualifications cannot be empty' });
+        }
+        if (!Emp_ID) {
+            return res.status(400).json({ error: 'Emp_ID cannot be empty' });
+        }
+        if (!Specialization) {
+            return res.status(400).json({ error: 'Specialization cannot be empty' });
+        }
+        if (!user_id) {
+            return res.status(400).json({ error: 'user_id cannot be empty' });
+        }
+
+        const newDoctor = await Doctor.create({
+            Qualifications,
+            Emp_ID,
+            Specialization,
+            user_id,
+        });
+        res.json({ success: true, message: 'Doctor added successfully', data: newDoctor });
+    } catch (error) {
+        console.error('Error adding doctor:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const UpdateDoctor = async (req, res) => {
+    try {
+        const { Qualifications, Emp_ID, Specialization, user_id } = req.body;
+
+        // Validation
+        if (!Qualifications) {
+            return res.status(400).json({ error: 'Qualifications cannot be empty' });
+        }
+        if (!Emp_ID) {
+            return res.status(400).json({ error: 'Emp_ID cannot be empty' });
+        }
+        if (!Specialization) {
+            return res.status(400).json({ error: 'Specialization cannot be empty' });
+        }
+        if (!user_id) {
+            return res.status(400).json({ error: 'user_id cannot be empty' });
+        }
+
+        const updated = await Doctor.update(
+            { Qualifications, Emp_ID, Specialization, user_id },
+            { where: { Doctor_ID: req.params.id } }
+        );
+        if (updated[0] === 0) {
+            res.status(404).json({ error: 'Doctor not found or not updated' });
+            return;
+        }
+        res.json({ success: true, message: 'Doctor updated successfully' });
+    } catch (error) {
+        console.error('Error updating doctor:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const DeleteDoctor = async (req, res) => {
+    try {
+        const deleted = await Doctor.destroy({
+            where: { Doctor_ID: req.params.id },
+        });
+        if (deleted === 0) {
+            res.status(404).json({ error: 'Doctor not found' });
+            return;
+        }
+        res.json({ success: true, message: 'Doctor deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting doctor:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+module.exports = {
+    FindAllDoctors,
+    FindSingleDoctor,
+    AddDoctor,
+    UpdateDoctor,
+    DeleteDoctor,
+};

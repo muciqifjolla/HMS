@@ -15,6 +15,7 @@ const RoomRoutes = require('./routes/RoomRoutes');
 const NurseRoutes = require('./routes/NurseRoutes');
 const UserRoutes = require('./routes/UserRoutes');
 const RatingRoutes = require('./routes/RatingRoutes');
+const DoctorRoutes = require('./routes/DoctorRoutes');
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use("/api", RoomRoutes);
 app.use("/api", NurseRoutes);
 app.use("/api", UserRoutes);
 app.use("/api", RatingRoutes);
+app.use("/api", DoctorRoutes);
 
 
 app.listen(PORT, () => {
