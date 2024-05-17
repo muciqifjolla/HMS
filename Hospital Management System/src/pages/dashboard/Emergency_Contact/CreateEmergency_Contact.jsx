@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
@@ -10,11 +10,26 @@ function CreateEmergencyContact({onClose}) {
     Relation: '',
     Patient_ID: '',
   });
-
+  const [emergency_contact, setEmergency_contact] = useState([]);
   const [alertMessage, setAlertMessage] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    // Fetch existing medicines when component mounts
+    fetchEmergency_contact();
+}, []);
+
+const fetchEmergency_contact = async () => {
+    try {
+        const response = await axios.get('http://localhost:9004/api/emergency_contact');
+        setEmergency_contact(response.data);
+    } catch (error) {
+        console.error('Error fetching emergency_contact:', error);
+    }
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +51,7 @@ function CreateEmergencyContact({onClose}) {
     }
   };
 
-  const handleValidation = () => {
+  const handleValidation = async () => {
     const { Contact_Name, Phone, Relation, Patient_ID } = formData;
     const phoneRegex = /^(?:\+\d{1,3}\s?)?\d{3}(?:\d{6,7})$/;
 
@@ -44,23 +59,45 @@ function CreateEmergencyContact({onClose}) {
       showAlert('All fields are required.');
       return;
     }
-
+    if(Contact_Name.length < 2){
+      showAlert('Contact Name can not be less than 2 characters long!');
+      return;
+    }
+    if(Phone.length !== 9){
+      showAlert('Phone can should be 9 characters long!');
+      return;
+    }
     if (!phoneRegex.test(Phone)) {
       showAlert('Please enter a valid phone number (e.g., 044111222).');
       return;
     }
+    if (Patient_ID<1) {
+      showAlert('Patient_ID should be at least 1');
+      return;
+  }
 
-    handleAddEmergencyContact(); // All validations passed
+    const existingEmergency_contact = emergency_contact.find(emergency_contact => emergency_contact.Phone === Phone);
+        if (existingEmergency_contact) {
+            showAlert('Phone number Exists');
+            return;
+        }
+        try {
+          await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
+          // Proceed with form submission after successful validation
+          handleAddEmergencyContact()
+      } catch (error) {
+          console.error('Error checking patient ID:', error);
+          showAlert('Patient ID does not exist');
+      }
+
+    ; // All validations passed
   };
 
   const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
         // Automatically hide the error modal after 3 seconds
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
+  
     };
 
   return (
@@ -69,7 +106,7 @@ function CreateEmergencyContact({onClose}) {
         {showErrorModal && (
             <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
         )}
-        <h1 className='text-lg font-bold mb-4'>Add Insurance</h1>
+        <h1 className='text-lg font-bold mb-4'>Add Emergency Contact</h1>
         {/* Patient ID */}
         <div className='mb-2'>
           <label htmlFor='Contact_Name'>Name:</label>

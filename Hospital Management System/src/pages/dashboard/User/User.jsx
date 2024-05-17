@@ -18,8 +18,8 @@ function User({
 
 
     useEffect(() => {
-        // Get the token from localStorage
-        const token = localStorage.getItem('token');
+        // Get the token from sessionStorage
+        const token = sessionStorage.getItem('token');
 
         // Check if token exists
         if (token) {
@@ -36,7 +36,7 @@ function User({
                 .then((res) => setUsers(res.data))
                 .catch((err) => console.log(err));
         } else {
-            console.log('Token not found in localStorage');
+            console.log('Token not found in sessionStorage');
         }
     }, []); // Empty dependency array means this effect runs once after initial render
 
@@ -86,7 +86,8 @@ function User({
                             >
                                 Cancel
                             </button>
-                        </div>
+                       
+                            </div>
                     </div>
                 </div>
             )}

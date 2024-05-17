@@ -12,7 +12,9 @@ function UpdateEmergency_Contact({ id, onClose }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const navigate = useNavigate();
+    const [emergency_contact, setEmergency_contact] = useState([]);
 
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,7 +34,25 @@ function UpdateEmergency_Contact({ id, onClose }) {
 
         fetchData();
     }, [id]);
+    useEffect(() => {
+        const fetchAllEmergency_contact = async () => {
+            try {
+                const response = await axios.get('http://localhost:9004/api/emergency_contact');
+                setEmergency_contact(response.data);
+            } catch (error) {
+                console.error('Error fetching emergency_contact:', error);
+            }
+        };
 
+        fetchAllEmergency_contact();
+    }, []);
+
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setShowErrorModal(true);
+        // Automatically hide the error modal after 3 seconds
+
+    };
     const handleUpdateContact = async () => {
         const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
 
@@ -42,8 +62,8 @@ function UpdateEmergency_Contact({ id, onClose }) {
             return;
         }
 
-        if (!phone.trim() || !phone.match(phoneRegex)) {
-            setAlertMessage("Please enter a valid phone number.");
+        if (!phone.trim() || !phone.match(phoneRegex) || phone.length !== 9) {
+            setAlertMessage("Phone can should be 9 characters long!");
             setShowErrorModal(true);
             return;
         }
@@ -59,6 +79,7 @@ function UpdateEmergency_Contact({ id, onClose }) {
             setShowErrorModal(true);
             return;
         }
+        
 
         if (
             name === originalData.Contact_Name &&
@@ -70,7 +91,11 @@ function UpdateEmergency_Contact({ id, onClose }) {
             setShowErrorModal(true);
             return;
         }
-
+        const existingMedicine = emergency_contact.find(emergency_contact => emergency_contact.Phone === phone && emergency_contact.Contact_ID!==id);
+        if (existingMedicine) {
+            showAlert('Phone number Exists');
+            return;
+        }
         try {
             await axios.put(`http://localhost:9004/api/emergency_contact/update/${id}`, {
                 Contact_Name: name,
@@ -149,6 +174,7 @@ function UpdateEmergency_Contact({ id, onClose }) {
                     className="form-control"
                     value={patientID}
                     onChange={(e) => setPatientID(e.target.value)}
+                    disabled
                 />
             </div>
             <div className="flex justify-end">

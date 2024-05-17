@@ -16,7 +16,7 @@ function UpdateInsurance({ id, onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
-
+    const [insurance, setInsurance] = useState([]);
     
     useEffect(() => {
         const fetchData = async () => {
@@ -43,13 +43,22 @@ function UpdateInsurance({ id, onClose }) {
         fetchData();
     }, [id]);
 
+    useEffect(() => {
+        const fetchAllInsurances = async () => {
+            try {
+                const response = await axios.get('http://localhost:9004/api/insurance');
+                setInsurance(response.data);
+            } catch (error) {
+                console.error('Error fetching insurance:', error);
+            }
+        };
+
+        fetchAllInsurances();
+    }, []);
+
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
     };
 
     const handleUpdateInsurance = async () => {
@@ -110,6 +119,11 @@ function UpdateInsurance({ id, onClose }) {
             return;
         }
 
+        const existingInsurance = insurance.find(insurance => insurance.Ins_Code === insCode && insurance.Policy_Number!==id);
+        if (existingInsurance) {
+            showAlert('Insurance with the same code already exists');
+            return;
+        }
         try {
             await axios.put(`http://localhost:9004/api/insurance/update/${id}`, {
                 Patient_ID: patientID,
@@ -149,6 +163,7 @@ function UpdateInsurance({ id, onClose }) {
                     className="form-control"
                     value={patientID}
                     onChange={(e) => setPatientID(e.target.value)}
+                    disabled
                 />
             </div>
             <div className="mb-4">

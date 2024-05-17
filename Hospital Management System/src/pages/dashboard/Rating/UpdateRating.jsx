@@ -35,10 +35,7 @@ function UpdateRating({ id, onClose}) {
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
+
     };
 
     const handleUpdateRating = async () => {
@@ -104,6 +101,7 @@ function UpdateRating({ id, onClose}) {
                         className='form-control'
                         value={emp_ID}
                         onChange={(e) => setEmp_ID(e.target.value)}
+                        disabled
                     />
                 </div>
 

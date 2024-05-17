@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
@@ -10,9 +10,24 @@ function CreateMedicine({ onClose }) {
         M_Cost: '',
     });
 
+    const [medicines, setMedicines] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Fetch existing medicines when component mounts
+        fetchMedicines();
+    }, []);
+
+    const fetchMedicines = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/medicine');
+            setMedicines(response.data);
+        } catch (error) {
+            console.error('Error fetching medicines:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,16 +53,27 @@ function CreateMedicine({ onClose }) {
         const { M_name, M_Quantity, M_Cost } = formData;
 
         // Ensure all required fields are filled
-        if (!M_name.trim() || M_Quantity ==='' || M_Cost === '') {
+        if (!M_name.trim() || M_Quantity === '' || M_Cost === '') {
             showAlert('All fields are required');
             return;
         }
-        if(M_Quantity < 1){
+        if (M_name.length < 2) {
+            showAlert('Name can not be less than 1');
+            return;
+        }
+        if (M_Quantity < 1) {
             showAlert('Quantity can not be less than 1');
             return;
         }
-        if(M_Cost < 1){
+        if (M_Cost < 1) {
             showAlert('Cost can not be less than 1');
+            return;
+        }
+
+        // Check if medicine with the same name already exists
+        const existingMedicine = medicines.find(medicine => medicine.M_name === M_name);
+        if (existingMedicine) {
+            showAlert('Medicine with the same name already exists');
             return;
         }
 
@@ -59,10 +85,10 @@ function CreateMedicine({ onClose }) {
         setAlertMessage(message);
         setShowErrorModal(true);
         // Automatically hide the error modal after 3 seconds
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
+        // setTimeout(() => {
+        //     setAlertMessage('');
+        //     setShowErrorModal(false);
+        // }, 3000);
     };
 
     return (
@@ -125,7 +151,6 @@ function CreateMedicine({ onClose }) {
             </div>
         </div>
     );
-    
 }
 
 export default CreateMedicine;

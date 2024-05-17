@@ -13,7 +13,6 @@ const Login = () => {
     const [loginPassword, setLoginPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [token, setToken] = useState('');
-    console.log(token);
     
     const navigateTo = useNavigate();
 
@@ -28,8 +27,8 @@ const Login = () => {
                 setErrorMessage('Credentials Don\'t Exist!');
             } else {
                 setToken(response.data.token);
-                // Store the token in localStorage or state for authentication purposes
-                localStorage.setItem('token', response.data.token);
+                // Store the token in sessionStorage for authentication purposes
+                sessionStorage.setItem('token', response.data.token);
                 navigateTo('/dashboard/home'); // Redirect to the dashboard after successful login
             }
         })

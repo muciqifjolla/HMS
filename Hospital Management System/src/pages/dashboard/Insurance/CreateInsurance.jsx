@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
@@ -16,7 +16,7 @@ function CreateInsurance({onClose}) {
         Dental: '',
         Optical: '',
     });
-
+    const [insurance, setInsurance] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
@@ -27,6 +27,19 @@ function CreateInsurance({onClose}) {
             ...prevState,
             [name]: value,
         }));
+    };
+    useEffect(() => {
+        // Fetch existing medicines when component mounts
+        fetchInurance();
+    }, []);
+
+    const fetchInurance = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/insurance');
+            setInsurance(response.data);
+        } catch (error) {
+            console.error('Error fetching insurance:', error);
+        }
     };
 
     const handleAddInsurance = async () => {
@@ -44,13 +57,9 @@ function CreateInsurance({onClose}) {
         setAlertMessage(message);
         setShowErrorModal(true);
         // Automatically hide the error modal after 3 seconds
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
     };
 
-    const handleValidation = () => {
+    const handleValidation = async () => {
         const {
             Patient_ID,
             Ins_Code,
@@ -63,7 +72,7 @@ function CreateInsurance({onClose}) {
             Dental,
             Optical,
         } = formData;
-
+    
         if (Patient_ID === '' || Ins_Code === '' || End_Date === '' || Provider === '' || Plan === '' || Co_Pay === '' || Coverage === '' || Maternity === '' || Dental === '' || Optical === '') {
             showAlert('All fields are required!');
             return;
@@ -76,9 +85,23 @@ function CreateInsurance({onClose}) {
             showAlert('Patient ID can not be less than 1');
             return;
         }
-
-        handleAddInsurance(); // All validations passed
+    
+        const existingInsurance = insurance.find(insurance => insurance.Ins_Code === Ins_Code);
+        if (existingInsurance) {
+            showAlert('Insurance with the same code already exists');
+            return;
+        }
+        try {
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
+            // Proceed with form submission after successful validation
+            handleAddInsurance();
+        } catch (error) {
+            console.error('Error checking patient ID:', error);
+            showAlert('Patient ID does not exist');
+        }
+       
     };
+    
 
     return (
         <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>

@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
@@ -10,7 +10,7 @@ function CreateRating({onClose}) {
         Comments: '',
         Date: new Date().toISOString().slice(0, 10), // Default to today's date
     });
-
+    const [rating, setRatings] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
@@ -22,7 +22,19 @@ function CreateRating({onClose}) {
             [name]: value,
         }));
     };
+    useEffect(() => {
+        // Fetch existing medicines when component mounts
+        fetchRating();
+    }, []);
 
+    const fetchRating = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/rating');
+            setRatings(response.data);
+        } catch (error) {
+            console.error('Error fetching rating:', error);
+        }
+    };
     const handleAddRating = async () => {
         try {
             await axios.post('http://localhost:9004/api/rating/create', formData);
@@ -30,13 +42,18 @@ function CreateRating({onClose}) {
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
             console.error('Error adding rating:', error);
-            showAlert('Error adding rating. Please try again.');
+            if (error.response && error.response.status === 400 && error.response.data.error.includes('Employee')) {
+                showAlert('Employee already rated');
+            } else {
+                showAlert('Error adding rating. Please try again.');
+            }
         }
     };
+    
 
-    const handleValidation = () => {
+    const handleValidation = async () => {
         const { Emp_ID, Rating, Comments, Date } = formData;
-
+    
         // Ensure all required fields are filled
         if (Emp_ID === '' || Rating === '' || !Comments.trim()) {
             showAlert('All fields are required');
@@ -46,23 +63,33 @@ function CreateRating({onClose}) {
             showAlert('Staff ID cannot be less than 1');
             return;
         }
-        if(Comments.length>30){
-            showAlert('Limit of characters reached(30)');
+        if (Comments.length > 30) {
+            showAlert('Limit of characters reached (30)');
             return;
         }
-
-        // Proceed with form submission after successful validation
-        handleAddRating();
+    
+        // Check if the employee has already been rated
+        const existingRating = rating.find(rating => rating.Emp_ID === Emp_ID);
+        if (existingRating) {
+            showAlert('Employee has already been rated');
+            return;
+        }
+    
+        try {
+            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
+            // Proceed with form submission after successful validation
+            handleAddRating();
+        } catch (error) {
+            console.error('Error checking employee ID:', error);
+            showAlert('Employee ID does not exist');
+        }
     };
+    
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
         // Automatically hide the error modal after 3 seconds
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
     };
 
     return (

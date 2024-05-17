@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2024 at 02:38 PM
+-- Generation Time: May 17, 2024 at 08:51 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -412,9 +412,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `email`, `username`, `password`, `fullName`, `phone`) VALUES
-(4, 'Fjolla@gmail.com', 'fjolla', '$2b$10$iUnapl6Y8ZIUwWP9Tej4buaEPHMcj7djRQYjtDbsPqRxsfwrtgm6C', 'Fjolla Test1', '045123123'),
-(5, 'test@gmail.com', 'test', '$2b$10$qBY.toDodk3U18k6pircmeVtgQY27BNDEYWn4QyqpQp6MtdJxenF2', 'test1234', '045123123'),
-(6, 'egz@gmail.com', 'gmail', '$2b$10$GFkEHkqlPDO9E4ktZURl2ew8blwsLfw7UGN6vABMfbFSVc0.9SIe.', 'test1234', '4123123123123');
+(7, 'Lind@gmail.com', 'Lind', '$2b$10$ali2V2LF2.BjxJpYGWxQ8uojlq9x66ofpmEBzYDj3sHRhsn7cx9oe', 'Lind', '11111111111111111'),
+(8, 'Fjolla@gmail.com', 'Fjolla', '$2b$10$Nxr2Vga9dqsaPXoE.iYweepT4YuOgEOkdNwfGj2Hm0bUwPuhCSOmC', 'Fjolla', '2024'),
+(9, 'Bledar@gmail.com', 'Bledar', '$2b$10$5x1rLjjNpPA2J8VXx8XBS.LAlkZx899IHH9ebib4Bm1U3Kx/7dGH.', 'Bledar', '2024'),
+(10, 'Alton@gmail.com', 'Alton', '$2b$10$bxBbWQEmz7DA6hy2ULNW5Oz6GnbRfzg42yjkMlgDiXBu2MYBeMpte', 'Alton', '2024'),
+(11, 'Egzona@gmail.com', 'Egzona', '$2b$10$8oXIWpvwcqXjt6wLO0jNMe/syZKzrY1vzYFiZupjDCT0OJ0CkRk.G', 'Egzona', '2024');
 
 --
 -- Indexes for dumped tables
@@ -669,7 +671,7 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
