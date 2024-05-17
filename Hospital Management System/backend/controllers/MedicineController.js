@@ -45,6 +45,12 @@ const AddMedicine = async (req, res) => {
             return res.status(400).json({ error: 'Medicine cost must be at least 1' });
         }
 
+        // Check if the medicine already exists
+        const existingMedicine = await Medicine.findOne({ where: { M_name } });
+        if (existingMedicine) {
+            return res.status(400).json({ error: 'Medicine with the same name already exists1' });
+        }
+
         const newMedicine = await Medicine.create({
             M_name,
             M_Quantity,

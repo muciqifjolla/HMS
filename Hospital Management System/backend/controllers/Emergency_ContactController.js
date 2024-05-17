@@ -24,7 +24,6 @@ const FindSingleEmergency_Contact = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 const AddEmergency_Contact = async (req, res) => {
     try {
         const { Contact_Name, Phone, Relation, Patient_ID } = req.body;
@@ -42,6 +41,15 @@ const AddEmergency_Contact = async (req, res) => {
         if (!Patient_ID) {
             return res.status(400).json({ error: 'Patient_ID cannot be empty' });
         }
+        if (Patient_ID<1) {
+            return res.status(400).json({ error: 'Patient_ID should be at least 1' });
+        }
+
+        // Check if the phone number already exists
+        const existingContact = await Emergency_Contact.findOne({ where: { Phone } });
+        if (existingContact) {
+            return res.status(400).json({ error: 'Emergency contact with the same phone number already exists' });
+        }
 
         const newEmergency_Contact = await Emergency_Contact.create({
             Contact_Name,
@@ -55,6 +63,7 @@ const AddEmergency_Contact = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 const UpdateEmergency_Contact = async (req, res) => {
     try {

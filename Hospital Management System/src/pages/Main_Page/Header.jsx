@@ -16,13 +16,13 @@ function Header() {
 
         <div className="flex space-x-6"> 
           <Link
-            to="/"
+            to="/homepage"
             className="text-gray-700 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 transition-colors"
           >
             Home
           </Link>
           <Link
-            to="/services"
+            to="/homepage/services"
             className="text-gray-700 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 transition-colors"
           >
             Services
@@ -80,14 +80,8 @@ function Header() {
             <ul
               className="absolute right-0 w-40 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
             >
-              <li>
-                <Link
-                  to="/dashboard/home"
-                  className="block py-2 px-4 text-gray-700 hover:bg-gray-100"
-                >
-                  Dashboard
-                </Link>
-              </li>
+              
+              
               <li>
                 <Link
                   to=""

@@ -32,13 +32,21 @@ const AddRating = async (req, res) => {
         if (!Emp_ID || !Rating || !Comments || !Date) {
             return res.status(400).json({ error: 'All fields are required' });
         }
-        if(Emp_ID<1){
+        if (Emp_ID < 1) {
             return res.status(400).json({ error: 'Staff ID cannot be less than 1' });
         }
         if (Comments.length > 30) {
             return res.status(400).json({ error: 'Comments must be maximum 30 characters long' });
         }
 
+        // Check if a rating already exists for the employee
+        const existingRating = await Ratingg.findOne({ where: { Emp_ID } });
+        if (existingRating) {
+            // If the employee already has a rating, return an error
+            return res.status(400).json({ error: `Employee ${Emp_ID} has already been rated` });
+        }
+
+        // Assuming Ratingg is the Sequelize model for your Rating table
         const newRating = await Ratingg.create({
             Emp_ID,
             Rating,
@@ -51,6 +59,8 @@ const AddRating = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
 
 const UpdateRating = async (req, res) => {
     try {

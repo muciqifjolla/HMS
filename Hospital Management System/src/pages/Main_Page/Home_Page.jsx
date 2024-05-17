@@ -21,8 +21,9 @@ function HomePage() {
   };
 
   return (
+    <><Header />
     <div className="min-h-screen flex flex-col">
-      <Header />
+      
       <div className="flex flex-col items-center justify-center w-full">
         <Slider
           {...settings}
@@ -62,7 +63,10 @@ function HomePage() {
       </div>
       <Footer />
     </div>
+    </>
   );
+
+  
 }
 
 export default HomePage;

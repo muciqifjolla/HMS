@@ -28,7 +28,7 @@ const AddInsurance = async (req, res) => {
     try {
         const {Patient_ID, Ins_Code, End_Date, Provider, Plan, Co_Pay, Coverage, Maternity, Dental, Optical} = req.body;
 
-        // Validation
+        // Validate input fields
         if (!Ins_Code || Ins_Code.length < 6) {
             return res.status(400).json({ error: 'Ins_Code must be at least 6 characters long' });
         }
@@ -39,6 +39,12 @@ const AddInsurance = async (req, res) => {
             return res.status(400).json({ error: 'Provider cannot be empty' });
         }
         // Similarly, add validations for other fields (Plan, Co_Pay, Coverage, Maternity, Dental, Optical)
+
+        // Check if the insurance already exists
+        const existingInsurance = await Insurance.findOne({ where: { Ins_Code } });
+        if (existingInsurance) {
+            return res.status(400).json({ error: 'Insurance with the same code already exists' });
+        }
 
         const newInsurance = await Insurance.create({
             Patient_ID,

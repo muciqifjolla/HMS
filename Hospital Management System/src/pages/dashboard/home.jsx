@@ -8,7 +8,7 @@ export function Home() {
   const [department, setDepartment] = useState([]);
   const [staff, setStaff] = useState([]);
   const [room, setRoom] = useState([]);
-  const [nurse, setNurse] = useState([]);
+  const [medicine, setMedicine] = useState([]);
   useEffect(() => {
     async function fetchData() {
       try {
@@ -37,9 +37,9 @@ export function Home() {
         setRoom(fetchedRooms);
 
 
-        const nurseResponse = await axios.get('http://localhost:9004/api/nurse');
-        const fetchedNurses = nurseResponse.data;
-        setNurse(fetchedNurses);
+        const nurseMedicine = await axios.get('http://localhost:9004/api/medicine');
+        const fetchedMedicine = nurseMedicine.data;
+        setMedicine(fetchedMedicine);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -111,13 +111,13 @@ export function Home() {
       </div>
 
       <div className="rounded-lg shadow-md bg-white p-6 flex flex-col items-center justify-center space-y-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-blue-500">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
-        </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-blue-500">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          </svg>
         <div className="text-center">
-          <p className="text-gray-500">Nurses</p>
-          <h2 className="text-5xl font-bold">{nurse.length}</h2>
-          <p className="text-sm text-gray-600">Total nurses available</p>
+          <p className="text-gray-500">Medicines</p>
+          <h2 className="text-5xl font-bold">{medicine.length}</h2>
+          <p className="text-sm text-gray-600">Total medicine available</p>
         </div>
       </div>
     </div>

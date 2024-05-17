@@ -30,7 +30,7 @@ const Login = () => {
                 setToken(response.data.token);
                 // Store the token in localStorage or state for authentication purposes
                 localStorage.setItem('token', response.data.token);
-                navigateTo('/dashboard'); // Redirect to the dashboard after successful login
+                navigateTo('/dashboard/home'); // Redirect to the dashboard after successful login
             }
         })
         .catch((error) => {
