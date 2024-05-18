@@ -8,8 +8,6 @@ function CreateUser() {
         email: '',
         username: '',
         password: '',
-        fullName: '',
-        phone: '',
     });
 
     const [alertMessage, setAlertMessage] = useState('');
@@ -36,10 +34,10 @@ function CreateUser() {
     };
 
     const handleValidation = () => {
-        const { email, username, password, fullName, phone } = formData;
+        const { email, username, password } = formData;
 
         // Ensure all required fields are filled
-        if (!email.trim() || !username.trim() || !password.trim() || !fullName.trim() || !phone.trim()) {
+        if (!email.trim() || !username.trim() || !password.trim()) {
             showAlert('All fields are required');
             return;
         }
@@ -100,30 +98,7 @@ function CreateUser() {
                         onChange={handleChange}
                     />
                 </div>
-                <div className='mb-2'>
-                    <label htmlFor='fullName'>Full Name:</label>
-                    <input
-                        type='text'
-                        id='fullName'
-                        name='fullName'
-                        placeholder='Enter Full Name'
-                        className='form-control'
-                        value={formData.fullName}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='phone'>Phone Number:</label>
-                    <input
-                        type='text'
-                        id='phone'
-                        name='phone'
-                        placeholder='Enter Phone Number'
-                        className='form-control'
-                        value={formData.phone}
-                        onChange={handleChange}
-                    />
-                </div>
+                
                 <button
                     type='button'
                     className='btn btn-success'

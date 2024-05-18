@@ -6,8 +6,6 @@ import ErrorModal from '../../../components/ErrorModal'; // Ensure this componen
 function UpdateUser({ id }) {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [phone, setPhone] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
@@ -21,8 +19,7 @@ function UpdateUser({ id }) {
                 setOriginalData(data);
                 setEmail(data.email);
                 setUsername(data.username);
-                setFullName(data.fullName);
-                setPhone(data.phone);
+               
             } catch (error) {
                 console.error('Error fetching user:', error);
                 showAlert('Error fetching user details.');
@@ -56,9 +53,7 @@ function UpdateUser({ id }) {
         // Ensure there are changes to update
         if (
             email === originalData.email &&
-            username === originalData.username &&
-            fullName === originalData.fullName &&
-            phone === originalData.phone
+            username === originalData.username
         ) {
             showAlert("Data must be changed before updating.");
             return;
@@ -68,11 +63,9 @@ function UpdateUser({ id }) {
             await axios.put(`http://localhost:9004/api/users/update/${id}`, {
                 email: email,
                 username: username,
-                fullName: fullName,
-                phone: phone,
             });
 
-            navigate('/dashboard/users'); // Navigate to the users dashboard after updating
+            navigate('/dashboard/user'); // Navigate to the users dashboard after updating
             window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating user:', error);
@@ -110,29 +103,9 @@ function UpdateUser({ id }) {
                     />
                 </div>
 
-                <div className="mb-2">
-                    <label htmlFor="userFullName">Full Name:</label>
-                    <input
-                        type="text"
-                        id="userFullName"
-                        placeholder="Enter Full Name"
-                        className="form-control"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                    />
-                </div>
+                
 
-                <div className="mb-2">
-                    <label htmlFor="userPhone">Phone:</label>
-                    <input
-                        type="text"
-                        id="userPhone"
-                        placeholder="Enter Phone"
-                        className="form-control"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                    />
-                </div>
+                
 
                 <button type="button" className="btn btn-success" onClick={handleUpdateUser}>
                     Submit

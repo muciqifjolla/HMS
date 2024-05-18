@@ -19,10 +19,10 @@ const isUser = requireRole("user");
 
 // Route definitions
 router.get("/users", FindAllUsers); // Only admins can view all users
-router.get("/users/:id", authenticateToken, isUser, FindSingleUser); // Users can view their own profile
+router.get("/users/:id",  FindSingleUser); // Users can view their own profile
 router.post("/users/create", AddUser); // Only admins can create users
-router.put("/users/update/:id", authenticateToken, isAdmin, UpdateUser); // Only admins can update users
-router.delete("/users/delete/:id", authenticateToken, isAdmin, DeleteUser); // Only admins can delete users
+router.put("/users/update/:id",  UpdateUser); // Only admins can update users
+router.delete("/users/delete/:id", DeleteUser); // Only admins can delete users
 
 // Route for user login
 router.post("/login", loginUser);

@@ -110,8 +110,6 @@ function User({
                                     <tr>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Username</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Full Name</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Phone</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
                                         <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
                                     </tr>
@@ -121,8 +119,7 @@ function User({
                                         <tr key={user.user_id}>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.email}</td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.username}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.fullName}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{user.phone}</td>
+                                    
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <button
                                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
