@@ -17,7 +17,7 @@ const Register = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const createUser = () => {
-        Axios.post('http://localhost:9004/register', {
+        Axios.post('http://localhost:9004/api/register', {
             email,
             username: userName, // Aligning with backend
             password
