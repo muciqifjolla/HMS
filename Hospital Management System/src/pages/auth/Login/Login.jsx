@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../auth/App.css'; // Adjust the import path to navigate to the auth directory
 import { Link, useNavigate } from 'react-router-dom';
 import Axios from 'axios';
@@ -14,22 +14,30 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [token, setToken] = useState('');
     
+    
     const navigateTo = useNavigate();
+
+    useEffect(() => {
+        // Check if the user is already logged in
+        const storedToken = sessionStorage.getItem('token');
+        if (storedToken) {
+            navigateTo('/dashboard/home');
+        }
+    }, [navigateTo]);
 
     const loginUser = (e) => {
         e.preventDefault();
         Axios.post('http://localhost:9004/api/login', {
-            username: loginUserName, // Aligning with backend
-            password: loginPassword // Aligning with backend
+            username: loginUserName,
+            password: loginPassword
         })
         .then((response) => {
             if (response.data.message || loginUserName === '' || loginPassword === '') {
                 setErrorMessage('Credentials Don\'t Exist!');
             } else {
                 setToken(response.data.token);
-                // Store the token in sessionStorage for authentication purposes
                 sessionStorage.setItem('token', response.data.token);
-                navigateTo('/dashboard/home'); // Redirect to the dashboard after successful login
+                navigateTo('/dashboard/home');
             }
         })
         .catch((error) => {
