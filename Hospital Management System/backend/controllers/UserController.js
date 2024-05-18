@@ -29,7 +29,7 @@ const FindSingleUser = async (req, res) => {
 
 const AddUser = async (req, res) => {
     try {
-        const { email, username, password, fullName, phone } = req.body;
+        const { email, username, password } = req.body;
         // Hash the password before storing it in the database
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -37,8 +37,7 @@ const AddUser = async (req, res) => {
                 email,
                 username,
                 password: hashedPassword,
-                fullName,
-                phone,
+             
             });
             
             res.json({ success: true, message: 'User added successfully', data: newUser });
@@ -52,9 +51,9 @@ const UpdateUser = async (req, res) => {
     try {
         console.log('Request body:', req.body);
 
-        const { email, username, password, fullName, phone } = req.body;
+        const { email, username, password } = req.body;
         const updated = await User.update(
-            { email, username, password, fullName, phone },
+            { email, username, password },
             { where: { user_id: req.params.id } }
         );
         if (updated[0] === 0) {

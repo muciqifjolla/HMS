@@ -21,15 +21,7 @@ const User = sequelize.define('User', {
   password: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
-  fullName: {
-    type: DataTypes.STRING,
-    allowNull: true, // Allow null if you don't require full name
-  },
-  phone: {
-    type: DataTypes.STRING,
-    allowNull: true, // Allow null if you don't require phone
-  },
+  }
 }, {
   tableName: 'users', 
   timestamps: false, 
