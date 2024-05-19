@@ -1,7 +1,7 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Staff = require('./Staff');
-const User = require('./User');
+const Users = require('./Users');
 
 const Doctor = sequelize.define('Doctor', {
     Doctor_ID: {
@@ -17,7 +17,7 @@ const Doctor = sequelize.define('Doctor', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Staff,
+            model: 'staff',
             key: 'Emp_ID'
         }
     },
@@ -29,17 +29,17 @@ const Doctor = sequelize.define('Doctor', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: User,
+            model: 'users',
             key: 'user_id'
         }
     }
 }, {
-    tableName: 'Doctors',
+    tableName: 'doctor', // Table names are usually in lowercase
     timestamps: false
 });
 
 // Associations
 Doctor.belongsTo(Staff, { foreignKey: 'Emp_ID' });
-Doctor.belongsTo(User, { foreignKey: 'user_id' });
+Doctor.belongsTo(Users, { foreignKey: 'user_id' });
 
 module.exports = Doctor;

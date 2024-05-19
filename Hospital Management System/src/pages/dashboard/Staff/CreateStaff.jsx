@@ -1,5 +1,5 @@
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
@@ -46,7 +46,7 @@ function CreateStaff({ onClose }) {
         try {
             await axios.post("http://localhost:9004/api/staff/create", formData);
             navigate('/dashboard/staffs');
-            window.location.reload();
+            window.location.reload();// Refresh after successful addition
         } catch (error) {
             console.error('Error adding Staff:', error);
             showAlert('Error adding staff. Please try again.');
@@ -78,15 +78,16 @@ function CreateStaff({ onClose }) {
             showAlert('All fields are required!');
             return;
         }
-
-        // if (!validateEmail(Email)) {
-        //     showAlert('Invalid email format.');
-        //     return;
-        // }
-        const validateEmail = (email) => {
+        const validateEmail = (Email) => {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(String(email).toLowerCase());
         };
+
+        if (!validateEmail(Email)) {
+            showAlert('Invalid email format.');
+            return;
+        }
+       
 
         const existingStaff = staff.find(staff => staff.SSN === SSN);
         if (existingStaff) {

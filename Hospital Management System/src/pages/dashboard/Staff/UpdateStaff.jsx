@@ -193,6 +193,7 @@ function UpdateStaff({ id,onClose }) {
                         className='form-control'
                         value={dept_ID}
                         onChange={(e) => setDept_ID(e.target.value)}
+                        disabled    
                     />
                 </div>
                 <div className='mb-4'>

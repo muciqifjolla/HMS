@@ -109,7 +109,7 @@ const getDepartmentName = (departmentId) => {
     console.log("Found Department:", department);
 
     if (department) {
-        return department.Dept_name;
+        return `${department.Dept_name}`;
     } else {
         return 'Unknown';
     }

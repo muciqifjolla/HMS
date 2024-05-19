@@ -26,9 +26,12 @@ const FindSingleDoctor = async (req, res) => {
 
 const AddDoctor = async (req, res) => {
     try {
-        const { Qualifications, Emp_ID, Specialization, user_id } = req.body;
+        const { Doctor_ID, Qualifications, Emp_ID, Specialization, user_id } = req.body;
 
-        // Validation
+        // Validate input fields
+        if (!Doctor_ID) {
+            return res.status(400).json({ error: 'Doctor_ID cannot be empty' });
+        }
         if (!Qualifications) {
             return res.status(400).json({ error: 'Qualifications cannot be empty' });
         }
@@ -42,7 +45,14 @@ const AddDoctor = async (req, res) => {
             return res.status(400).json({ error: 'user_id cannot be empty' });
         }
 
+        // Check if the doctor already exists
+        const existingDoctor = await Doctor.findOne({ where: { Doctor_ID } });
+        if (existingDoctor) {
+            return res.status(400).json({ error: 'Doctor with the same ID already exists' });
+        }
+
         const newDoctor = await Doctor.create({
+            Doctor_ID,
             Qualifications,
             Emp_ID,
             Specialization,
@@ -57,9 +67,12 @@ const AddDoctor = async (req, res) => {
 
 const UpdateDoctor = async (req, res) => {
     try {
-        const { Qualifications, Emp_ID, Specialization, user_id } = req.body;
+        const { Doctor_ID, Qualifications, Emp_ID, Specialization, user_id } = req.body;
 
         // Validation
+        if (!Doctor_ID) {
+            return res.status(400).json({ error: 'Doctor_ID cannot be empty' });
+        }
         if (!Qualifications) {
             return res.status(400).json({ error: 'Qualifications cannot be empty' });
         }

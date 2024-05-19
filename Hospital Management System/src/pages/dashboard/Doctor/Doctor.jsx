@@ -11,6 +11,7 @@ function Doctor({
 }) {
     const [doctors, setDoctors] = useState([]);
     const [deleteDoctorId, setDeleteDoctorId] = useState(null);
+    const [staff, setStaff] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredDoctors, setFilteredDoctors] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -25,6 +26,14 @@ function Doctor({
                 setFilteredDoctors(res.data);
             })
             .catch((err) => console.error('Error fetching doctors:', err));
+            axios
+            .get('http://localhost:9004/api/staff')
+            .then((res) => {
+                console.log("Staff data:", res.data);
+                setStaff(res.data);
+            })
+            .catch((err) => console.error('Error fetching staff:', err));
+    
     }, []);
 
     const handleUpdateButtonClick = (doctorId) => {
@@ -42,8 +51,8 @@ function Doctor({
     const handleDeleteConfirm = async () => {
         try {
             await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`);
-            setDoctors(doctors.filter((data) => data.Emp_ID !== deleteDoctorId));
-            setFilteredDoctors(filteredDoctors.filter((data) => data.Emp_ID !== deleteDoctorId));
+            setDoctors(doctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
+            setFilteredDoctors(filteredDoctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
             if (showCreateForm) {
                 setShowCreateForm(false);
             }
@@ -73,8 +82,8 @@ function Doctor({
     useEffect(() => {
         const filtered = doctors
             .filter((item) =>
-                `${item.Qualifications} ${item.Specialization}`.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            getDoctorName(item.Doctor_ID).toLowerCase().startsWith(searchQuery.toLowerCase())        
+        )
 
         setFilteredDoctors(filtered);
     }, [searchQuery, doctors]);
@@ -88,6 +97,21 @@ function Doctor({
     const paginate = pageNumber => {
         setCurrentPage(pageNumber);
     };
+
+    const getDoctorName = (empid) => { 
+        console.log("Employee ID:", empid);
+        console.log("Doctors:", staff);
+    
+        const staff = staff.find(doc => doc.Emp_ID === empid);
+        console.log("Found Doctor:", staff);
+    
+        if (staff) {
+            return `${staff.Emp_Fname} ${staff.Emp_Lname}`;
+        } else {
+            return 'Unknown';
+        }
+    };
+    
 
     return (
         <div className="container-fluid mt-4">
