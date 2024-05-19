@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 18, 2024 at 03:38 PM
+-- Generation Time: May 19, 2024 at 07:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -158,7 +158,8 @@ INSERT INTO `insurance` (`Policy_Number`, `Patient_ID`, `Ins_Code`, `End_Date`, 
 (70, 7, '7', '2024-05-04', 'No', 'No', 'No', '50%', 'No', 'No', 'No'),
 (71, 7, '1172711835', '2024-05-04', 'No', 'Yes', 'Yes', '50%', 'Yes', 'No', 'No'),
 (72, 6, '111111', '2024-05-04', 'Yes', 'No', 'Yes', '25%', 'No', 'No', 'Yes'),
-(73, 7, '121212', '2024-05-12', 'Yes', 'Yes', 'Yes', '25%', 'No', 'No', 'No');
+(73, 7, '121212', '2024-05-12', 'Yes', 'Yes', 'Yes', '25%', 'No', 'No', 'No'),
+(74, 6, '11111111', '2024-05-12', 'Yes', 'Yes', 'No', '75%', 'No', 'Yes', 'No');
 
 -- --------------------------------------------------------
 
@@ -226,7 +227,9 @@ INSERT INTO `medicine` (`Medicine_ID`, `M_name`, `M_Quantity`, `M_Cost`) VALUES
 (79, '1', 212, 121.00),
 (80, '1 test', 1, 1.00),
 (81, 'Amoxicilin test', 2, 120.00),
-(83, 'Lind', 1, 2.00);
+(83, 'Lind', 1, 2.00),
+(84, 'test', 112, 1.00),
+(85, 'test12', 112, 1.00);
 
 -- --------------------------------------------------------
 
@@ -402,6 +405,13 @@ CREATE TABLE `userroles` (
   `role_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `userroles`
+--
+
+INSERT INTO `userroles` (`user_id`, `role_id`) VALUES
+(8, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -420,16 +430,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `email`, `username`, `password`) VALUES
-(7, 'Lind@gmail.com', 'Lind', '$2b$10$ali2V2LF2.BjxJpYGWxQ8uojlq9x66ofpmEBzYDj3sHRhsn7cx9oe'),
 (8, 'Fjolla@gmail.com', 'Fjolla', '$2b$10$Nxr2Vga9dqsaPXoE.iYweepT4YuOgEOkdNwfGj2Hm0bUwPuhCSOmC'),
-(9, 'Bledar@gmail.com', 'Bledar', '$2b$10$5x1rLjjNpPA2J8VXx8XBS.LAlkZx899IHH9ebib4Bm1U3Kx/7dGH.'),
-(10, 'Alton@gmail.com', 'Alton', '$2b$10$bxBbWQEmz7DA6hy2ULNW5Oz6GnbRfzg42yjkMlgDiXBu2MYBeMpte'),
-(11, 'Egzona@gmail.com', 'Egzona', '$2b$10$8oXIWpvwcqXjt6wLO0jNMe/syZKzrY1vzYFiZupjDCT0OJ0CkRk.G'),
-(12, 'ubt@gmail.com', 'ubt', '$2b$10$lQDnTRDvXJGGrJsQ7U6TIuuMR8CDBFPcX4SHueLfgjfPLx4E3oq7u'),
-(13, 'test@gmail.com', 'test', '$2b$10$vhTv/W0PU5QoWGl/6djS3uTeEYONyDqEUA9QC8un3WvWN8wYPCiHC'),
-(14, 'test1@gmail.com', 'test1', '$2b$10$Sf2KckJ0QaQ5nwIAWZgeTOkMIUCF90y3nj8nHOpUYKsFALhYB.fIC'),
-(20, 'test2@gmail.com', 'test2', '$2b$10$gv4keJhf33v61IJi9Dnz2uBHHoWn3MNuz60V0hzgw1M8/KHmwWt1C'),
-(21, 'test3@gmail.com', 'test3', '$2b$10$qSMWXE...0MJO5oAdIIYBeEBcQyNXO6Z1bG3sg67J36KOMwmvXfEm');
+(164, 'lg69462@ubt-uni.net', 'Lind', '$2b$10$ze9pWv196hoFQCpIHfV84O0TQoT1M6e46LDw4ei9OLukgubd3kVte'),
+(165, 'lg694621@ubt-uni.net', 'Lindk', '$2b$10$/qSf0xRe8pLxHvuL4NZW9eVpz.HyIjeir4ldtJcdp8KW33SvDK0pK');
 
 --
 -- Indexes for dumped tables
@@ -613,7 +616,7 @@ ALTER TABLE `emergency_contact`
 -- AUTO_INCREMENT for table `insurance`
 --
 ALTER TABLE `insurance`
-  MODIFY `Policy_Number` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `Policy_Number` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `lab_screening`
@@ -631,7 +634,7 @@ ALTER TABLE `medical_history`
 -- AUTO_INCREMENT for table `medicine`
 --
 ALTER TABLE `medicine`
-  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT for table `nurse`
@@ -685,7 +688,7 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
 
 --
 -- Constraints for dumped tables

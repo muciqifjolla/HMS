@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../auth/App.css'; // Adjust the import path to navigate to the auth directory
+import '../../auth/App.css';
 import { Link, useNavigate } from 'react-router-dom';
 import Axios from 'axios';
 import video from '../../auth/LoginAssets/video.mp4';
@@ -13,12 +13,9 @@ const Login = () => {
     const [loginPassword, setLoginPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [token, setToken] = useState('');
-    
-    
     const navigateTo = useNavigate();
 
     useEffect(() => {
-        // Check if the user is already logged in
         const storedToken = sessionStorage.getItem('token');
         if (storedToken) {
             navigateTo('/dashboard/home');
@@ -27,23 +24,44 @@ const Login = () => {
 
     const loginUser = (e) => {
         e.preventDefault();
+
+        if (!loginUserName || !loginPassword) {
+            setErrorMessage('All fields are required!');
+            return;
+        }
+
         Axios.post('http://localhost:9004/api/login', {
             username: loginUserName,
             password: loginPassword
         })
         .then((response) => {
-            if (response.data.message || loginUserName === '' || loginPassword === '') {
-                setErrorMessage('Credentials Don\'t Exist!');
-            } else {
-                setToken(response.data.token);
-                sessionStorage.setItem('token', response.data.token);
+            const { data } = response;
+            if (data.token) {
+                setToken(data.token);
+                sessionStorage.setItem('token', data.token);
+                sessionStorage.setItem('username', data.username);
+                sessionStorage.setItem('email', data.email); // Save the email to sessionStorage
                 navigateTo('/dashboard/home');
+            } else {
+                // Display specific error messages based on response from backend
+                if (data.message === 'User does not exist') {
+                    setErrorMessage('Username does not exist!');
+                } else if (data.message === 'Incorrect password') {
+                    setErrorMessage('Password incorrect!');
+                } else {
+                    setErrorMessage('An error occurred while logging in. Please try again later.');
+                }
             }
         })
         .catch((error) => {
-            setErrorMessage('An error occurred while logging in. Please try again later.');
-            console.error('Error logging in:', error);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage('User does not exist or incorrect password1!');
+            } else {
+                setErrorMessage('An error occurred while logging in. Please try again later.');
+                console.error('Error logging in:', error);
+            }
         });
+        
     };
 
     return (
@@ -74,16 +92,16 @@ const Login = () => {
                                 <FaUserShield className='icon'/>
                                 <input type="text" name="" id="username" placeholder='Enter Username'
                                     value={loginUserName}
-                                    onChange={(event)=>{ setLoginUserName(event.target.value) }} />
+                                    onChange={(event) => setLoginUserName(event.target.value)} />
                             </div>
                         </div>
                         <div className="inputDiv">
                             <label htmlFor="password">Password</label>
                             <div className="input flex">
-                                <BsFillShieldLockFill  className='icon'/>
+                                <BsFillShieldLockFill className='icon'/>
                                 <input type="password" name="" id="password" placeholder='Enter password' 
                                     value={loginPassword}
-                                    onChange={(event)=>{ setLoginPassword(event.target.value) }} />
+                                    onChange={(event) => setLoginPassword(event.target.value)} />
                             </div>
                         </div>
                         <button type='submit' className='btn flex'>
@@ -91,7 +109,7 @@ const Login = () => {
                             <AiOutlineSwapRight className='icon'/>
                         </button>
                         <span className='forgotPassword'>
-                            Forgot your password? <a href="">Click here</a>
+                            Forgot your password? <a href="/register">Click here</a>
                         </span>
                     </form>
                 </div>

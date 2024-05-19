@@ -1,83 +1,58 @@
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardBody,
-  Avatar,
   Typography,
-  Tooltip,
-  Button,
+  Image,
 } from "@material-tailwind/react";
-import {
-
-  PencilIcon,
-} from "@heroicons/react/24/solid";
-
-import { ProfileInfoCard } from "@/widgets/cards";
 
 export function Profile() {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [showPhoto, setShowPhoto] = useState(false);
+
+  useEffect(() => {
+    const storedUsername = sessionStorage.getItem('username');
+    const storedEmail = sessionStorage.getItem('email');
+
+    if (storedUsername) {
+      setUsername(storedUsername);
+      if (storedUsername === 'specificUsername') {
+        setShowPhoto(true);
+      }
+    }
+
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
+
   return (
     <>
-      <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover	bg-center">
+      <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-cover bg-center">
         <div className="absolute inset-0 h-full w-full bg-gray-900/75" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          {showPhoto && <Image src="/specific-user-photo.jpg" alt="Profile" className="h-32 w-32 rounded-full border-4 border-white" />}
+        </div>
       </div>
       
       <Card className="mx-3 -mt-16 mb-6 lg:mx-4 border border-blue-gray-100">
         <CardBody className="p-4">
-          
-          <div className="mb-10 flex items-center justify-between flex-wrap gap-6">
-            <div className="flex items-center gap-6">
-              <Avatar
-                // src="/img/bruce-mars.jpeg"
-                alt=""
-                size="xl"
-                variant="rounded"
-                className="rounded-lg shadow-lg shadow-blue-gray-500/40"
-              />
-              <div>
-                <Typography variant="h5" color="blue-gray" className="mb-1">
-                  Admin Name
-                </Typography>
-                <Typography
-                  variant="small"
-                  className="font-normal text-blue-gray-600"
-                >
-                  Position on system
-                </Typography>
-              </div>
+          <div className="mb-10 flex items-center justify-center">
+            <div>
+              <Typography variant="h5" color="blue-gray" className="mb-1">
+                Welcome, {username}!
+              </Typography>
+              <Typography variant="body" color="blue-gray">
+                Email: {email}
+              </Typography>
+              <Typography variant="body" color="blue-gray">
+                You're now logged in. Enjoy your experience!
+              </Typography>
             </div>
           </div>
-          <div className="gird-cols-1 mb-12 grid gap-12 px-4 lg:grid-cols-2 xl:grid-cols-3">
-           
-
-
-            <ProfileInfoCard
-              title="Profile Information"
-              description="Info about Admin: "
-              details={{
-                "first name": "Admin Name",
-                mobile: "(123) 456-789",
-                email: "admin@gmail.com",
-                location: "KOSOVA",
-                social: (
-                  <div className="flex items-center gap-4">
-                    <i className="fa-brands fa-facebook text-blue-700" />
-                    <i className="fa-brands fa-twitter text-blue-400" />
-                    <i className="fa-brands fa-instagram text-purple-500" />
-                  </div>
-                ),
-              }}
-              action={
-                <Tooltip content="Edit Profile">
-                  <PencilIcon className="h-4 w-4 cursor-pointer text-blue-gray-500" />
-                </Tooltip>
-              }
-            />
-          </div>
-          
-           
         </CardBody>
       </Card>
     </>
   );
 }
-
-export default Profile;

@@ -22,6 +22,8 @@ export function DashboardNavbar() {
   const handleLogout = () => {
     // Clear the token from sessionStorage
     sessionStorage.removeItem('token');
+    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('email');
     // Redirect to the login page
     navigate('/login');
   };
@@ -69,15 +71,7 @@ export function DashboardNavbar() {
           Logout
         </Button>
 
-        <Button
-          onClick={handleLogout}
-          color="blue-gray"
-          size="regular"
-          ripple="light"
-          className="md:hidden"
-        >
-          <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
-        </Button>
+
       </div>
     </Navbar>
   );

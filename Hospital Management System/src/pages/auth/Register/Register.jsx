@@ -17,20 +17,62 @@ const Register = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const createUser = () => {
+        // Regular expressions for email, username, and password format validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z-]+\.[a-z]{3}$/;
+        const usernameRegex = /^[a-zA-Z]{2,}$/;
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*()\-_=+`~{}\[\]|\\:;"'<>,.?\/]{6,}$/;
+    
+        // Check if any of the fields are empty
+        if (!email || !userName || !password) {
+            setErrorMessage('All fields are required');
+            return; // Stop further execution
+        }
+    
+        // Check if email format is valid
+        if (!emailRegex.test(email)) {
+            setErrorMessage('Invalid email format');
+            return; // Stop further execution
+        }
+    
+        // Check if username format is valid
+        if (!usernameRegex.test(userName)) {
+            setErrorMessage('Username must be at least 2 characters long and contain only letters');
+            return; // Stop further execution
+        }
+    
+        // Check if password format is valid
+        if (!passwordRegex.test(password)) {
+            setErrorMessage('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+            return; // Stop further execution
+        }
+        
         Axios.post('http://localhost:9004/api/register', {
             email,
-            username: userName, // Aligning with backend
+            username: userName,
             password
-        }).then((response) => {
-            if (response.data.message || email === '' || userName === '' || password === '') {
-                setErrorMessage('Invalid registration details');
+        })
+        .then((response) => {
+            if (response.data.token) {
+                setErrorMessage('User has been registered successfully.');
+                
+                // Redirect or any other logic upon successful registration
             } else {
-                // Redirect logic can be handled elsewhere if needed
-                console.log('User has been registered successfully.');
+                setErrorMessage('Invalid registration details');
             }
-        }).catch((error) => {
+        })
+        .catch((error) => {
             console.error('Error registering user:', error);
-            setErrorMessage('An error occurred while registering. Please try again later.');
+            if (error.response) {
+                if (error.response.status === 400 && error.response.data.message === 'User with this email already exists') {
+                    setErrorMessage('User with this email already exists');
+                } else if (error.response.status === 400 && error.response.data.message === 'Username already exists') {
+                    setErrorMessage('Username already exists');
+                } else {
+                    setErrorMessage('An error occurred while registering. Please try again later.');
+                }
+            } else {
+                setErrorMessage('An error occurred while registering. Please try again later.');
+            }
         });
     };
     
