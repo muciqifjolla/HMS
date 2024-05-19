@@ -27,6 +27,29 @@ const Department = require('../models/Department');
     const AddDepartment = async (req, res) => {
         try {
             const { Dept_head, Dept_name, Emp_Count } = req.body;
+            // Validate input fields
+        if (!Dept_head || !Dept_name || !Emp_Count) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (Dept_head.length < 2) {
+            return res.status(400).json({ error: 'Department head must be at least 2 characters long' });
+        }
+
+        if (Dept_name.length < 2) {
+            return res.status(400).json({ error: 'Department name must be at least 2 characters long' });
+        }
+
+        if (parseInt(Emp_Count) < 1 || isNaN(parseInt(Emp_Count))) {
+            return res.status(400).json({ error: 'Employee count must be at least 1' });
+        }
+
+        // Check if the department already exists
+        const existingDepartment = await Department.findOne({ where: { Dept_name } });
+        if (existingDepartment) {
+            return res.status(400).json({ error: 'Department with the same name already exists1' });
+        } 
+
             const newDepartment = await Department.create({
                 Dept_head,
                 Dept_name,
@@ -42,6 +65,24 @@ const Department = require('../models/Department');
     const UpdateDepartment = async (req, res) => {
         try {
             const { Dept_head, Dept_name, Emp_Count } = req.body;
+           
+            // Validate input fields
+        if (!Dept_head || !Dept_name || !Emp_Count) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (Dept_head.length < 2) {
+            return res.status(400).json({ error: 'Department head must be at least 2 characters long' });
+        }
+
+        if (Dept_name.length < 2) {
+            return res.status(400).json({ error: 'Department name must be at least 2 characters long' });
+        }
+
+        if (parseInt(Emp_Count) < 1 || isNaN(parseInt(Emp_Count))) {
+            return res.status(400).json({ error: 'Emplyee Count must be at least 1' });
+        }
+
             const updated = await Department.update(
                 { Dept_head, Dept_name, Emp_Count },
                 { where: { Dept_ID: req.params.id } }

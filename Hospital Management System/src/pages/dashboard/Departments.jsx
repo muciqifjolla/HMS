@@ -9,17 +9,20 @@ export function Departments() {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedDepartmentId, setSelectedDepartmentIdId] = useState(null); 
    
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
-        }
+    const handleUpdateButtonClick = (departmentId) => {
+        setSelectedDepartmentId(departmentId);
+        setShowUpdateForm((prevState) => prevState === departmentId ? null : departmentId);
+        setShowCreateForm(false); // Close create form if open
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/department/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+            // Fetch and update department list here if needed
+        } catch (error) {
+            console.error('Error deleting department:', error);
         }
     };
 
@@ -28,14 +31,15 @@ export function Departments() {
             <div> 
                 <Department
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
-                    showUpdateForm={showUpdateForm}
-                    setShowUpdateForm={handleUpdateFormToggle}
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm}
                     setSelectedDepartmentIdId={setSelectedDepartmentIdId} 
+                    showUpdateForm={showUpdateForm}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateDepartment />}
-                
-                {showUpdateForm && <UpdateDepartment id={selectedDepartmentId} />} 
+                {showCreateForm && <CreateDepartment onClose={() => setShowCreateForm(false)}/>}
+                {showUpdateForm && <UpdateDepartment id={selectedDepartmentId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>}
             </div>
         </>
     );
