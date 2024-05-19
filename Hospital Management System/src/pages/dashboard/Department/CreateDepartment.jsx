@@ -96,7 +96,7 @@ function CreateDepartment({ onClose }) {
                             id='dept_head'
                             name='Dept_head'
                             placeholder='Enter Department Head'
-                            className='form-control'
+                            className='form-control w-full'
                             value={formData.Dept_head}
                             onChange={handleChange}
                         />
@@ -108,7 +108,7 @@ function CreateDepartment({ onClose }) {
                             id='dept_name'
                             name='Dept_name'
                             placeholder='Enter Department Name'
-                            className='form-control'
+                            className='form-control w-full'
                             value={formData.Dept_name}
                             onChange={handleChange}
                         />
@@ -120,7 +120,7 @@ function CreateDepartment({ onClose }) {
                             id='emp_Count'
                             name='Emp_Count'
                             placeholder='Enter Employee Count;'
-                            className='form-control'
+                            className='form-control w-full'
                             value={formData.Emp_Count}
                             onChange={handleChange}
                         />

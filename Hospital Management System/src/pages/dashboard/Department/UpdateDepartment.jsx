@@ -109,7 +109,7 @@ function UpdateDepartment({ id, onClose }) {
                         id='dept_head'
                         name='dept_head'
                         placeholder='Enter Department Head'
-                        className='form-control'
+                        className='form-control w-full'
                         value={dept_head}
                         onChange={(e) => setDept_head(e.target.value)}
                     />
@@ -121,7 +121,7 @@ function UpdateDepartment({ id, onClose }) {
                         id='dept_name'
                         name='dept_name'
                         placeholder='Enter Department Name'
-                        className='form-control'
+                        className='form-control w-full'
                         value={dept_name}
                         onChange={(e) => setDept_name(e.target.value)}
                     />
@@ -133,7 +133,7 @@ function UpdateDepartment({ id, onClose }) {
                         id='emp_Count'
                         name='emp_Count'
                         placeholder='Enter Employee Count'
-                        className='form-control'
+                        className='form-control w-full'
                         value={emp_Count}
                         onChange={(e) => setEmp_Count(e.target.value)}
                     />
