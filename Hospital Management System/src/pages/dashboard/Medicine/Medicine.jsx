@@ -14,7 +14,7 @@ function Medicine({
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredMedicine, setFilteredMedicine] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10);
+    const [recordsPerPage] = useState(7);
 
     useEffect(() => {
         axios

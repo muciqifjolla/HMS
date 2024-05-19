@@ -14,7 +14,7 @@ const [patients, setPatients] = useState([]);
 const [searchQuery, setSearchQuery] = useState('');
 const [filteredContacts, setFilteredContacts] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
-const [recordsPerPage] = useState(10);
+const [recordsPerPage] = useState(7);
 
 useEffect(() => {
     axios

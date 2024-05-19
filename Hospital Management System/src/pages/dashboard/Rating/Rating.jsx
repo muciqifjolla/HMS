@@ -14,7 +14,7 @@ function Rating({
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredRating, setFilteredRating] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10);
+    const [recordsPerPage] = useState(7);
 
     // Fetch ratings and employees data
     useEffect(() => {

@@ -7,8 +7,7 @@ const {
     FindSingleStaff,
     AddStaff,
     UpdateStaff,
-    DeleteStaff,
-    CheckStaffExistence
+    DeleteStaff
 } = require("../controllers/StaffController");
 
 const router = express.Router();
@@ -18,7 +17,6 @@ router.get("/staff/:id", FindSingleStaff);
 router.post("/staff/create", AddStaff);
 router.put("/staff/update/:id", UpdateStaff);
 router.delete("/staff/delete/:id", DeleteStaff);
-router.get('/staff/check/:id', CheckStaffExistence); 
 
 
 module.exports = router;
