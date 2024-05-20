@@ -22,7 +22,7 @@ const Login = () => {
         }
     }, [navigateTo]);
 
-    const loginUser = (e) => {
+    const loginUser = async (e) => {
         e.preventDefault();
 
         if (!loginUserName || !loginPassword) {
@@ -30,20 +30,26 @@ const Login = () => {
             return;
         }
 
-        Axios.post('http://localhost:9004/api/login', {
-            username: loginUserName,
-            password: loginPassword
-        })
-        .then((response) => {
+        try {
+            const response = await Axios.post('http://localhost:9004/api/login', {
+                username: loginUserName,
+                password: loginPassword
+            });
+
             const { data } = response;
             if (data.token) {
                 setToken(data.token);
                 sessionStorage.setItem('token', data.token);
                 sessionStorage.setItem('username', data.username);
-                sessionStorage.setItem('email', data.email); // Save the email to sessionStorage
+                sessionStorage.setItem('email', data.email);
                 navigateTo('/dashboard/home');
             } else {
-                // Display specific error messages based on response from backend
+                // Handle the case where the backend does not return a token
+                setErrorMessage('An error occurred while logging in. Please try again later.');
+            }
+        } catch (error) {
+            if (error.response) {
+                const { data } = error.response;
                 if (data.message === 'User does not exist') {
                     setErrorMessage('Username does not exist!');
                 } else if (data.message === 'Incorrect password') {
@@ -51,17 +57,11 @@ const Login = () => {
                 } else {
                     setErrorMessage('An error occurred while logging in. Please try again later.');
                 }
-            }
-        })
-        .catch((error) => {
-            if (error.response && error.response.status === 401) {
-                setErrorMessage('User does not exist or incorrect password1!');
             } else {
                 setErrorMessage('An error occurred while logging in. Please try again later.');
                 console.error('Error logging in:', error);
             }
-        });
-        
+        }
     };
 
     return (

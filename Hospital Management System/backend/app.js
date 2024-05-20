@@ -16,7 +16,8 @@ const NurseRoutes = require('./routes/NurseRoutes');
 const UserRoutes = require('./routes/UserRoutes');
 const RatingRoutes = require('./routes/RatingRoutes');
 const DoctorRoutes = require('./routes/DoctorRoutes');
-
+const LoginRoutes = require('./routes/Login');
+const RegisterRoutes = require('./routes/Register');
 const app = express();
 
 // Middleware to parse JSON data
@@ -46,7 +47,8 @@ app.use("/api", NurseRoutes);
 app.use("/api", UserRoutes);
 app.use("/api", RatingRoutes);
 app.use("/api", DoctorRoutes);
-
+app.use("/api", LoginRoutes);
+app.use("/api", RegisterRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

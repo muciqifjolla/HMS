@@ -1,36 +1,31 @@
-// middleware/authMiddleware.js
-
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+require('dotenv').config();
 
 // Middleware function to authenticate JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
 
-  console.log(authHeader);
-  console.log("egzon")
   if (!authHeader) {
     return res.status(401).json({ message: 'Authentication token is missing' });
   }
 
   const token = authHeader.split(' ')[1];
-  
+
   if (!token) {
     return res.status(401).json({ message: 'Authentication token is missing' });
   }
 
-  const JWT_SECRET = '03df719212d1d7a1f9b9930d0a7b161955ff9ba6d0c1509658bb8d204309ebb3';
+  const JWT_SECRET = process.env.JWT_SECRET;
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid or expired authentication token' });
     }
-    // Attach the decoded payload to the request object for further use
     req.user = decoded;
     next();
   });
 };
-
 
 // Middleware function to authorize user roles
 const requireRole = (role) => {
@@ -43,4 +38,14 @@ const requireRole = (role) => {
   };
 };
 
-module.exports = { authenticateToken, requireRole };
+// // Generate Access Token
+// const generateAccessToken = (userId) => {
+//   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '15m' }); // Adjust expiry time as needed
+// };
+
+// // Generate Refresh Token
+// const generateRefreshToken = (userId) => {
+//   return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // Adjust expiry time as needed
+// };
+
+module.exports = { authenticateToken, requireRole};

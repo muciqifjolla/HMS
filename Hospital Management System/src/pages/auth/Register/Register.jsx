@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Register.css';
 import '../../auth/App.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; 
 import Axios from 'axios';
 import video from '../../auth/LoginAssets/video.mp4';
 import logo from '../../auth/LoginAssets/llogo.png';
@@ -15,6 +15,7 @@ const Register = () => {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
 
     const createUser = () => {
         // Regular expressions for email, username, and password format validation
@@ -54,7 +55,7 @@ const Register = () => {
         .then((response) => {
             if (response.data.token) {
                 setErrorMessage('User has been registered successfully.');
-                
+                navigate('/login');
                 // Redirect or any other logic upon successful registration
             } else {
                 setErrorMessage('Invalid registration details');
