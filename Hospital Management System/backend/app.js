@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const bodyParser = require('body-parser');
 
 const sequelize = require("./config/database");
 const MedicineRoute = require("./routes/MedicineRoutes");
@@ -18,11 +19,16 @@ const RatingRoutes = require('./routes/RatingRoutes');
 const DoctorRoutes = require('./routes/DoctorRoutes');
 const LoginRoutes = require('./routes/Login');
 const RegisterRoutes = require('./routes/Register');
+const ReportRoutes = require('./routes/ReportRoutes');
+
+
 const app = express();
 
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 9004;
 
@@ -49,6 +55,8 @@ app.use("/api", RatingRoutes);
 app.use("/api", DoctorRoutes);
 app.use("/api", LoginRoutes);
 app.use("/api", RegisterRoutes);
+app.use("/api", ReportRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

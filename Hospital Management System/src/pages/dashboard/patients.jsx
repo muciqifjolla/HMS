@@ -9,17 +9,20 @@ export function Patients() {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedPatientId, setSelectedPatientId] = useState(null); // Corrected state name
     
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); 
-        }
+    const handleUpdateButtonClick = (patientId) => {
+        setSelectedPatientId(patientId);
+        setShowUpdateForm((prevState) => prevState === patientId ? null : patientId);
+        setShowCreateForm(false); // Close create form if open
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); 
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/patient/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+            // Fetch and update medicine list here if needed
+        } catch (error) {
+            console.error('Error deleting patient:', error);
         }
     };
 
@@ -28,13 +31,15 @@ export function Patients() {
             <div> 
                 <Patient
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
-                    showUpdateForm={showUpdateForm} 
-                    setShowUpdateForm={handleUpdateFormToggle} 
-                    setSelectedPatientId={setSelectedPatientId} // Corrected state setter function name
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm} 
+                    setSelectedPatientId={setSelectedPatientId}
+                    showUpdateForm={showUpdateForm}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete} // Corrected state setter function name
                 />
-                {showCreateForm && <CreatePatient />}
-                {showUpdateForm && <UpdatePatient id={selectedPatientId} />} 
+                {showCreateForm && <CreatePatient onClose={() => setShowCreateForm(false)}/>}
+                {showUpdateForm && <UpdatePatient id={selectedPatientId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>} 
             </div>
         </>
     );

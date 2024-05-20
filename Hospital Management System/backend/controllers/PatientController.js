@@ -1,5 +1,4 @@
 const Patient = require('../models/Patient');
-const Medicine = require('../models/Patient');
 
 const FindAllPatients = async (req, res) => {
     try {
@@ -27,16 +26,19 @@ const FindSinglepatientPatient = async (req, res) => {
 
 const AddPatient = async (req, res) => {
     try {
-        const { Patient_Fname, Patient_Lname, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
+        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
         
         // Validation logic
+        const personalNumberRegex = /^\d{10}$/;
         const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
-        const bloodTypeRegex = /^(A|B|AB|O)[+-]$/; // Blood type regex
+        const bloodTypeRegex = /^(A|B|AB|O)[+-]$/;
 
         if (
+            !Personal_Number.match(personalNumberRegex) ||
             !Patient_Fname ||
             !Patient_Lname ||
+            !Birth_Date ||
             !Blood_type.match(bloodTypeRegex) ||
             !Email.match(emailRegex) ||
             !Gender ||
@@ -49,8 +51,10 @@ const AddPatient = async (req, res) => {
         }
 
         const newPatient = await Patient.create({
+            Personal_Number,
             Patient_Fname,
             Patient_Lname,
+            Birth_Date,
             Blood_type,
             Email,
             Gender,
@@ -68,10 +72,10 @@ const AddPatient = async (req, res) => {
 
 const UpdatePatient = async (req, res) => {
     try {
-        const { Patient_Fname, Patient_Lname, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
+        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
         const updated = await Patient.update(
-            { Patient_Fname, Patient_Lname, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone },
-            { where: { Patient_ID : req.params.id } }
+            { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone },
+            { where: { Patient_ID: req.params.id } }
         );
         if (updated[0] === 0) {
             res.status(404).json({ error: 'Patient not found or not updated' });
@@ -115,11 +119,28 @@ const CheckPatientExistence = async (req, res) => {
     }
 };
 
+const FindPatientByPersonalNumber = async (req, res) => {
+    try {
+        const { personalNumber } = req.params;
+        const patient = await Patient.findOne({ where: { Personal_Number: personalNumber } });
+        if (!patient) {
+            res.status(404).json({ error: 'Patient not found' });
+            return;
+        }
+        res.json(patient);
+    } catch (error) {
+        console.error('Error fetching patient by personal number:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
 module.exports = {
     FindAllPatients,
     FindSinglepatientPatient,
     AddPatient,
     UpdatePatient,
     DeletePatient,
-    CheckPatientExistence
+    CheckPatientExistence,
+    FindPatientByPersonalNumber
 };

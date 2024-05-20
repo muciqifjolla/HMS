@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: May 19, 2024 at 07:30 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: May 20, 2024 at 11:08 AM
+-- Server version: 8.0.30
+-- PHP Version: 8.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `appointment` (
-  `Appoint_ID` int(11) NOT NULL,
+  `Appoint_ID` int NOT NULL,
   `Scheduled_On` date NOT NULL,
   `Date` date NOT NULL,
   `Time` time NOT NULL,
-  `Doctor_ID` int(11) NOT NULL,
-  `Patient_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `Doctor_ID` int NOT NULL,
+  `Patient_ID` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -43,16 +43,16 @@ CREATE TABLE `appointment` (
 --
 
 CREATE TABLE `bill` (
-  `Payment_ID` int(11) NOT NULL,
+  `Payment_ID` int NOT NULL,
   `DATE` date NOT NULL,
   `Room_cost` decimal(10,2) DEFAULT NULL,
   `Other_charges` decimal(10,2) DEFAULT NULL,
   `M_Cost` decimal(10,2) DEFAULT NULL,
   `Total` decimal(10,2) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
-  `Room_ID` int(11) NOT NULL,
-  `Medicine_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `Patient_ID` int NOT NULL,
+  `Room_ID` int NOT NULL,
+  `Medicine_ID` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -61,10 +61,10 @@ CREATE TABLE `bill` (
 --
 
 CREATE TABLE `department` (
-  `Dept_ID` int(11) NOT NULL,
-  `Dept_head` varchar(100) DEFAULT NULL,
-  `Dept_name` varchar(100) NOT NULL,
-  `Emp_Count` int(11) DEFAULT NULL
+  `Dept_ID` int NOT NULL,
+  `Dept_head` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Dept_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Emp_Count` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -82,11 +82,11 @@ INSERT INTO `department` (`Dept_ID`, `Dept_head`, `Dept_name`, `Emp_Count`) VALU
 --
 
 CREATE TABLE `doctor` (
-  `Doctor_ID` int(11) NOT NULL,
-  `Qualifications` varchar(255) NOT NULL,
-  `Emp_ID` int(11) NOT NULL,
-  `Specialization` varchar(100) DEFAULT NULL,
-  `user_id` int(11) NOT NULL
+  `Doctor_ID` int NOT NULL,
+  `Qualifications` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `Emp_ID` int NOT NULL,
+  `Specialization` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -96,11 +96,11 @@ CREATE TABLE `doctor` (
 --
 
 CREATE TABLE `emergency_contact` (
-  `Contact_ID` int(11) NOT NULL,
-  `Contact_Name` varchar(100) NOT NULL,
-  `Phone` varchar(20) NOT NULL,
-  `Relation` varchar(50) NOT NULL,
-  `Patient_ID` int(11) NOT NULL
+  `Contact_ID` int NOT NULL,
+  `Contact_Name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Phone` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `Relation` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Patient_ID` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -128,17 +128,17 @@ INSERT INTO `emergency_contact` (`Contact_ID`, `Contact_Name`, `Phone`, `Relatio
 --
 
 CREATE TABLE `insurance` (
-  `Policy_Number` int(20) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
-  `Ins_Code` varchar(10) NOT NULL,
+  `Policy_Number` int NOT NULL,
+  `Patient_ID` int NOT NULL,
+  `Ins_Code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
   `End_Date` date NOT NULL,
-  `Provider` varchar(100) NOT NULL,
-  `Plan` varchar(100) NOT NULL,
-  `Co_Pay` varchar(100) NOT NULL,
-  `Coverage` varchar(100) NOT NULL,
-  `Maternity` varchar(100) NOT NULL,
-  `Dental` varchar(100) NOT NULL,
-  `Optical` varchar(100) NOT NULL
+  `Provider` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Plan` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Co_Pay` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Coverage` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Maternity` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Dental` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Optical` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -158,8 +158,7 @@ INSERT INTO `insurance` (`Policy_Number`, `Patient_ID`, `Ins_Code`, `End_Date`, 
 (70, 7, '7', '2024-05-04', 'No', 'No', 'No', '50%', 'No', 'No', 'No'),
 (71, 7, '1172711835', '2024-05-04', 'No', 'Yes', 'Yes', '50%', 'Yes', 'No', 'No'),
 (72, 6, '111111', '2024-05-04', 'Yes', 'No', 'Yes', '25%', 'No', 'No', 'Yes'),
-(73, 7, '121212', '2024-05-12', 'Yes', 'Yes', 'Yes', '25%', 'No', 'No', 'No'),
-(74, 6, '11111111', '2024-05-12', 'Yes', 'Yes', 'No', '75%', 'No', 'Yes', 'No');
+(73, 7, '121212', '2024-05-12', 'Yes', 'Yes', 'Yes', '25%', 'No', 'No', 'No');
 
 -- --------------------------------------------------------
 
@@ -168,10 +167,10 @@ INSERT INTO `insurance` (`Policy_Number`, `Patient_ID`, `Ins_Code`, `End_Date`, 
 --
 
 CREATE TABLE `lab_screening` (
-  `Lab_ID` int(11) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
-  `Technician_ID` int(11) DEFAULT NULL,
-  `Doctor_ID` int(11) DEFAULT NULL,
+  `Lab_ID` int NOT NULL,
+  `Patient_ID` int NOT NULL,
+  `Technician_ID` int DEFAULT NULL,
+  `Doctor_ID` int DEFAULT NULL,
   `Test_Cost` decimal(10,2) DEFAULT NULL,
   `Date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -183,10 +182,10 @@ CREATE TABLE `lab_screening` (
 --
 
 CREATE TABLE `medical_history` (
-  `Record_ID` int(11) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
-  `Allergies` varchar(255) DEFAULT NULL,
-  `Pre_Conditions` varchar(255) DEFAULT NULL
+  `Record_ID` int NOT NULL,
+  `Patient_ID` int NOT NULL,
+  `Allergies` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Pre_Conditions` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -196,9 +195,9 @@ CREATE TABLE `medical_history` (
 --
 
 CREATE TABLE `medicine` (
-  `Medicine_ID` int(11) NOT NULL,
-  `M_name` varchar(100) NOT NULL,
-  `M_Quantity` int(11) NOT NULL,
+  `Medicine_ID` int NOT NULL,
+  `M_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `M_Quantity` int NOT NULL,
   `M_Cost` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -227,9 +226,7 @@ INSERT INTO `medicine` (`Medicine_ID`, `M_name`, `M_Quantity`, `M_Cost`) VALUES
 (79, '1', 212, 121.00),
 (80, '1 test', 1, 1.00),
 (81, 'Amoxicilin test', 2, 120.00),
-(83, 'Lind', 1, 2.00),
-(84, 'test', 112, 1.00),
-(85, 'test12', 112, 1.00);
+(83, 'Lind', 1, 2.00);
 
 -- --------------------------------------------------------
 
@@ -238,9 +235,9 @@ INSERT INTO `medicine` (`Medicine_ID`, `M_name`, `M_Quantity`, `M_Cost`) VALUES
 --
 
 CREATE TABLE `nurse` (
-  `Nurse_ID` int(11) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
-  `Emp_ID` int(11) NOT NULL
+  `Nurse_ID` int NOT NULL,
+  `Patient_ID` int NOT NULL,
+  `Emp_ID` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -250,25 +247,27 @@ CREATE TABLE `nurse` (
 --
 
 CREATE TABLE `patient` (
-  `Patient_ID` int(11) NOT NULL,
-  `Patient_Fname` varchar(50) NOT NULL,
-  `Patient_Lname` varchar(50) NOT NULL,
-  `Blood_type` varchar(10) DEFAULT NULL,
-  `Email` varchar(100) DEFAULT NULL,
-  `Gender` varchar(10) DEFAULT NULL,
-  `Conditionn` varchar(255) DEFAULT NULL,
+  `Patient_ID` int NOT NULL,
+  `Personal_Number` int NOT NULL,
+  `Patient_Fname` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Patient_Lname` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Birth_Date` date DEFAULT NULL,
+  `Gender` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Blood_type` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Conditionn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `Admission_Date` date NOT NULL,
   `Discharge_Date` date DEFAULT NULL,
-  `Phone` varchar(20) DEFAULT NULL
+  `Email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `patient`
 --
 
-INSERT INTO `patient` (`Patient_ID`, `Patient_Fname`, `Patient_Lname`, `Blood_type`, `Email`, `Gender`, `Conditionn`, `Admission_Date`, `Discharge_Date`, `Phone`) VALUES
-(6, 'Filan', 'Fisteku', 'B+', 'filan@gmail.com', 'Other', '1', '2024-05-02', '2024-05-01', '121212122'),
-(7, 'Filane', 'Fisteku', 'A-', 'filane@gmail.com', 'Female', '11111', '2024-05-08', '2024-05-01', '111111111');
+INSERT INTO `patient` (`Patient_ID`, `Personal_Number`, `Patient_Fname`, `Patient_Lname`, `Birth_Date`, `Gender`, `Blood_type`, `Conditionn`, `Admission_Date`, `Discharge_Date`, `Email`, `Phone`) VALUES
+(6, 0, 'Filan', 'Fisteku', NULL, 'Other', 'A+', '1', '2024-05-02', '2024-05-01', 'filan@gmail.com', '121212122'),
+(7, 0, 'Filane', 'Fisteku', NULL, 'Male', 'O+', '11111', '2024-05-08', '2024-05-01', 'filane@gmail.com', '111111111');
 
 -- --------------------------------------------------------
 
@@ -277,11 +276,11 @@ INSERT INTO `patient` (`Patient_ID`, `Patient_Fname`, `Patient_Lname`, `Blood_ty
 --
 
 CREATE TABLE `payroll` (
-  `Account_no` int(11) NOT NULL,
+  `Account_no` int NOT NULL,
   `Salary` decimal(10,2) NOT NULL,
   `Bonus` decimal(10,2) DEFAULT NULL,
-  `Emp_ID` int(11) NOT NULL,
-  `IBAN` varchar(50) DEFAULT NULL
+  `Emp_ID` int NOT NULL,
+  `IBAN` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -291,13 +290,13 @@ CREATE TABLE `payroll` (
 --
 
 CREATE TABLE `prescription` (
-  `Prescription_ID` int(11) NOT NULL,
-  `Patient_ID` int(11) NOT NULL,
+  `Prescription_ID` int NOT NULL,
+  `Patient_ID` int NOT NULL,
   `Date` date NOT NULL,
   `Dosage` varchar(100) NOT NULL,
-  `Doctor_ID` int(11) NOT NULL,
-  `Medicine_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `Doctor_ID` int NOT NULL,
+  `Medicine_ID` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -306,10 +305,10 @@ CREATE TABLE `prescription` (
 --
 
 CREATE TABLE `rating` (
-  `Rating_ID` int(11) NOT NULL,
-  `Emp_ID` int(11) NOT NULL,
-  `Rating` tinyint(4) NOT NULL,
-  `Comments` text DEFAULT NULL,
+  `Rating_ID` int NOT NULL,
+  `Emp_ID` int NOT NULL,
+  `Rating` tinyint NOT NULL,
+  `Comments` text COLLATE utf8mb4_general_ci,
   `Date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -339,8 +338,8 @@ INSERT INTO `rating` (`Rating_ID`, `Emp_ID`, `Rating`, `Comments`, `Date`) VALUE
 --
 
 CREATE TABLE `roles` (
-  `role_id` int(11) NOT NULL,
-  `role_name` varchar(50) NOT NULL
+  `role_id` int NOT NULL,
+  `role_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -359,9 +358,9 @@ INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 --
 
 CREATE TABLE `room` (
-  `Room_ID` int(11) NOT NULL,
-  `Room_type` varchar(20) NOT NULL,
-  `Patient_ID` int(11) DEFAULT NULL,
+  `Room_ID` int NOT NULL,
+  `Room_type` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `Patient_ID` int DEFAULT NULL,
   `Room_cost` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -372,18 +371,18 @@ CREATE TABLE `room` (
 --
 
 CREATE TABLE `staff` (
-  `Emp_ID` int(11) NOT NULL,
-  `Emp_Fname` varchar(50) NOT NULL,
-  `Emp_Lname` varchar(50) NOT NULL,
+  `Emp_ID` int NOT NULL,
+  `Emp_Fname` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Emp_Lname` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Joining_Date` date NOT NULL,
-  `Emp_type` varchar(50) NOT NULL,
-  `Email` varchar(100) DEFAULT NULL,
-  `Address` varchar(255) DEFAULT NULL,
-  `Dept_ID` int(11) DEFAULT NULL,
-  `SSN` varchar(20) DEFAULT NULL,
+  `Emp_type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Dept_ID` int DEFAULT NULL,
+  `SSN` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `DOB` date DEFAULT NULL,
   `Date_Separation` date DEFAULT NULL,
-  `role_id` int(11) DEFAULT NULL
+  `role_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -401,16 +400,9 @@ INSERT INTO `staff` (`Emp_ID`, `Emp_Fname`, `Emp_Lname`, `Joining_Date`, `Emp_ty
 --
 
 CREATE TABLE `userroles` (
-  `user_id` int(11) NOT NULL,
-  `role_id` int(11) NOT NULL
+  `user_id` int NOT NULL,
+  `role_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `userroles`
---
-
-INSERT INTO `userroles` (`user_id`, `role_id`) VALUES
-(8, 2);
 
 -- --------------------------------------------------------
 
@@ -419,10 +411,10 @@ INSERT INTO `userroles` (`user_id`, `role_id`) VALUES
 --
 
 CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(100) NOT NULL
+  `user_id` int NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -430,9 +422,18 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `email`, `username`, `password`) VALUES
+(7, 'Lind@gmail.com', 'Lind', '$2b$10$ali2V2LF2.BjxJpYGWxQ8uojlq9x66ofpmEBzYDj3sHRhsn7cx9oe'),
 (8, 'Fjolla@gmail.com', 'Fjolla', '$2b$10$Nxr2Vga9dqsaPXoE.iYweepT4YuOgEOkdNwfGj2Hm0bUwPuhCSOmC'),
-(164, 'lg69462@ubt-uni.net', 'Lind', '$2b$10$ze9pWv196hoFQCpIHfV84O0TQoT1M6e46LDw4ei9OLukgubd3kVte'),
-(165, 'lg694621@ubt-uni.net', 'Lindk', '$2b$10$/qSf0xRe8pLxHvuL4NZW9eVpz.HyIjeir4ldtJcdp8KW33SvDK0pK');
+(9, 'Bledar@gmail.com', 'Bledar', '$2b$10$5x1rLjjNpPA2J8VXx8XBS.LAlkZx899IHH9ebib4Bm1U3Kx/7dGH.'),
+(10, 'Alton@gmail.com', 'Alton', '$2b$10$bxBbWQEmz7DA6hy2ULNW5Oz6GnbRfzg42yjkMlgDiXBu2MYBeMpte'),
+(11, 'Egzona@gmail.com', 'Egzona', '$2b$10$8oXIWpvwcqXjt6wLO0jNMe/syZKzrY1vzYFiZupjDCT0OJ0CkRk.G'),
+(12, 'ubt@gmail.com', 'ubt', '$2b$10$lQDnTRDvXJGGrJsQ7U6TIuuMR8CDBFPcX4SHueLfgjfPLx4E3oq7u'),
+(13, 'test@gmail.com', 'test', '$2b$10$vhTv/W0PU5QoWGl/6djS3uTeEYONyDqEUA9QC8un3WvWN8wYPCiHC'),
+(14, 'test1@gmail.com', 'test1', '$2b$10$Sf2KckJ0QaQ5nwIAWZgeTOkMIUCF90y3nj8nHOpUYKsFALhYB.fIC'),
+(20, 'test2@gmail.com', 'test2', '$2b$10$gv4keJhf33v61IJi9Dnz2uBHHoWn3MNuz60V0hzgw1M8/KHmwWt1C'),
+(21, 'test3@gmail.com', 'test3', '$2b$10$qSMWXE...0MJO5oAdIIYBeEBcQyNXO6Z1bG3sg67J36KOMwmvXfEm'),
+(22, 'bledarxhemaili@gmail.com', 'bledarxhemaili', '$2b$10$m8qdASGVQXlBcZ3PdUqha.deq8YjUdqPDpqSdZLTvWyN1yiSX/9Ca'),
+(23, 'bledarxhemajli@gmail.com', 'bledaraa', '$2b$10$kSofmfnYV0bGGn7Ll0FWXO8Ck5GxygSxTZ01rfyyhCdA4JrV/YZQW');
 
 --
 -- Indexes for dumped tables
@@ -586,109 +587,109 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `Appoint_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Appoint_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `bill`
 --
 ALTER TABLE `bill`
-  MODIFY `Payment_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Payment_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
-  MODIFY `Dept_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Dept_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `doctor`
 --
 ALTER TABLE `doctor`
-  MODIFY `Doctor_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Doctor_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `emergency_contact`
 --
 ALTER TABLE `emergency_contact`
-  MODIFY `Contact_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `Contact_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `insurance`
 --
 ALTER TABLE `insurance`
-  MODIFY `Policy_Number` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `Policy_Number` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- AUTO_INCREMENT for table `lab_screening`
 --
 ALTER TABLE `lab_screening`
-  MODIFY `Lab_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Lab_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `medical_history`
 --
 ALTER TABLE `medical_history`
-  MODIFY `Record_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Record_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `medicine`
 --
 ALTER TABLE `medicine`
-  MODIFY `Medicine_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
+  MODIFY `Medicine_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT for table `nurse`
 --
 ALTER TABLE `nurse`
-  MODIFY `Nurse_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Nurse_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `patient`
 --
 ALTER TABLE `patient`
-  MODIFY `Patient_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Patient_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `payroll`
 --
 ALTER TABLE `payroll`
-  MODIFY `Account_no` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Account_no` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `prescription`
 --
 ALTER TABLE `prescription`
-  MODIFY `Prescription_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Prescription_ID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `rating`
 --
 ALTER TABLE `rating`
-  MODIFY `Rating_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `Rating_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `role_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `room`
 --
 ALTER TABLE `room`
-  MODIFY `Room_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Room_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
-  MODIFY `Emp_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Emp_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Constraints for dumped tables

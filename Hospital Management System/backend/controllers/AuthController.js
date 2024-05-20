@@ -9,8 +9,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
   },
   tls: {
     rejectUnauthorized: false // Add this line to allow self-signed certificates
@@ -99,12 +99,12 @@ const registerUser = async (req, res) => {
 
     // Send welcome email
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.GMAIL_USER,
       to: email,
       subject: 'Welcome to the Hospital Management System',
       text: `Dear ${username},
 
-Welcome to the Hospital Management System! We are delighted to have you as a part of our community. Our system is designed to streamline hospital operations, improve patient care, and enhance communication within the healthcare environment.
+Welcome to the LIFELINE Hospital! We are delighted to have you as a part of our community. Our system is designed to streamline hospital operations, improve patient care, and enhance communication within the healthcare environment.
 
 Your registration is now complete, and you can start exploring the features and services we offer.
 
@@ -113,7 +113,7 @@ If you have any questions or need assistance, please do not hesitate to contact 
 Thank you for joining us!
 
 Best regards,
-Hospital Management System Team`
+LIFELINE Hospital Team`
     };
 
     transporter.sendMail(mailOptions, function(error, info) {

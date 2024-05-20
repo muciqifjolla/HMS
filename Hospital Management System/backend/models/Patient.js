@@ -1,14 +1,22 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Patient = sequelize.define('Appointment', {
+const Patient = sequelize.define('Patient', {
     Patient_ID: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
+    Personal_Number: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     Patient_Fname: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Birth_Date: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     Patient_Lname: {
