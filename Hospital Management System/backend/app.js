@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const bodyParser = require('body-parser');
+const { getExpirationTime } = require('./controllers/AuthController'); // Import the shared module
 
 const sequelize = require("./config/database");
 const MedicineRoute = require("./routes/MedicineRoutes");
@@ -20,7 +21,6 @@ const DoctorRoutes = require('./routes/DoctorRoutes');
 const LoginRoutes = require('./routes/Login');
 const RegisterRoutes = require('./routes/Register');
 const ReportRoutes = require('./routes/ReportRoutes');
-
 
 const app = express();
 
@@ -55,8 +55,20 @@ app.use("/api", RatingRoutes);
 app.use("/api", DoctorRoutes);
 app.use("/api", LoginRoutes);
 app.use("/api", RegisterRoutes);
-app.use("/api", ReportRoutes);
 
+
+
+// Endpoint to check the refresh token expiration time
+app.get('/api/expiration', (req, res) => {
+    const expirationTime = getExpirationTime();
+    if (!expirationTime) {
+        return res.status(200).json({ message: 'Refresh token is expired or not set', expirationTime: null });
+    }
+    res.status(200).json({ message: 'Refresh token is active', expirationTime: new Date(expirationTime).toLocaleString() });
+});
+
+// Other routes
+app.use("/api", ReportRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

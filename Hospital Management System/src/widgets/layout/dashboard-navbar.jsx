@@ -21,9 +21,11 @@ export function DashboardNavbar() {
 
   const handleLogout = () => {
     // Clear the token from sessionStorage
+    sessionStorage.removeItem('refreshToken');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('username');
     sessionStorage.removeItem('email');
+    
     // Redirect to the login page
     navigate('/login');
   };

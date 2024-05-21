@@ -38,14 +38,6 @@ const requireRole = (role) => {
   };
 };
 
-// // Generate Access Token
-// const generateAccessToken = (userId) => {
-//   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '15m' }); // Adjust expiry time as needed
-// };
 
-// // Generate Refresh Token
-// const generateRefreshToken = (userId) => {
-//   return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // Adjust expiry time as needed
-// };
 
 module.exports = { authenticateToken, requireRole};

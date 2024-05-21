@@ -145,6 +145,7 @@ function UpdateEmergency_Contact({ id, onClose }) {
                     className="form-control"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    disabled
                 />
             </div>
             <div className='mb-4'>

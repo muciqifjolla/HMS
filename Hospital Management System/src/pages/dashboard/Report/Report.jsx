@@ -146,63 +146,111 @@ const sendEmailWithPdf = async () => {
   };
 
   return (
-    <div className="report-container">
-      <div className="search-section">
-        <input
-          type="text"
-          placeholder="Search by personal number..."
-          value={searchQuery}
-          onChange={handleSearchInputChange}
-          className="search-input"
-        />
-        <button onClick={() => fetchPatientInfo(searchQuery)}>Search</button>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-      </div>
-      <div className="patient-info">
-        <h2>Patient Information</h2>
-        <div>
-          <label>Patient Name:</label>
-          <span>{formData.patientName}</span>
-        </div>
-        <div>
-          <label>Age:</label>
-          <span>{formData.age}</span>
-        </div>
-        <div>
-          <label>Gender:</label>
-          <span>{formData.patientGender}</span>
-        </div>
-        <div>
-          <label>Blood Type:</label>
-          <span>{formData.bloodType}</span>
-        </div>
-        <div>
-          <label>Admission Date:</label>
-          <span>{formData.admissionDate}</span>
-        </div>
-        <div>
-          <label>Discharge Date:</label>
-          <span>{formData.dischargeDate}</span>
-        </div>
-        <div>
-          <label>Email:</label>
-          <span>{formData.email}</span>
-        </div>
-        <div>
-          <label>Phone:</label>
-          <span>{formData.phone}</span>
-        </div>
-      </div>
-      <div className="other-info">
-        <h2>Other Information</h2>
-        <input type="text" placeholder="Diagnosis" name="diagnosis" onChange={handleChange} />
-        <input type="text" placeholder="Medicines (comma-separated)" name="medicines" onChange={handleChange} />
-        <input type="text" placeholder="Doctor Name" name="doctorName" onChange={handleChange} />
-      </div>
-      <button onClick={createAndDownloadPdf}>Download PDF</button>
-      <button onClick={sendEmailWithPdf}>Send Email</button>
-      {showModal && <ErrorModal message={modalMessage} onClose={closeModal} />}
+    <div className="report-container p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
+  <div className="search-section mb-6">
+    <div className="flex items-center mb-4">
+      <input
+        type="text"
+        id="ubt"
+        placeholder="Search by personal number..."
+        value={searchQuery}
+        onChange={handleSearchInputChange}
+        className="search-input flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        onClick={() => fetchPatientInfo(searchQuery)}
+        className="ml-4 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+      >
+        Search
+      </button>
     </div>
+    {errorMessage && (
+      <div className="error-message text-red-500">
+        {errorMessage}
+      </div>
+    )}
+  </div>
+  <div className="patient-info mb-6">
+    <h2 className="text-xl font-bold mb-4">Patient Information</h2>
+    <div className="mb-2">
+      <label className="block font-semibold">Patient Name:</label>
+      <span>{formData.patientName}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Age:</label>
+      <span>{formData.age}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Gender:</label>
+      <span>{formData.patientGender}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Blood Type:</label>
+      <span>{formData.bloodType}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Admission Date:</label>
+      <span>{formData.admissionDate}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Discharge Date:</label>
+      <span>{formData.dischargeDate}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Email:</label>
+      <span>{formData.email}</span>
+    </div>
+    <div className="mb-2">
+      <label className="block font-semibold">Phone:</label>
+      <span>{formData.phone}</span>
+    </div>
+  </div>
+  <div className="other-info mb-6">
+    <h2 className="text-xl font-bold mb-4">Other Information</h2>
+    <input
+      type="text"
+      id="ubt"
+      placeholder="Diagnosis"
+      name="diagnosis"
+      onChange={handleChange}
+      className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <input
+      type="text"
+      id="ubt"
+      placeholder="Medicines (comma-separated)"
+      name="medicines"
+      onChange={handleChange}
+      className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <input
+      type="text"
+      id="ubt"
+      placeholder="Doctor Name"
+      name="doctorName"
+      onChange={handleChange}
+      className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+  <div className="flex justify-between">
+    <button
+      onClick={createAndDownloadPdf}
+      className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+    >
+      Download PDF
+    </button>
+    <button
+      onClick={sendEmailWithPdf}
+      className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+    >
+      Send Email
+    </button>
+  </div>
+  {showModal && (
+    <ErrorModal message={modalMessage} onClose={closeModal} />
+  )}
+</div>
+
   );
 };
 

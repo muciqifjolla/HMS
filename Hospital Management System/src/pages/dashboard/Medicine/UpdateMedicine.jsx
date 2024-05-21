@@ -74,12 +74,12 @@
         }
     
         // Check if medicine with the same name already exists
-        const existingMedicine = medicine.find(med => med.M_name === name && med.Medicine_ID !== id);
+        const existingMedicine = medicine.find(medicine => medicine.M_name === name && medicine.Medicine_ID !== id);
         if (existingMedicine) {
             showAlert('Medicine with the same name already exists.');
             return;
         }
-    
+
         try {
             await axios.put(`http://localhost:9004/api/medicine/update/${id}`, {
                 M_name: name,
@@ -111,6 +111,7 @@
                             className='form-control w-full'
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            disabled
                         />
                     </div>
                     <div className='mb-4'>

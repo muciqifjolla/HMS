@@ -175,6 +175,7 @@ function UpdateInsurance({ id, onClose }) {
                     className="form-control"
                     value={insCode}
                     onChange={(e) => setInsCode(e.target.value)}
+                    disabled
                 />
             </div>
             <div className="mb-4">

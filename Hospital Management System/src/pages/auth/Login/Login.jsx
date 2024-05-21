@@ -13,6 +13,7 @@ const Login = () => {
     const [loginPassword, setLoginPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [token, setToken] = useState('');
+    const [refreshToken, setRefreshToken] = useState('');
     const navigateTo = useNavigate();
 
     useEffect(() => {
@@ -24,27 +25,27 @@ const Login = () => {
 
     const loginUser = async (e) => {
         e.preventDefault();
-
+    
         if (!loginUserName || !loginPassword) {
             setErrorMessage('All fields are required!');
             return;
         }
-
+    
         try {
             const response = await Axios.post('http://localhost:9004/api/login', {
                 username: loginUserName,
                 password: loginPassword
             });
-
+    
             const { data } = response;
             if (data.token) {
                 setToken(data.token);
                 sessionStorage.setItem('token', data.token);
+                sessionStorage.setItem('refreshToken', data.refreshToken);
                 sessionStorage.setItem('username', data.username);
                 sessionStorage.setItem('email', data.email);
                 navigateTo('/dashboard/home');
             } else {
-                // Handle the case where the backend does not return a token
                 setErrorMessage('An error occurred while logging in. Please try again later.');
             }
         } catch (error) {
@@ -63,6 +64,7 @@ const Login = () => {
             }
         }
     };
+    
 
     return (
         <div className='loginPage flex'>

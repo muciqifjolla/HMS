@@ -8,7 +8,7 @@ const Logout = () => {
     useEffect(() => {
         // Clear the token and username from sessionStorage
         // sessionStorage.removeItem('username');
-        sessionStorage.removeItem('token');
+        // sessionStorage.removeItem('token');
         // Redirect to the login page
         navigate('/login');
     }, [navigate]);

@@ -87,10 +87,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
   );
 }
 
-Sidenav.defaultProps = {
-  brandImg: "/img/logo-ct.png",
-  brandName: "Hospital Management System",
-};
+// Sidenav.defaultProps = {
+//   brandImg: "/img/logo-ct.png",
+//   brandName: "Hospital Management System",
+// };
 
 Sidenav.propTypes = {
   brandImg: PropTypes.string,
