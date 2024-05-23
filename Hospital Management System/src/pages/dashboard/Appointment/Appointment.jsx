@@ -1,148 +1,259 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-
-function Appointment({ showCreateForm, setShowCreateForm,showUpdateForm, setShowUpdateForm, setSelectedAppointmentIdId}) {
-    
+import CreateAppointment from './CreateAppointment';
+function Appointment({
+    showCreateForm,
+    setShowCreateForm,
+    showUpdateForm,
+    setShowUpdateForm,
+    setSelectedAppointmentId,
+}) {
     const [appointment, setAppointment] = useState([]);
+const [deleteAppointmentId, setDeleteAppointmentId] = useState(null);
+const [patients, setPatients] = useState([]);
+const [searchQuery, setSearchQuery] = useState('');
+const [filteredAppointment, setFilteredAppointment] = useState([]);
+const [currentPage, setCurrentPage] = useState(1);
+const [recordsPerPage] = useState(7);
 
-    console.log(appointment)
+useEffect(() => {
+    axios
+        .get('http://localhost:9004/api/appointment')
+        .then((res) => {
+            console.log("Appointment data:", res.data);
+            setAppointment(res.data);
+            setFilteredAppointment(res.data);
+        })
+        .catch((err) => console.error('Error fetching appointment:', err));
 
-    const handleUpdateButtonClick = (appointmentId) => {
-        setSelectedAppointmentIdId(appointmentId);
-        setShowUpdateForm(!showUpdateForm);
-    };
-    function calculateDaysLeft(targetDate) {
-        
-        const currentDate = new Date();
-        const target = new Date(targetDate);
-        const differenceMs = target - currentDate;
-        const differenceDays = Math.ceil(differenceMs / (1000 * 60 * 60 * 24));
+        axios
+        .get('http://localhost:9004/api/patient')
+        .then((res) => {
+            console.log("Patients data:", res.data);
+            setPatients(res.data);
+        })
+        .catch((err) => console.error('Error fetching patients:', err));
 
 
 
-        return differenceDays;
+}, []);
+
+
+
+const handleUpdateButtonClick = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setShowUpdateForm((prevState) => prevState === appointmentId ? null : appointmentId);
+    if (showCreateForm) {
+        setShowCreateForm(false); 
     }
-    
+};
 
-    useEffect(() => {
-        axios.get('http://localhost:9004/api/appointment')
-            .then(res => setAppointment(res.data))
-            .catch(err => console.log(err));
-    }, []);
+const handleDelete = (id) => {
+    setDeleteAppointmentId(id);
+};
 
-    function formatDate(dateString) {
-        const options = { month: 'short', day: 'numeric', year: 'numeric' };
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', options);
-    }
-
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:9004/api/appointment/delete/${id}`);
-            setAppointment(appointment.filter(item => item.Appoint_ID !== id));
-        } catch (err) {
-            console.log(err);
+const handleDeleteConfirm = async () => {
+    try {
+        await axios.delete(`http://localhost:9004/api/appointment/delete/${deleteAppointmentId}`);
+        set
+        (appointment.filter((data) => data.Appoint_ID !== deleteAppointmentId));
+        setFilteredAppointment(filteredAppointment.filter((data) => data.Appoint_ID !== deleteAppointmentId));
+        if (showCreateForm) {
+            setShowCreateForm(false);
         }
+        if (showUpdateForm) {
+            setShowUpdateForm(false);
+        }
+    } catch (err) {
+        console.error('Error deleting appointment:', err);
     }
+    setDeleteAppointmentId(null);
+};
+
+const handleCreateFormToggle = () => {
+    setShowCreateForm(!showCreateForm);
+    setShowUpdateForm(false); 
+};
+
+const handleCloseCreateForm = () => {
+    setShowCreateForm(false); 
+};
 
 
+const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+    setCurrentPage(1); // Reset currentPage to 1 when the search query changes
+};
 
-    return (
-    <div className='container-fluid mt-4'>
-        <button className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' style={{ borderRadius: '0.5rem' }} onClick={() => setShowCreateForm(!showCreateForm)}>
-            {showCreateForm ? 'Close Add Form' : 'Add Appointment'}
-        </button>
-        <div className="table-responsive">
-            <div>
-                <div className="py-8">
-                    <div>
-                        <h2 className="text-2xl font-semibold leading-tight">Appointments</h2>
+
+useEffect(() => {
+    const filtered = appointment
+        .filter((item) =>
+            getPatientName(item.Patient_ID).toLowerCase().startsWith(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => b.Appoint_ID - a.Appoint_ID); 
+
+    setFilteredAppointment(filtered);
+}, [searchQuery, appointment]);
+
+// Logic to calculate current records for pagination
+const indexOfLastRecord = currentPage * recordsPerPage; //1 * 10 = 10
+const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;//10-10 = 0
+const currentRecords = filteredAppointment.slice(indexOfFirstRecord, indexOfLastRecord);
+
+// Change page
+const paginate = pageNumber => {
+    setCurrentPage(pageNumber);
+};
+
+
+const getPatientName = (patientId) => { 
+    console.log("Patient ID:", patientId);
+    console.log("Patients:", patients);
+
+    const patient = patients.find(pat => pat.Patient_ID === patientId);
+    console.log("Found Patient:", patient);
+
+    if (patient) {
+        return `${patient.Patient_Fname} ${patient.Patient_Lname}`;
+    } else {
+        return 'Unknown';
+    }
+};
+        return (
+           
+
+            <div className="container-fluid mt-4">
+                
+                {/* Render Delete Confirmation Dialog */}
+                {deleteAppointmentId && (
+                    <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+                        <div className="bg-white p-8 mx-auto rounded-lg">
+                            <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
+                            <p className="mb-4">Are you sure you want to delete this appointment record?</p>
+                            <div className="flex justify-end">
+                                <button
+                                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
+                                    onClick={handleDeleteConfirm}
+                                >
+                                    Delete
+                                </button>
+                                <button
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                    onClick={() => setDeleteAppointmentId(null)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                        <div
-                            className="inline-block min-w-full shadow-md rounded-lg overflow-hidden"
+                )}
+        
+                {/* Conditionally render the "Add Appointment" button or "Close" button based on showCreateForm */}
+                {/* Add pagination controls */}
+                {showCreateForm ? null : (
+                    <div>
+                        <button
+                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            style={{ borderRadius: '0.5rem' }}
+                            onClick={handleCreateFormToggle}
                         >
-                            <table className="min-w-full leading-normal">
-                                <thead>
-                                    <tr>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        Patient Name / Doctor
-                                    </th>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        Scheduled On / Date
-                                    </th>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        Appointment / Date
-                                    </th>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        Time
-                                    </th>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        Update
-                                    </th>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        Delete
-                                    </th>
-                                    
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {appointment.map((data, i) => (
-                                    <tr>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                            <div className="flex">
-                                            <div className="ml-3">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    Patient: <span className="underline">{data.patient_full_name}</span>  
-                                                </p>
-                                                <p className="text-gray-600 whitespace-no-wrap">Doctor <span className='underline'>{data.doctor_full_name}</span></p>
-                                            </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                            <p className="text-gray-900 whitespace-no-wrap">{formatDate(data.Scheduled_On)}</p>
-                                        </td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                            <p className="text-gray-900 whitespace-no-wrap">{formatDate(data.Date)}</p>
-                                            <p className="text-gray-600 whitespace-no-wrap">Due in {calculateDaysLeft(formatDate(data.Date))} days</p>
-                                        </td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                            <p className="text-gray-900 whitespace-no-wrap">{data.Time} Time</p>
-                                        </td>
-                                        <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-                                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"  onClick={() => handleUpdateButtonClick(data.Appoint_ID)}>
-                                                {showUpdateForm ? 'Close Update Form' : 'Update'}
-                                            </button>
-                                        </td>
-                                    
-                                        <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-                                            <button className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={() => handleDelete(data.Appoint_ID)} style={{ borderRadius: '0.5rem', padding: '5px 10px' }}>Delete</button>
-                                        </td>
-                                    </tr>
-                                    ))}
+                            Add Appointment
+                        </button>
+                    </div>
+                )}
+        
+                {/* Pagination buttons and Add Appointment button */}
+                <div className="mt-4">
+                    {/* Pagination buttons */}
+                    {filteredAppointment.length > recordsPerPage && (
+                        <div className="flex justify-end">
+                        <div>
+                            {currentPage > 1 && (
+                                <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage - 1)}>Previous</button>
+                            )}
+                            {currentPage < Math.ceil(filteredAppointment.length / recordsPerPage) && (
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage + 1)}>Next</button>
+                            )}
+                        </div>
+                        </div>
+                    )}
+                </div>
+        
+                {/* Render CreateAppointment component only when showCreateForm is true */}
+                {showCreateForm && <CreateAppointment onClose={() => setShowCreateForm(false)} />}
+        
+                {/* Search Input */}
+                <div className="mt-4">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by name..."
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    className="border border-gray-300 px-4 py-2 rounded-md"
+                />
+                </div>
+                {/* Render Table */}
+                <div className="table-responsive mt-4">
+                    <div className="py-8">
+                        <h2 className="text-2xl font-semibold leading-tight">Appointment</h2>
+                        <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+                            <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
+                                <table className="min-w-full leading-normal">
+                                    <thead>
+                                        <tr>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient</th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Doctor</th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Scheduled_On</th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Time</th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {currentRecords.map((data, i) => (
+                                            <tr key={i}>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getPatientName(data.Patient_ID)}</td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Doctor_ID}</td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Scheduled_On}</td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date}</td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Time}</td>
 
-                                </tbody>
-                            </table>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                                {showUpdateForm === data.Appoint_ID ? (
+                                                    // If the update form is shown for this medicine, render nothing
+                                                    null
+                                                ) : (
+                                                    // If the update form is not shown, render the "Update" button
+                                                    <button
+                                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                        onClick={() => handleUpdateButtonClick(data.Appoint_ID)}
+                                                    >
+                                                        Update
+                                                    </button>
+                                                )} 
+                                                </td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                                    <button
+                                                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                                                        onClick={() => handleDelete(data.Appoint_ID)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    );
+        );
+    
 }
 
 export default Appointment;
