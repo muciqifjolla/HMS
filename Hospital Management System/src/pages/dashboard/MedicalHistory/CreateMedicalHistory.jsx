@@ -1,94 +1,144 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
-function CreateMedicalHistory() {
+function CreateMedicalHistory({onClose}) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
         Allergies: '',
-        Pre_Conditions: ''
+        Pre_Conditions: '',
     });
-
+    const [medicalHistory, setMedicalHistory] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
-    const [showErrorModal, setShowErrorModal] = useState(false); // Add state for showing/hiding the error modal
+    const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevState => ({
+        setFormData((prevState) => ({
             ...prevState,
-            [name]: value
+            [name]: value,
         }));
+    };
+    useEffect(() => {
+        // Fetch existing medicines when component mounts
+        fetchMedicalHistory();
+    }, []);
+
+    const fetchMedicalHistory = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/medicalhistory');
+            setMedicalHistory(response.data);
+        } catch (error) {
+            console.error('Error fetching Medical History:', error);
+        }
     };
 
     const handleAddMedicalHistory = async () => {
         try {
-            const response = await axios.post('http://localhost:9004/api/medicalhistory/create', formData);
-            console.log(response.data);
-            navigate('/dashboard/medicalhistorys');
-            window.location.reload();
+            await axios.post("http://localhost:9004/api/medicalhistory/create", formData);
+            navigate('/dashboard/medicalhistory');
+            window.location.reload(); // Refresh after successful addition
         } catch (error) {
-            console.error('Error adding Medical History:', error);
-            setAlertMessage('Error adding medical history. Please try again.');
-            setShowErrorModal(true); 
+            console.error('Error adding MedicalHistory:', error);
+            showAlert('Error adding MedicalHistory. Please try again.');
         }
-    };
-
-    const handleValidation = () => {
-        const { Patient_ID, Allergies, Pre_Conditions } = formData;
-
-        if (Patient_ID === '') {
-            showAlert('Patient ID is required.');
-            return;
-        }
-
-        if (!/^[0-9]+$/.test(Patient_ID)) {
-            showAlert('Patient ID should contain only numbers.');
-            return;
-        }
-
-        if (Allergies === '') {
-            showAlert('Allergies is required.');
-            return;
-        }
-
-        if (Pre_Conditions === '') {
-            showAlert('Pre-Conditions is required.');
-            return;
-        }
-
-        // Add additional custom validations for allergies and pre-conditions here if needed
-
-        handleAddMedicalHistory();
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
-        setShowErrorModal(true); 
+        setShowErrorModal(true);
+        // Automatically hide the error modal after 3 seconds
+    };
+
+    const handleValidation = async () => {
+        const {
+            Patient_ID,
+            Allergies,
+            Pre_Conditions,
+        } = formData;
+    
+        if (Patient_ID === '' || Allergies === '' || Pre_Conditions === '' ) {
+            showAlert('All fields are required!');
+            return;
+        }
+    
+        if (Patient_ID < 1) {
+            showAlert('Patient ID can not be less than 1');
+            return;
+        }
+    
+    
+        try {
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
+            // Proceed with form submission after successful validation
+            handleAddMedicalHistory();
+        } catch (error) {
+            console.error('Error checking patient ID:', error);
+            showAlert('Patient ID does not exist');
+        }
+       
     };
     
 
     return (
-        <div className='container mt-4'>
-            {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
-            <div className='bg-white rounded p-3'>
+        <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
+            <div className='bg-white p-8 mx-auto rounded-lg w-96'>
+                {showErrorModal && (
+                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
+                )}
+                <h1 className='text-lg font-bold mb-4'>Add MedicalHistory</h1>
+                {/* Patient ID */}
                 <div className='mb-2'>
-                    <label htmlFor="patient_ID">Patient ID:  </label>
-                    <input type='text' id="patient_ID" name="Patient_ID" placeholder='Enter Patient ID' className='form-control'
-                        value={formData.Patient_ID} onChange={handleChange} />
+                    <label htmlFor='Patient_ID'>Patient ID:</label>
+                    <input
+                        type='number'
+                        name='Patient_ID'
+                        placeholder='Enter Patient ID'
+                        className='form-control w-full'
+                        value={formData.Patient_ID}
+                        onChange={handleChange}
+                    />
                 </div>
+                 {/* Allergies */}
+                 <div className='mb-2'>
+                    <label htmlFor='Allergies'>Allergies:</label>
+                    <input
+                        type='text'
+                        name='Allergies'
+                        placeholder='Enter Allergies'
+                        className='form-control w-full'
+                        value={formData.Allergies}
+                        onChange={handleChange}
+                    />
+                </div>
+                {/* Pre Conditions */}
                 <div className='mb-2'>
-                    <label htmlFor="allergies">Allergies:  </label>
-                    <input type='text' id="allergies" name="Allergies" placeholder='Enter Allergies' className='form-control'
-                        value={formData.Allergies} onChange={handleChange} />
+                    <label htmlFor='Pre_Conditions'>Pre Conditions:</label>
+                    <input
+                        type='text'
+                        name='Pre_Conditions'
+                        placeholder='Enter Pre Conditions'
+                        className='form-control w-full'
+                        value={formData.Pre_Conditions}
+                        onChange={handleChange}
+                    />
                 </div>
-                <div className='mb-2'>
-                    <label htmlFor="pre_conditions">Pre-Conditions:  </label>
-                    <input type='text' id="pre_conditions" name="Pre_Conditions" placeholder='Enter Pre-Conditions' className='form-control'
-                        value={formData.Pre_Conditions} onChange={handleChange} />
+                <div className='flex justify-end'>
+                    <button
+                        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                        onClick={handleValidation}
+                    >
+                        Submit
+                    </button>
+                    <button
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
+                        onClick={onClose} // Call the onClose function passed from props
+                    >
+                        Cancel
+                    </button>
                 </div>
-                <button type="button" className='btn btn-success' onClick={handleValidation}>Submit</button>
             </div>
         </div>
     );
