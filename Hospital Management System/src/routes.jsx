@@ -23,7 +23,7 @@
           name: "profile",
           path: "/profile",
           element: <Profile />,
-          allowedRoles: ['user1']
+          allowedRoles: ['user1', 'recepsionist', 'doctor']
         },
         {
           icon: (
