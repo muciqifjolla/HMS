@@ -8,19 +8,24 @@ function Appointment({
     setShowUpdateForm,
     setSelectedAppointmentId,
 }) {
-    const [appointment, setAppointment] = useState([]);
+const [appointment, setAppointment] = useState([]);
 const [deleteAppointmentId, setDeleteAppointmentId] = useState(null);
 const [patients, setPatients] = useState([]);
 const [searchQuery, setSearchQuery] = useState('');
 const [filteredAppointment, setFilteredAppointment] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [recordsPerPage] = useState(7);
+const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
 
 useEffect(() => {
     axios
-        .get('http://localhost:9004/api/appointment')
+        .get('http://localhost:9004/api/appointment', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
         .then((res) => {
-            console.log("Appointment data:", res.data);
             setAppointment(res.data);
             setFilteredAppointment(res.data);
         })
@@ -29,7 +34,6 @@ useEffect(() => {
         axios
         .get('http://localhost:9004/api/patient')
         .then((res) => {
-            console.log("Patients data:", res.data);
             setPatients(res.data);
         })
         .catch((err) => console.error('Error fetching patients:', err));
@@ -49,23 +53,23 @@ const handleUpdateButtonClick = (appointmentId) => {
 };
 
 const handleDelete = (id) => {
+    console.log(id);
     setDeleteAppointmentId(id);
 };
 
 const handleDeleteConfirm = async () => {
     try {
         await axios.delete(`http://localhost:9004/api/appointment/delete/${deleteAppointmentId}`);
-        set
-        (appointment.filter((data) => data.Appoint_ID !== deleteAppointmentId));
-        setFilteredAppointment(filteredAppointment.filter((data) => data.Appoint_ID !== deleteAppointmentId));
+        setAppointment(appointment.filter((item) => item.Appoint_ID !== deleteAppointmentId));
+        setFilteredAppointment(filteredAppointment.filter((item) => item.Appoint_ID !== deleteAppointmentId));
         if (showCreateForm) {
             setShowCreateForm(false);
         }
-        if (showUpdateForm) {
+        if(showUpdateForm){
             setShowUpdateForm(false);
         }
     } catch (err) {
-        console.error('Error deleting appointment:', err);
+        console.log(err);
     }
     setDeleteAppointmentId(null);
 };
@@ -108,11 +112,8 @@ const paginate = pageNumber => {
 
 
 const getPatientName = (patientId) => { 
-    console.log("Patient ID:", patientId);
-    console.log("Patients:", patients);
 
     const patient = patients.find(pat => pat.Patient_ID === patientId);
-    console.log("Found Patient:", patient);
 
     if (patient) {
         return `${patient.Patient_Fname} ${patient.Patient_Lname}`;

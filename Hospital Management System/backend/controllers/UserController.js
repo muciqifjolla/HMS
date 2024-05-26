@@ -29,7 +29,7 @@ const FindSingleUser = async (req, res) => {
 
 const AddUser = async (req, res) => {
     try {
-        const { email, username, password } = req.body;
+        const { email, username, password, role } = req.body;
         // Hash the password before storing it in the database
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -37,13 +37,23 @@ const AddUser = async (req, res) => {
                 email,
                 username,
                 password: hashedPassword,
-             
+                role,
             });
             
             res.json({ success: true, message: 'User added successfully', data: newUser });
     } catch (error) {
         console.error('Error adding user:', error);
-        res.status(500).json({ error: error });
+
+        let errorMessage;
+        if (error.errors && error.errors.length > 0) {
+            // Extracting the first error message from Sequelize validation errors
+            errorMessage = error.errors[0].message;
+        } else {
+            // Generic error message
+            errorMessage = error.message || 'An unexpected error occurred';
+        }
+
+        res.status(500).json({ error: errorMessage });
     }
 };
 
@@ -51,9 +61,9 @@ const UpdateUser = async (req, res) => {
     try {
         console.log('Request body:', req.body);
 
-        const { email, username, password } = req.body;
+        const { email, username, password, role } = req.body;
         const updated = await User.update(
-            { email, username, password },
+            { email, username, password, role  },
             { where: { user_id: req.params.id } }
         );
         if (updated[0] === 0) {

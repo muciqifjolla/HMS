@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const { authenticateToken, requireRole } = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 const { loginUser, registerUser } = require("../controllers/AuthController"); // Import your login and register controllers
 const {
@@ -13,14 +13,11 @@ const {
     DeleteUser
 } = require("../controllers/UserController");
 
-// Define middleware to check user roles
-const isAdmin = requireRole("admin");
-const isUser = requireRole("user");
 
 // Route definitions
 router.get("/users", FindAllUsers); // Only admins can view all users
 router.get("/users/:id",  FindSingleUser); // Users can view their own profile
-router.post("/users/create", AddUser); // Only admins can create users
+router.post("/users/create", authenticateToken(['admin', 'user']), AddUser); // Only admins can create users
 router.put("/users/update/:id",  UpdateUser); // Only admins can update users
 router.delete("/users/delete/:id", DeleteUser); // Only admins can delete users
 

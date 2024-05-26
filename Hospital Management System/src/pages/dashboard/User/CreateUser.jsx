@@ -8,6 +8,7 @@ function CreateUser() {
         email: '',
         username: '',
         password: '',
+        role: '',
     });
 
     const [alertMessage, setAlertMessage] = useState('');
@@ -23,8 +24,14 @@ function CreateUser() {
     };
 
     const handleAddUser = async () => {
+        const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
         try {
-            await axios.post('http://localhost:9004/api/users/create', formData);
+            await axios.post('http://localhost:9004/api/users/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             navigate('/dashboard/user');
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
@@ -34,10 +41,10 @@ function CreateUser() {
     };
 
     const handleValidation = () => {
-        const { email, username, password } = formData;
+        const { email, username, password, role } = formData;
 
         // Ensure all required fields are filled
-        if (!email.trim() || !username.trim() || !password.trim()) {
+        if (!email.trim() || !username.trim() || !password.trim() || !role.trim()) {
             showAlert('All fields are required');
             return;
         }
@@ -98,7 +105,21 @@ function CreateUser() {
                         onChange={handleChange}
                     />
                 </div>
-                
+                <div className='mb-2'>
+                    <label htmlFor='role'>Role:</label>
+                    <select
+                        id='role'
+                        name='role'
+                        className='form-control'
+                        value={formData.role}
+                        onChange={handleChange}
+                    >
+                        <option value=''>Select Role</option>
+                        <option value='admin'>Admin</option>
+                        <option value='user'>Recepsionist</option>
+                        <option value='superadmin'>Doctor</option>
+                    </select>
+                </div>
                 <button
                     type='button'
                     className='btn btn-success'

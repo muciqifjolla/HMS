@@ -11,6 +11,8 @@ function CreateAppointment({ onClose }) {
         Date: '',
         Time: '',
     });
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
     const [appointment, setAppointment] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -31,6 +33,11 @@ function CreateAppointment({ onClose }) {
     const fetchAppointment = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/appointment');
+            await axios.get('http://localhost:9004/api/appointment', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             setAppointment(response.data);
         } catch (error) {
             console.error('Error fetching appointments:', error);
@@ -38,12 +45,17 @@ function CreateAppointment({ onClose }) {
     };
 
     const handleAddAppointment = async () => {
+
         try {
-            await axios.post("http://localhost:9004/api/appointment/create", formData);
-            navigate('/appointment');
+            await axios.post('http://localhost:9004/api/appointment/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            navigate('/dashboard/appointments');
         } catch (error) {
             console.error('Error adding appointment:', error);
-            showAlert('Error adding appointment. Please try again.');
+            showAlert(error.response.data.message);
         }
     };
 

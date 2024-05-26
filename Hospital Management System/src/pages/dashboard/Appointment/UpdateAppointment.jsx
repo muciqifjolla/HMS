@@ -12,11 +12,18 @@ function UpdateAppointment({ id, onClose }) {
     });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/appointment/${id}`);
+
+                const response = await axios.get(`http://localhost:9004/api/appointment/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = response.data;
                 setFormData(data);
             } catch (error) {
@@ -43,12 +50,15 @@ function UpdateAppointment({ id, onClose }) {
 
     const handleUpdateAppointment = async () => {
         try {
-            await axios.put(`http://localhost:9004/api/appointment/update/${id}`, formData);
-            onClose(); // Close the modal after updating
+            await axios.put(`http://localhost:9004/api/appointment/update/${id}`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });            onClose(); // Close the modal after updating
             window.location.reload(); // Reload the page
         } catch (error) {
             console.error('Error updating appointment:', error);
-            showAlert('Error updating appointment.');
+            showAlert(error.response.data.message);
         }
     };
 
