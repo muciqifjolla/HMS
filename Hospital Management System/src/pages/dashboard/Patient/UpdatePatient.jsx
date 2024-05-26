@@ -71,7 +71,7 @@ function UpdatePatient({ id, onClose }) {
             const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
             const bloodTypeRegex = /^(A|B|AB|O)[+-]$/;
-
+    
             if (!patient_Fname.trim() || !patient_Lname.trim() || !blood_type.trim() || !email.trim() || !gender.trim() || !conditionn.trim() || !admission_Date.trim() || !discharge_Date.trim() || !phone.trim()) {
                 showAlert('All fields are required.');
                 return;
@@ -92,33 +92,34 @@ function UpdatePatient({ id, onClose }) {
                 showAlert("Data must be changed before updating.");
                 return;
             }
-
-            if (!personal_Number.match(personalNumberRegex)) {
+    
+            if (!String(personal_Number).match(personalNumberRegex)) {
                 showAlert('Please enter a valid personal number');
                 return;
             }
-
+    
             if (!blood_type.match(bloodTypeRegex)) {
                 showAlert('Please enter a valid blood type (e.g., A+, B-, AB+, O-).');
                 return;
             }
-
+    
             if (!email.match(emailRegex)) {
                 showAlert('Please enter a valid email address.');
                 return;
             }
-
+    
             if (!phone.match(phoneRegex)) {
                 showAlert('Please enter a valid phone number (like: 044111222).');
                 return;
             }
-
-            const existingPatient = patient.find(pat => pat.Patient_Fname === patient_Fname && pat.Patient_ID !== id);
+    
+            // Check if patient with the same personal number already exists
+            const existingPatient = patient.find(pat => pat.Personal_Number === personal_Number && pat.Patient_ID !== id);
             if (existingPatient) {
-                showAlert('Patient with the same first name already exists.');
+                showAlert('Patient with the same personal number already exists.');
                 return;
             }
-
+    
             await axios.put(`http://localhost:9004/api/patient/update/${id}`, {
                 Personal_Number: personal_Number,
                 Patient_Fname: patient_Fname,
@@ -132,7 +133,7 @@ function UpdatePatient({ id, onClose }) {
                 Discharge_Date: discharge_Date,
                 Phone: phone,
             });
-
+    
             navigate('/dashboard/patient');
             window.location.reload();
         } catch (error) {
@@ -140,6 +141,7 @@ function UpdatePatient({ id, onClose }) {
             showAlert('An error occurred while updating the patient. Please try again later.');
         }
     };
+    
 
     const closeErrorModal = () => {
         setShowErrorModal(false);
@@ -152,8 +154,10 @@ function UpdatePatient({ id, onClose }) {
                 <h1 className="text-lg font-bold mb-4">Update Patient</h1>
                 <div className='mb-4'>
                     <label htmlFor="personal_Number">Personal Number: </label>
-                    <input type='text' id="personal_Number" placeholder='Enter Personal Number' className='form-control'
-                        value={personal_Number} onChange={e => setPersonal_Number(e.target.value)} />
+                    <input 
+                        type='text' id="personal_Number" placeholder='Enter Personal Number' className='form-control'value={personal_Number} 
+                        onChange={e => setPersonal_Number(e.target.value)} 
+                    />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="patient_Fname">First name: </label>

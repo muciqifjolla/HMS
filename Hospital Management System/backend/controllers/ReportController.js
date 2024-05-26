@@ -3,7 +3,9 @@ const path = require('path');
 const pdf = require('pdf-creator-node');
 const nodemailer = require('nodemailer');
 const pdfTemplate = require('../documents');
+const PdfReport = require('../models/PdfReport');
 require('dotenv').config();
+const Report = require('../models/PdfReport'); 
 
 const outputFilePath = path.join(__dirname, '../result.pdf');
 
@@ -19,7 +21,7 @@ const transporter = nodemailer.createTransport({
 const createPdf = async (req, res) => {
     try {
         const {
-            patientName, age, patientGender, bloodType,
+            personalNumber, patientName, age, patientGender, bloodType,
             admissionDate, dischargeDate, diagnosis,
             doctorName, email, phone, medicines
         } = req.body;
@@ -29,7 +31,7 @@ const createPdf = async (req, res) => {
         }
 
         const htmlContent = pdfTemplate({
-            patientName, age, patientGender, bloodType,
+            personalNumber, patientName, age, patientGender, bloodType,
             admissionDate, dischargeDate, diagnosis,
             doctorName, email, phone, medicines
         });
@@ -116,8 +118,79 @@ const fetchPdf = (req, res) => {
     }
 };
 
+const saveReportToDB = async (req, res) => {
+    try {
+        console.log('Request files:', req.files); // Log the files object
+        console.log('Request body:', req.body); // Log the body object
+
+        let personalNumber = req.body.personalNumber; // Use the correct key
+
+        // Log the received personal number
+        console.log('Received personalNumber:', personalNumber);
+
+        // Convert personalNumber to string if it's a number
+        if (typeof personalNumber === 'number') {
+            personalNumber = personalNumber.toString();
+        }
+
+        // Validate personalNumber
+        if (typeof personalNumber !== 'string') {
+            throw new Error('personalNumber must be a string');
+        }
+
+        // Check if the request contains a file named 'pdfReport'
+        if (!req.files || !req.files.report) {
+            throw new Error('PDF report file is missing');
+        }
+
+        // Access the PDF report file data
+        const pdfReportData = req.files.report.data;
+
+        // Create a new PdfReport instance and save it to the database
+        const pdfReport = await PdfReport.create({
+            personal_number: personalNumber,
+            report: pdfReportData,
+        });
+
+        res.status(200).json({ message: 'Report saved to database successfully', pdfReport });
+    } catch (error) {
+        console.error('Error saving report to database:', error);
+        res.status(500).json({ error: 'Error saving report to database', message: error.message });
+    }
+};
+
+const fetchReportsFromDB = async (req, res) => {
+    try {
+        // Fetch reports from the database
+        const reports = await PdfReport.findAll();; // Assuming PdfReport is your Mongoose model
+        res.json(reports);
+    } catch (error) {
+        console.error('Error fetching reports from database:', error);
+        res.status(500).json({ error: 'Error fetching reports from database' });
+    }
+};
+
+const DeleteReport = async (req, res) => {
+    try {
+        const deleted = await Report.destroy({
+            where: { Report_ID: req.params.id },
+        });
+        if (deleted === 0) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+        res.json({ success: true, message: 'Report deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting report:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
 module.exports = {
     createPdf,
     sendEmailWithPdf,
     fetchPdf,
+    saveReportToDB, 
+    fetchReportsFromDB,
+    DeleteReport
 };

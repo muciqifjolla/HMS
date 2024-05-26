@@ -2,6 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const bodyParser = require('body-parser');
+
+
+const fileUpload = require('express-fileupload');
+
 const { getExpirationTime } = require('./controllers/AuthController'); // Import the shared module
 const { getExpirationTimeJWT } = require('./controllers/AuthController'); // Import the shared module
 
@@ -32,6 +36,7 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(fileUpload());
 
 const PORT = process.env.PORT || 9004;
 
