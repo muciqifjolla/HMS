@@ -16,6 +16,7 @@ function User({
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
+    const token = sessionStorage.getItem('token'); 
 
 
     // const handleUpdateButtonClick = (userId) => {
@@ -26,12 +27,18 @@ function User({
 
     useEffect(() => {
         axios
-            .get('http://localhost:9004/api/users')
+            .get('http://localhost:9004/api/users',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             .then((res) => {
+                console.log("Users data:", res.data);
                 setUsers(res.data);
                 setFilteredUsers(res.data);
             })
             .catch((err) => console.log(err));
+            
     }, []);
 
     const handleUpdateButtonClick = (userId) => {
@@ -148,12 +155,14 @@ function User({
                 {/* Pagination buttons */}
                 {filteredUsers.length > recordsPerPage && (
                     <div className="flex justify-end">
-                        {currentPage > 1 && (
-                            <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage - 1)}>Previous</button>
-                        )}
-                        {currentPage < Math.ceil(filteredUsers.length / recordsPerPage) && (
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage + 1)}>Next</button>
-                        )}
+                        <div>
+                            {currentPage > 1 && (
+                                <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage - 1)}>Previous</button>
+                            )}
+                            {currentPage < Math.ceil(filteredUsers.length / recordsPerPage) && (
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage + 1)}>Next</button>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

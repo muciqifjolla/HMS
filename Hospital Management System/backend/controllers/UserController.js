@@ -29,47 +29,94 @@ const FindSingleUser = async (req, res) => {
 
 const AddUser = async (req, res) => {
     try {
-        const { email, username, password, role } = req.body;
-        // Hash the password before storing it in the database
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const { email, username, password } = req.body;
 
-            const newUser = await User.create({
-                email,
-                username,
-                password: hashedPassword,
-                role,
-            });
-            
-            res.json({ success: true, message: 'User added successfully', data: newUser });
-    } catch (error) {
-        console.error('Error adding user:', error);
-
-        let errorMessage;
-        if (error.errors && error.errors.length > 0) {
-            // Extracting the first error message from Sequelize validation errors
-            errorMessage = error.errors[0].message;
-        } else {
-            // Generic error message
-            errorMessage = error.message || 'An unexpected error occurred';
+        // Validate input fields
+        if (!email || !username || !password) {
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
-        res.status(500).json({ error: errorMessage });
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email address' });
+        }
+
+        // Validate username length
+        if (username.length < 3) {
+            return res.status(400).json({ error: 'Username must be at least 3 characters long' });
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        }
+
+        // Check if the user already exists
+        const existingUser = await User.findOne({ where: { username } });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with the same username already exists' });
+        }
+
+        // Hash the password before storing it in the database
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const newUser = await User.create({
+            email,
+            username,
+            password: hashedPassword,
+        });
+
+        res.json({ success: true, message: 'User added successfully', data: newUser });
+    } catch (error) {
+        console.error('Error adding user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
 const UpdateUser = async (req, res) => {
     try {
-        console.log('Request body:', req.body);
+        const { email, username, password } = req.body;
 
-        const { email, username, password, role } = req.body;
+        // Validate input fields
+        if (!email || !username || !password) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email address' });
+        }
+
+        // Validate username length
+        if (username.length < 3) {
+            return res.status(400).json({ error: 'Username must be at least 3 characters long' });
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        }
+
+        // Check if the user already exists
+        const existingUser = await User.findOne({ where: { user_id: req.params.id } });
+        if (!existingUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Hash the password before updating it in the database
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
         const updated = await User.update(
-            { email, username, password, role  },
+            { email, username, password: hashedPassword },
             { where: { user_id: req.params.id } }
         );
+
         if (updated[0] === 0) {
-            res.status(404).json({ error: 'User not found or not updated' });
-            return;
+            return res.status(404).json({ error: 'User not found or not updated' });
         }
+
         res.json({ success: true, message: 'User updated successfully' });
     } catch (error) {
         console.error('Error updating user:', error);

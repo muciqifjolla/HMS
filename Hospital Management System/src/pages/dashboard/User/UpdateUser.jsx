@@ -9,12 +9,17 @@ function UpdateUser({ id, onClose }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const [users, setUsers] = useState([]);
+    const token = sessionStorage.getItem('token'); 
 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/users/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/users/${id}`,{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
                 const data = response.data;
                 setOriginalData(data);
                 setEmail(data.email);
@@ -44,11 +49,16 @@ function UpdateUser({ id, onClose }) {
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        // setTimeout(() => {
-        //     setAlertMessage('');
-        //     setShowErrorModal(false);
-        // }, 3000);
+       
     };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
 
     const handleUpdateUser = async () => {
         // Basic validation
@@ -62,11 +72,7 @@ function UpdateUser({ id, onClose }) {
             return;
         }
 
-        // Ensure there are changes to update
-        if (email === originalData.email && username === originalData.username) {
-            showAlert('Data must be changed before updating.');
-            return;
-        }
+       
 
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,7 +82,15 @@ function UpdateUser({ id, onClose }) {
         }
 
         // Check if user with the same email or username already exists
-    
+        if (
+            email === originalData.email &&
+            username === originalData.username 
+          
+        ) {
+            showAlert("Data must be changed before updating.");
+            return;
+        }
+
 
         const existingUserByUsername = users.find(user => user.username === username && user.id !== id);
         if (existingUserByUsername) {
@@ -85,12 +99,17 @@ function UpdateUser({ id, onClose }) {
         }
 
         try {
-            await axios.put(`http://localhost:9004/api/users/update/${id}`, {
+            await axios.put(`http://localhost:9004/api/users/update/${id}`,
+             {
                 email: email,
                 username: username,
-            });
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+        });
 
-            // Close the modal after updating
+            
             window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating user:', error);
@@ -111,7 +130,7 @@ function UpdateUser({ id, onClose }) {
                         type='email'
                         id='userEmail'
                         placeholder='Enter Email'
-                        className='form-control w-full'
+                        className='form-control'
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
