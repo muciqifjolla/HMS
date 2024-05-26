@@ -10,6 +10,7 @@ const {
     DeleteStaff,
     CheckStaffExistence
 } = require("../controllers/StaffController");
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 

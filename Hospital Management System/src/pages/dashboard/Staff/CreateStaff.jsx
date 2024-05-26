@@ -49,7 +49,7 @@ function CreateStaff({ onClose }) {
             window.location.reload();// Refresh after successful addition
         } catch (error) {
             console.error('Error adding Staff:', error);
-            showAlert('Error adding staff. Please try again.');
+            showAlert(error.response.data.error);
         }
     };
 
@@ -78,16 +78,16 @@ function CreateStaff({ onClose }) {
             showAlert('All fields are required!');
             return;
         }
-        const validateEmail = (Email) => {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(String(email).toLowerCase());
-        };
+        // const validateEmail = (Email) => {
+        //     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        //     return re.test(String(email).toLowerCase());
+        // };
 
-        if (!validateEmail(Email)) {
-            showAlert('Invalid email format.');
-            return;
+        function validateEmail(Email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(Email).toLowerCase());
         }
-       
+        
 
         const existingStaff = staff.find(staff => staff.SSN === SSN);
         if (existingStaff) {
@@ -95,14 +95,7 @@ function CreateStaff({ onClose }) {
             return;
         }
 
-        try {
-            await axios.get(`http://localhost:9004/api/department/check/${Dept_ID}`);
-            handleAddStaff();
-        } catch (error) {
-            console.error('Error checking department existence:', error);
-            showAlert('Dept_ID does not exist.');
-            
-        } 
+        handleAddStaff();
     };
 
   

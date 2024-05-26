@@ -15,11 +15,11 @@ function Doctor({
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredDoctors, setFilteredDoctors] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10);
+    const [recordsPerPage] = useState(7);
 
     useEffect(() => {
         axios
-            .get('http://localhost:9004/api/doctors')
+            .get('http://localhost:9004/api/doctor')
             .then((res) => {
                 console.log("Doctors data:", res.data);
                 setDoctors(res.data);

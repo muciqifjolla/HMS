@@ -10,7 +10,7 @@ function CreateDoctor({ onClose }) {
         Specialization: '',
         user_id: '',
     });
-
+    const [doctor, setDoctor] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
@@ -22,10 +22,24 @@ function CreateDoctor({ onClose }) {
             [name]: value,
         }));
     };
+    useEffect(() => {
+        // Fetch existing medicines when component mounts
+        fetchDoctor();
+    }, []);
+
+    const fetchDoctor = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/doctor');
+            setDoctor(response.data);
+        } catch (error) {
+            console.error('Error fetching doctor:', error);
+        }
+    };
+
 
     const handleAddDoctor = async () => {
         try {
-            await axios.post("http://localhost:9004/api/doctors/create", formData);
+            await axios.post("http://localhost:9004/api/doctor/create", formData);
             navigate('/dashboard/doctors');
             window.location.reload(); // Refresh after successful addition
         } catch (error) {
@@ -44,7 +58,7 @@ function CreateDoctor({ onClose }) {
         }, 3000);
     };
 
-    const handleValidation = () => {
+    const handleValidation = async () => {
         const { Qualifications, Emp_ID, Specialization, user_id } = formData;
 
         if (Qualifications === '' || Emp_ID === '' || Specialization === '' || user_id === '') {
@@ -52,7 +66,24 @@ function CreateDoctor({ onClose }) {
             return;
         }
 
-        handleAddDoctor(); // All validations passed
+        if (Emp_ID < 1) {
+            showAlert('Employee ID can not be less than 1');
+            return;
+        }
+    
+        const existingDoctor = doctor.find(doctor => doctor.Emp_ID === Emp_ID);
+        if (existingDoctor) {
+            showAlert('Doctor with the same Emp_ID already exists');
+            return;
+        }
+        try {
+            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
+            // Proceed with form submission after successful validation
+            handleAddDoctor();
+        } catch (error) {
+            console.error('Error checking Emp ID:', error);
+            showAlert('Emp ID does not exist');
+        }
     };
 
     return (

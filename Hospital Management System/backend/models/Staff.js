@@ -39,7 +39,7 @@ const Staff = sequelize.define('Staff', {
     references: {
       model: 'department',
       key: 'Dept_ID',
-    }
+    },
   },
   SSN: {
     type: DataTypes.STRING,

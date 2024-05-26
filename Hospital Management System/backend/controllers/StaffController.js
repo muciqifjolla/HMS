@@ -1,4 +1,5 @@
 const Staff = require('../models/Staff');
+const Department = require('../models/Department');
 const { Op } = require('sequelize');
 
 // Utility function to validate email format
@@ -50,6 +51,12 @@ const AddStaff = async (req, res) => {
         if (existingStaff) {
             return res.status(400).json({ error: 'Staff member with the same SSN already exists' });
         }
+
+        const department = await Department.findOne({ where: { Dept_ID } });
+        if (!department) {
+         return res.status(400).json({ error: 'Department not found' });
+}
+
 
 
         const newStaff = await Staff.create({
