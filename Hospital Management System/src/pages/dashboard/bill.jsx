@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
 import Bill from "./Bill/Bill";
 import UpdateBill from './Bill/UpdateBill';
 import CreateBill from './Bill/CreateBill';
 
-
-
 export function Bills() {
+    
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedBillId, setSelectedBillId] = useState(null); 

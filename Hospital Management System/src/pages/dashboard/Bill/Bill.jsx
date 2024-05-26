@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
 import CreateBill from './CreateBill';
 
 
@@ -13,47 +12,28 @@ function Bill({
 }) {
     const [bill, setBill] = useState([]);
     const [deleteBillId, setDeleteBillId] = useState(null);
-    const [patients, setPatients] = useState([]);
-    const [medicines, setMedicines] = useState([]);
-    const [rooms, setRooms] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredBill, setFilteredBill] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
 
     useEffect(() => {
         axios
-            .get('http://localhost:9004/api/bill')
+            .get('http://localhost:9004/api/bills',
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            )
             .then((res) => {
-                console.log("Bill data:", res.data);
                 setBill(res.data);
                 setFilteredBill(res.data);
             })
             .catch((err) => console.error('Error fetching bill:', err));
 
-        axios
-            .get('http://localhost:9004/api/patient')
-            .then((res) => {
-                console.log("Patients data:", res.data);
-                setPatients(res.data);
-            })
-            .catch((err) => console.error('Error fetching patients:', err));
-
-        axios
-            .get('http://localhost:9004/api/medicines')
-            .then((res) => {
-                console.log("Medicines data:", res.data);
-                setMedicines(res.data);
-            })
-            .catch((err) => console.error('Error fetching medicines:', err));
-
-        axios
-            .get('http://localhost:9004/api/rooms')
-            .then((res) => {
-                console.log("Rooms data:", res.data);
-                setRooms(res.data);
-            })
-            .catch((err) => console.error('Error fetching rooms:', err));
     }, []);
 
     const handleUpdateButtonClick = (billId) => {
@@ -70,7 +50,13 @@ function Bill({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/bill/delete/${deleteBillId}`);
+            await axios.delete(`http://localhost:9004/api/bills/delete/${deleteBillId}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
             setBill(bill.filter((data) => data.Payment_ID !== deleteBillId));
             setFilteredBill(filteredBill.filter((data) => data.Payment_ID !== deleteBillId));
             if (showCreateForm) {
@@ -102,27 +88,15 @@ function Bill({
     useEffect(() => {
         const filtered = bill
             .filter((item) =>
-                getPatientFullName(item.Patient_ID).toLowerCase().startsWith(searchQuery.toLowerCase())
+                item.Patient.Patient_Fname.toLowerCase().startsWith(searchQuery.toLowerCase())
             )
             .sort((a, b) => b.Payment_ID - a.Payment_ID); 
 
         setFilteredBill(filtered);
-    }, [searchQuery, bill]);
+    }, [searchQuery, bill , currentPage]);
 
-    const getPatientFullName = (patientId) => {
-        const patient = patients.find(pat => pat.Patient_ID === patientId);
-        return patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown';
-    };
 
-    const getRoomId = (roomId) => {
-        const room = rooms.find(r => r.Room_ID === roomId);
-        return room ? room.Room_ID : 'Unknown';
-    };
-
-    const getMedicineDetails = (medicineId) => {
-        const medicine = medicines.find(m => m.Medicine_ID === medicineId);
-        return medicine ? { name: medicine.M_name, cost: medicine.M_COST } : { name: 'Unknown', cost: 0 };
-    };
+   
 
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -212,6 +186,7 @@ function Bill({
                         <table className="min-w-full leading-normal">
                             <thead>
                                 <tr>
+                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Bill ID</th>
                                     <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient</th>
                                     <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room ID</th>
                                     <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Medicine</th>
@@ -227,13 +202,15 @@ function Bill({
                             <tbody>
                                 {currentRecords.map((data, i) => (
                                     <tr key={i}>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getPatientFullName(data.Patient_ID)}</td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getRoomId(data.Room_ID)}</td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getMedicineDetails(data.Medicine_ID).name}</td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date}</td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Room_cost}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Payment_ID}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Patient.Patient_Fname} {data.Patient.Patient_Lname}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Room.Room_type}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Medicine.Medicine_ID}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.DATE}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Room.Room_cost}</td>
                                         <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Other_charges}</td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getMedicineDetails(data.Medicine_ID).cost}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Medicine.M_Cost}</td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Total}</td>
                                         <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                             {showUpdateForm === data.Payment_ID ? null : (
                                                 <button

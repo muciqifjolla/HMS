@@ -11,9 +11,8 @@ function CreateAppointment({ onClose }) {
         Date: '',
         Time: '',
     });
-    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+    const token = sessionStorage.getItem('token'); // Retrieve the token from sessionStorage
 
-    const [appointment, setAppointment] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
@@ -25,33 +24,8 @@ function CreateAppointment({ onClose }) {
             [name]: value,
         }));
     };
-    useEffect(() => {
-        // Fetch existing appointments when component mounts
-        fetchAppointment();
-    }, []);
-
-    const fetchAppointment = async () => {
-        try {
-            const response = await axios.get('http://localhost:9004/api/appointment',
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-            );
-            await axios.get('http://localhost:9004/api/appointment', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setAppointment(response.data);
-        } catch (error) {
-            console.error('Error fetching appointments:', error);
-        }
-    };
 
     const handleAddAppointment = async () => {
-
         try {
             await axios.post('http://localhost:9004/api/appointment/create', formData, {
                 headers: {
@@ -59,9 +33,10 @@ function CreateAppointment({ onClose }) {
                 }
             });
             navigate('/dashboard/appointments');
+            window.location.reload();
         } catch (error) {
             console.error('Error adding appointment:', error);
-            showAlert(error.response.data.message);
+            showAlert(error.response?.data?.message || 'Error adding appointment');
         }
     };
 
@@ -72,30 +47,15 @@ function CreateAppointment({ onClose }) {
         setTimeout(() => setShowErrorModal(false), 3000);
     };
 
-    const handleValidation = async () => {
+    const handleValidation = () => {
         const { Patient_ID, Doctor_ID, Scheduled_On, Date, Time } = formData;
-    
+
         if (Patient_ID === '' || Doctor_ID === '' || Scheduled_On === '' || Date === '' || Time === '') {
             showAlert('All fields are required!');
             return;
         }
-        if (Patient_ID < 1 ){
-            showAlert('Patient ID cannot be less than 1');
-            return;
-        }
-        if (Doctor_ID < 1) {
-            showAlert('Doctor ID cannot be less than 1');
-            return;
-        }
 
-        try {
-            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
-            // Proceed with form submission after successful validation
-            handleAddAppointment();
-        } catch (error) {
-            console.error('Error checking patient ID:', error);
-            showAlert('Patient ID does not exist');
-        }
+        handleAddAppointment();
     };
 
     return (

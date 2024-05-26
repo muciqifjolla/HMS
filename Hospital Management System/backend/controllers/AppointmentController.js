@@ -53,6 +53,7 @@ const AddAppointment = async (req, res) => {
             Doctor_ID,
             Patient_ID,
         });
+        console.log(newAppointment);
         res.status(201).json({ success: true, message: 'Appointment added successfully', data: newAppointment });
     } catch (error) {
         console.error('Error adding appointment:', error);

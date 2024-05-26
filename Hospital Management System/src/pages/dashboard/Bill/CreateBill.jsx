@@ -3,21 +3,39 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 
-function CreateBill({onClose}) {
+function CreateBill({ onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
         Room_ID: '',
         Medicine_ID: '',
         DATE: '',
-        Room_cost: '',
         Other_charges: '',
-        M_Cost: '',
-        Total: '',
     });
-    const [bill, setBill] = useState([]);
+
+    const [bills, setBills] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
+
+    useEffect(() => {
+        // Fetch existing medicines when component mounts
+        fetchBills();
+    }, []);
+
+    const fetchBills = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/bills',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setBills(response.data);
+        } catch (error) {
+            console.error('Error fetching medicines:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,67 +44,49 @@ function CreateBill({onClose}) {
             [name]: value,
         }));
     };
-    useEffect(() => {
-        // Fetch existing medicines when component mounts
-        fetchBill();
-    }, []);
 
-    const fetchBill = async () => {
+    const handleAddBills = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/bill');
-            setBill(response.data);
+            await axios.post('http://localhost:9004/api/bills/create', formData,{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            navigate('/dashboard/bills');
+            window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
-            console.error('Error fetching bill:', error);
+            console.error('Error adding medicine:', error);
         }
     };
 
-    const handleAddBill = async () => {
-        try {
-            await axios.post("http://localhost:9004/api/bill/create", formData);
-            navigate('/dashboard/bill');
-            window.location.reload(); // Refresh after successful addition
-        } catch (error) {
-            console.error('Error adding bill:', error);
-            showAlert('Error adding bill. Please try again.');
+    const handleValidation = () => {
+        const {
+            Patient_ID,
+            Room_ID,
+            Medicine_ID,
+            DATE,
+            Other_charges,
+        } = formData;
+
+        if (Patient_ID === '' || Room_ID === '' || Medicine_ID === '' || DATE === '' || Other_charges === '') {
+            showAlert('All fields are required!');
+            return;
         }
+       
+        // Proceed with form submission after successful validation
+        handleAddBills();
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
         // Automatically hide the error modal after 3 seconds
+        // setTimeout(() => {
+        //     setAlertMessage('');
+        //     setShowErrorModal(false);
+        // }, 3000);
     };
-
-    const handleValidation = async () => {
-        const {
-            Patient_ID,
-            Room_ID,
-            Medicine_ID,
-            DATE,
-            Room_cost,
-            Other_charges,
-            M_Cost,
-            Total,
-        } = formData;
-    
-        if (Patient_ID === '' || Room_ID === '' || Medicine_ID === '' || DATE === '' || Room_cost === '' || Other_charges === '' || M_Cost === '' || Total === '') {
-            showAlert('All fields are required!');
-            return;
-        }
-      
-      try {
-            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
-            await axios.get(`http://localhost:9004/api/rooms/check/${Room_ID}`);
-            await axios.get(`http://localhost:9004/api/medicines/check/${Medicine_ID}`);
-            // Proceed with form submission after successful validation
-            handleAddBill();
-        } catch (error) {
-            console.error('Error checking IDs:', error);
-            showAlert('One or more IDs do not exist');
-        }
-       
-    };
-    
 
     return (
         <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
@@ -107,97 +107,55 @@ function CreateBill({onClose}) {
                         onChange={handleChange}
                     />
                 </div>
-               {/* Room_ID */}
-<div className='mb-2'>
-    <label htmlFor='Room_ID'>Room ID:</label>
-    <input
-        type='text'
-        name='Room_ID'
-        placeholder='Enter Room ID'
-        className='form-control w-full'
-        value={formData.Room_ID}
-        onChange={handleChange}
-    />
-</div>
+                {/* Room_ID */}
+                <div className='mb-2'>
+                    <label htmlFor='Room_ID'>Room ID:</label>
+                    <input
+                        type='text'
+                        name='Room_ID'
+                        placeholder='Enter Room ID'
+                        className='form-control w-full'
+                        value={formData.Room_ID}
+                        onChange={handleChange}
+                    />
+                </div>
 
-{/* Medicine_ID */}
-<div className='mb-2'>
-    <label htmlFor='Medicine_ID'>Medicine ID:</label>
-    <input
-        type='text'
-        name='Medicine_ID'
-        placeholder='Enter Medicine ID'
-        className='form-control w-full'
-        value={formData.Medicine_ID}
-        onChange={handleChange}
-    />
-</div>
-
-{/* M_Cost */}
-<div className='mb-2'>
-    <label htmlFor='M_Cost'>Medicine Cost:</label>
-    <input
-        type='number'
-        name='M_Cost'
-        placeholder='Enter Medicine Cost'
-        className='form-control w-full'
-        value={formData.M_Cost}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Date */}
-<div className='mb-2'>
-    <label htmlFor='Date'>Date:</label>
-    <input
-        type='date'
-        name='Date'
-        placeholder='Enter Date'
-        className='form-control w-full'
-        value={formData.Date}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Room_cost */}
-<div className='mb-2'>
-    <label htmlFor='Room_cost'>Room Cost:</label>
-    <input
-        type='number'
-        name='Room_cost'
-        placeholder='Enter Room Cost'
-        className='form-control w-full'
-        value={formData.Room_cost}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Other_charges */}
-<div className='mb-2'>
-    <label htmlFor='Other_charges'>Other Charges:</label>
-    <input
-        type='number'
-        name='Other_charges'
-        placeholder='Enter Other Charges'
-        className='form-control w-full'
-        value={formData.Other_charges}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Total */}
-<div className='mb-2'>
-    <label htmlFor='Total'>Total:</label>
-    <input
-        type='number'
-        name='Total'
-        placeholder='Enter Total'
-        className='form-control w-full'
-        value={formData.Total}
-        onChange={handleChange}
-    />
-</div>
-
+                {/* Medicine_ID */}
+                <div className='mb-2'>
+                    <label htmlFor='Medicine_ID'>Medicine ID:</label>
+                    <input
+                        type='text'
+                        name='Medicine_ID'
+                        placeholder='Enter Medicine ID'
+                        className='form-control w-full'
+                        value={formData.Medicine_ID}
+                        onChange={handleChange}
+                    />
+                </div>
+                {/* Date */}
+                <div className='mb-2'>
+                    <label htmlFor='Date'>Date:</label>
+                    <input
+                        type='date'
+                        name='DATE'
+                        placeholder='Enter Date'
+                        className='form-control w-full'
+                        value={formData.DATE}
+                        onChange={handleChange}
+                    />
+                </div>
+                {/* Other_charges */}
+                <div className='mb-2'>
+                    <label htmlFor='Other_charges'>Other Charges:</label>
+                    <input
+                        type='number'
+                        name='Other_charges'
+                        placeholder='Enter Other Charges'
+                        className='form-control w-full'
+                        value={formData.Other_charges}
+                        onChange={handleChange}
+                    />
+                </div>
                 <div className='flex justify-end'>
                     <button
                         className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
@@ -208,7 +166,7 @@ function CreateBill({onClose}) {
                     <button
                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
                         onClick={onClose} // Call the onClose function passed from props
-                    >
+                        >
                         Cancel
                     </button>
                 </div>

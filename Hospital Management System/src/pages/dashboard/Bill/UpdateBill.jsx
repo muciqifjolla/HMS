@@ -8,19 +8,24 @@ function UpdateBill({ id, onClose }) {
         Room_ID: '',
         Medicine_ID: '',
         DATE: '',
-        Room_cost: '',
         Other_charges: '',
-        M_Cost: '',
         Total: '',
 
     });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/bill/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/bills/${id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                );
                 const data = response.data;
                 setFormData(data);
             } catch (error) {
@@ -47,7 +52,13 @@ function UpdateBill({ id, onClose }) {
 
     const handleUpdateBill = async () => {
         try {
-            await axios.put(`http://localhost:9004/api/bill/update/${id}`, formData);
+            await axios.put(`http://localhost:9004/api/bills/update/${id}`, formData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
             onClose(); // Close the modal after updating
             window.location.reload(); // Reload the page
         } catch (error) {
@@ -76,95 +87,54 @@ function UpdateBill({ id, onClose }) {
                     />
                 </div>
                {/* Room_ID */}
-<div className='mb-2'>
-    <label htmlFor='Room_ID'>Room ID:</label>
-    <input
-        type='text'
-        name='Room_ID'
-        placeholder='Enter Room ID'
-        className='form-control w-full'
-        value={formData.Room_ID}
-        onChange={handleChange}
-    />
-</div>
+                <div className='mb-2'>
+                    <label htmlFor='Room_ID'>Room ID:</label>
+                    <input
+                        type='text'
+                        name='Room_ID'
+                        placeholder='Enter Room ID'
+                        className='form-control w-full'
+                        value={formData.Room_ID}
+                        onChange={handleChange}
+                    />
+                </div>
 
-{/* Medicine_ID */}
-<div className='mb-2'>
-    <label htmlFor='Medicine_ID'>Medicine ID:</label>
-    <input
-        type='text'
-        name='Medicine_ID'
-        placeholder='Enter Medicine ID'
-        className='form-control w-full'
-        value={formData.Medicine_ID}
-        onChange={handleChange}
-    />
-</div>
-
-{/* M_Cost */}
-<div className='mb-2'>
-    <label htmlFor='M_Cost'>Medicine Cost:</label>
-    <input
-        type='number'
-        name='M_Cost'
-        placeholder='Enter Medicine Cost'
-        className='form-control w-full'
-        value={formData.M_Cost}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Date */}
-<div className='mb-2'>
-    <label htmlFor='Date'>Date:</label>
-    <input
-        type='date'
-        name='Date'
-        placeholder='Enter Date'
-        className='form-control w-full'
-        value={formData.Date}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Room_cost */}
-<div className='mb-2'>
-    <label htmlFor='Room_cost'>Room Cost:</label>
-    <input
-        type='number'
-        name='Room_cost'
-        placeholder='Enter Room Cost'
-        className='form-control w-full'
-        value={formData.Room_cost}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Other_charges */}
-<div className='mb-2'>
-    <label htmlFor='Other_charges'>Other Charges:</label>
-    <input
-        type='number'
-        name='Other_charges'
-        placeholder='Enter Other Charges'
-        className='form-control w-full'
-        value={formData.Other_charges}
-        onChange={handleChange}
-    />
-</div>
-
-{/* Total */}
-<div className='mb-2'>
-    <label htmlFor='Total'>Total:</label>
-    <input
-        type='number'
-        name='Total'
-        placeholder='Enter Total'
-        className='form-control w-full'
-        value={formData.Total}
-        onChange={handleChange}
-    />
-</div>
+                {/* Medicine_ID */}
+                <div className='mb-2'>
+                    <label htmlFor='Medicine_ID'>Medicine ID:</label>
+                    <input
+                        type='text'
+                        name='Medicine_ID'
+                        placeholder='Enter Medicine ID'
+                        className='form-control w-full'
+                        value={formData.Medicine_ID}
+                        onChange={handleChange}
+                    />
+                </div>
+                {/* Date */}
+                <div className='mb-2'>
+                    <label htmlFor='Date'>Date:</label>
+                    <input
+                        type='date'
+                        name='Date'
+                        placeholder='Enter Date'
+                        className='form-control w-full'
+                        value={formData.Date}
+                        onChange={handleChange}
+                    />
+                </div>
+                {/* Other_charges */}
+                <div className='mb-2'>
+                    <label htmlFor='Other_charges'>Other Charges:</label>
+                    <input
+                        type='number'
+                        name='Other_charges'
+                        placeholder='Enter Other Charges'
+                        className='form-control w-full'
+                        value={formData.Other_charges}
+                        onChange={handleChange}
+                    />
+                </div>
                 <div className="flex justify-end">
                     <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateBill}>
                         Submit

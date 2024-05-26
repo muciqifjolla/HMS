@@ -38,9 +38,6 @@ const Appointment = sequelize.define('Appointment', {
       key: 'Patient_ID',
     },
   },
-  Doctor_FullName: {
-    type: DataTypes.VIRTUAL, // Define a virtual field to hold the full name of the doctor
-  },
 }, {
   tableName: 'appointment',
   timestamps: false,

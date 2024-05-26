@@ -116,7 +116,7 @@ function CreateUser() {
                     >
                         <option value=''>Select Role</option>
                         <option value='admin'>Admin</option>
-                        <option value='user'>Recepsionist</option>
+                        <option value='recepsionist'>Recepsionist</option>
                         <option value='superadmin'>Doctor</option>
                     </select>
                 </div>

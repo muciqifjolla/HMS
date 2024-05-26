@@ -191,6 +191,7 @@ const paginate = pageNumber => {
                                 <table className="min-w-full leading-normal">
                                     <thead>
                                         <tr>
+                                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Appointment ID</th>
                                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient</th>
                                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Doctor</th>
                                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Scheduled_On</th>
@@ -203,6 +204,7 @@ const paginate = pageNumber => {
                                     <tbody>
                                         {currentRecords.map((data, i) => (
                                             <tr key={i}>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Appoint_ID}</td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Patient.Patient_Fname} {data.Patient.Patient_Lname}</td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Doctor.Staff.Emp_Fname} {data.Doctor.Staff.Emp_Lname}</td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Scheduled_On}</td>

@@ -28,6 +28,7 @@ const DoctorRoutes = require('./routes/DoctorRoutes');
 const LoginRoutes = require('./routes/Login');
 const RegisterRoutes = require('./routes/Register');
 const ReportRoutes = require('./routes/ReportRoutes');
+const BillRoutes = require('./routes/BillRoutes');
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use("/api", RatingRoutes);
 app.use("/api", DoctorRoutes);
 app.use("/api", LoginRoutes);
 app.use("/api", RegisterRoutes);
+app.use("/api", BillRoutes);
 
 
 
