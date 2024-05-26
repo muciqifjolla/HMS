@@ -20,7 +20,7 @@ function CreateInsurance({onClose}) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-
+    const token = sessionStorage.getItem('token'); 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -35,7 +35,12 @@ function CreateInsurance({onClose}) {
 
     const fetchInurance = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/insurance');
+            const response = await axios.get('http://localhost:9004/api/insurance',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
             setInsurance(response.data);
         } catch (error) {
             console.error('Error fetching insurance:', error);
@@ -44,7 +49,12 @@ function CreateInsurance({onClose}) {
 
     const handleAddInsurance = async () => {
         try {
-            await axios.post("http://localhost:9004/api/insurance/create", formData);
+            await axios.post("http://localhost:9004/api/insurance/create", formData,{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
             navigate('/dashboard/insurance');
             window.location.reload(); // Refresh after successful addition
         } catch (error) {

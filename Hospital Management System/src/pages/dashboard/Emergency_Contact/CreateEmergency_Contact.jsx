@@ -13,7 +13,7 @@ function CreateEmergencyContact({onClose}) {
   const [emergency_contact, setEmergency_contact] = useState([]);
   const [alertMessage, setAlertMessage] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
-  
+  const token = sessionStorage.getItem('token'); 
   const navigate = useNavigate();
 
 
@@ -24,7 +24,11 @@ function CreateEmergencyContact({onClose}) {
 
 const fetchEmergency_contact = async () => {
     try {
-        const response = await axios.get('http://localhost:9004/api/emergency_contact');
+        const response = await axios.get('http://localhost:9004/api/emergency_contact',{
+          headers: {
+            'Authorization': `Bearer ${token}`
+        }
+        })
         setEmergency_contact(response.data);
     } catch (error) {
         console.error('Error fetching emergency_contact:', error);
@@ -41,7 +45,11 @@ const fetchEmergency_contact = async () => {
 
   const handleAddEmergencyContact = async () => {
     try {
-      const response = await axios.post('http://localhost:9004/api/emergency_contact/create', formData);
+      const response = await axios.post('http://localhost:9004/api/emergency_contact/create', formData,{
+        headers: {
+          'Authorization': `Bearer ${token}`
+      }
+      })
       // console.log(response.data);
       navigate('/dashboard/emergency_contact');
       window.location.reload();

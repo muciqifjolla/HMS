@@ -12,11 +12,15 @@ function UpdateRating({ id, onClose}) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-
+    const token = sessionStorage.getItem('token');
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/rating/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/rating/${id}`,{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
                 const data = response.data;
                 setOriginalData(data);
                 setEmp_ID(data.Emp_ID);
@@ -74,6 +78,10 @@ function UpdateRating({ id, onClose}) {
                 Rating: rating,
                 Comments: comments,
                 Date: currentDate, // Update to current date
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             navigate('/dashboard/rating'); // Navigate to the medicines dashboard after updating

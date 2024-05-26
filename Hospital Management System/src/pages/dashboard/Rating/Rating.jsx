@@ -15,11 +15,15 @@ function Rating({
     const [filteredRating, setFilteredRating] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
-
+    const token = sessionStorage.getItem('token'); 
     // Fetch ratings and employees data
     useEffect(() => {
         axios
-            .get('http://localhost:9004/api/rating')
+            .get('http://localhost:9004/api/rating',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             .then((res) => setRating(res.data))
             .catch((err) => console.log(err));
 

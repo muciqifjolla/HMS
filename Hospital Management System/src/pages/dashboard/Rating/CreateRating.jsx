@@ -14,7 +14,7 @@ function CreateRating({onClose}) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-
+    const token = sessionStorage.getItem('token'); 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -29,7 +29,11 @@ function CreateRating({onClose}) {
 
     const fetchRating = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/rating');
+            const response = await axios.get('http://localhost:9004/api/rating',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             setRatings(response.data);
         } catch (error) {
             console.error('Error fetching rating:', error);
@@ -37,7 +41,11 @@ function CreateRating({onClose}) {
     };
     const handleAddRating = async () => {
         try {
-            await axios.post('http://localhost:9004/api/rating/create', formData);
+            await axios.post('http://localhost:9004/api/rating/create', formData,{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             navigate('/dashboard/rating');
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {

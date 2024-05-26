@@ -14,6 +14,7 @@ function CreateMedicine({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = sessionStorage.getItem('token');
 
     useEffect(() => {
         // Fetch existing medicines when component mounts
@@ -22,7 +23,11 @@ function CreateMedicine({ onClose }) {
 
     const fetchMedicines = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/medicine');
+            const response = await axios.get('http://localhost:9004/api/medicine',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             setMedicines(response.data);
         } catch (error) {
             console.error('Error fetching medicines:', error);
@@ -39,7 +44,12 @@ function CreateMedicine({ onClose }) {
 
     const handleAddMedicine = async () => {
         try {
-            await axios.post('http://localhost:9004/api/medicine/create', formData);
+            await axios.post('http://localhost:9004/api/medicine/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            )
 
             navigate('/dashboard/medicines');
             window.location.reload(); // Refresh the page after successful submission

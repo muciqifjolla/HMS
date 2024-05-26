@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const generateRandomToken = require('../tokenUtils'); // Import the utility function
+const generateDynamicJwtToken = require('../JWTUtils');  // Import the utility function
 // const { setExpirationTimer } = require('../tokenExpiration'); // Import the shared module
 
 const parseExpirationString = (expirationString) => {
@@ -38,6 +39,24 @@ const setExpirationTimer = (expirationString, user) => {
         expirationTime
     };
 };
+
+let jwtExpirationTimer = null;
+
+const setJwtExpirationTimer = (expirationString, user) => {
+    const expiresIn = parseExpirationString(expirationString); // Convert expiration string to milliseconds
+    if (jwtExpirationTimer) {
+        clearTimeout(jwtExpirationTimer.timer);
+    }
+    const expirationTime = Date.now() + expiresIn;
+    jwtExpirationTimer = {
+        timer: setTimeout(() => {
+            console.log(`JWT token expired for user: ${user.username}`);
+            jwtExpirationTimer = null;
+        }, expiresIn),
+        expirationTime
+    };
+};
+
 // Configure Nodemailer using environment variables
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -49,23 +68,33 @@ const transporter = nodemailer.createTransport({
         rejectUnauthorized: false // Add this line to allow self-signed certificates
     }
 });
+const generateJWTToken = (user) => {
+    const { secret, algorithm } = generateDynamicJwtToken();
 
+    setJwtExpirationTimer('2h', user);
+
+    // Adding more data to the JWT payload
+    return jwt.sign(
+    {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.email
+    },
+    secret, // Now using the dynamically generated secret
+    { algorithm } // Using the dynamically generated algorithm
+);
+};
 // Function to generate a refresh token using a random string
 const generateRefreshToken = (user) => {
-  const refreshToken = generateRandomToken();
-//   const refreshTokenExpiration = Date.now() + 10000; // 10 seconds expiration
+    const { secret, algorithm } = generateRandomToken();
 
-  // Set the expiration timer in the shared module
-  setExpirationTimer('15m', user); // Pass the user object to setExpirationTimer
+    setExpirationTimer('7d', user);
 
-  // Print expiration time
-//   console.log('Refresh token expiration:', new Date(refreshTokenExpiration).toLocaleString());
-
-//   return jwt.sign(
-//       { userId: user.id },
-//       refreshToken,
-//       { expiresIn: '10s' } // Set refresh token expiration to 10 seconds
-//   );
+    return jwt.sign(
+        { user_id: user.user_id },
+        secret, // Now using the dynamically generated secret
+        { algorithm } // Using the dynamically generated algorithm
+    );
 };
 
 
@@ -77,7 +106,14 @@ const getExpirationTime = () => {
     }
     return refreshTokenExpirationTimer.expirationTime;
 };
-
+const getExpirationTimeJWT = () => {
+    if (!jwtExpirationTimer) return null;
+    if (Date.now() >= jwtExpirationTimer.expirationTime) {
+        jwtExpirationTimer = null;
+        return null;
+    }
+    return jwtExpirationTimer.expirationTime;
+};
 const loginUser = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -98,14 +134,15 @@ const loginUser = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-
+        const token1 = generateJWTToken(user);
+        
         // Generate refresh token
         const refreshToken = generateRefreshToken(user);
 
         // Print refresh token to console
         console.log('Refresh Token:', refreshToken);
 
-        res.status(200).json({ token, refreshToken, username: user.username, email: user.email });
+        res.status(200).json({ token, token1, refreshToken, username: user.username, email: user.email });
     } catch (error) {
         console.error('Error logging in user:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -164,8 +201,8 @@ const registerUser = async (req, res) => {
         });
 
         // Generate JWT token
-        const token = jwt.sign({ userId: newUser.id, role: newUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
+        // const token = jwt.sign({ userId: newUser.id, role: newUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = generateJWTToken(newUser);
         // Send welcome email
         const mailOptions = {
             from: process.env.GMAIL_USER,
@@ -200,5 +237,4 @@ LIFELINE Hospital Team`
         res.status(500).json({ message: 'Internal server error' });
     }
 };
-module.exports = { loginUser, registerUser, setExpirationTimer,
-    getExpirationTime, getExpirationTime };
+module.exports = { loginUser, registerUser, setExpirationTimer, getExpirationTime, setJwtExpirationTimer, getExpirationTimeJWT};

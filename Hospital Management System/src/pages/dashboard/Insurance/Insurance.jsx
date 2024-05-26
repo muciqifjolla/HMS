@@ -15,10 +15,15 @@ const [searchQuery, setSearchQuery] = useState('');
 const [filteredInsurance, setFilteredInsurance] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [recordsPerPage] = useState(7);
-
+const token = sessionStorage.getItem('token'); 
 useEffect(() => {
     axios
-        .get('http://localhost:9004/api/insurance')
+        .get('http://localhost:9004/api/insurance',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    )
         .then((res) => {
             console.log("Insurance data:", res.data);
             setInsurance(res.data);

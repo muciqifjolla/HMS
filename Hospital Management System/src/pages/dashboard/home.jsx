@@ -9,11 +9,15 @@ export function Home() {
   const [staff, setStaff] = useState([]);
   const [room, setRoom] = useState([]);
   const [medicine, setMedicine] = useState([]);
+  const token = sessionStorage.getItem('token'); 
   useEffect(() => {
     async function fetchData() {
       try {
         // Fetch appointments
-        const appointmentResponse = await axios.get('http://localhost:9004/api/appointment');
+        const appointmentResponse = await axios.get('http://localhost:9004/api/appointment',{headers: {
+          'Authorization': `Bearer ${token}`
+      }
+  });
         const fetchedAppointments = appointmentResponse.data;
         setAppointments(fetchedAppointments);
 
@@ -37,7 +41,11 @@ export function Home() {
         setRoom(fetchedRooms);
 
 
-        const nurseMedicine = await axios.get('http://localhost:9004/api/medicine');
+        const nurseMedicine = await axios.get('http://localhost:9004/api/medicine',{
+          headers: {
+              'Authorization': `Bearer ${token}`
+          }
+      });
         const fetchedMedicine = nurseMedicine.data;
         setMedicine(fetchedMedicine);
 

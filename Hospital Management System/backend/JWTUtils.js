@@ -1,6 +1,7 @@
+require('dotenv').config();
 const crypto = require('crypto');
 
-const generateRandomToken = () => {
+const generateDynamicJwtToken = () => {
   const secretKey = crypto.randomBytes(64).toString('hex');
   return {
     secret: secretKey,
@@ -8,4 +9,4 @@ const generateRandomToken = () => {
   };
 };
 
-module.exports = generateRandomToken;
+module.exports = generateDynamicJwtToken;

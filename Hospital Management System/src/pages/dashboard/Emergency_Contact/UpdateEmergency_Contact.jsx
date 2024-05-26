@@ -18,7 +18,12 @@ function UpdateEmergency_Contact({ id, onClose }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/emergency_contact/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/emergency_contact/${id}`,{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            )
                 const data = response.data;
                 setOriginalData(data);
                 setName(data.Contact_Name);
@@ -34,18 +39,18 @@ function UpdateEmergency_Contact({ id, onClose }) {
 
         fetchData();
     }, [id]);
-    useEffect(() => {
-        const fetchAllEmergency_contact = async () => {
-            try {
-                const response = await axios.get('http://localhost:9004/api/emergency_contact');
-                setEmergency_contact(response.data);
-            } catch (error) {
-                console.error('Error fetching emergency_contact:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchAllEmergency_contact = async () => {
+    //         try {
+    //             const response = await axios.get('http://localhost:9004/api/emergency_contact');
+    //             setEmergency_contact(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching emergency_contact:', error);
+    //         }
+    //     };
 
-        fetchAllEmergency_contact();
-    }, []);
+    //     fetchAllEmergency_contact();
+    // }, []);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -102,6 +107,10 @@ function UpdateEmergency_Contact({ id, onClose }) {
                 Phone: phone,
                 Relation: relation,
                 Patient_ID: patientID,
+            },{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             navigate('/dashboard/emergency_contact');

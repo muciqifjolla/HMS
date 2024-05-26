@@ -17,11 +17,15 @@ function UpdateInsurance({ id, onClose }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const [insurance, setInsurance] = useState([]);
-    
+    const token = sessionStorage.getItem('token'); 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/insurance/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/insurance/${id}`,{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
                 const data = response.data;
                 setOriginalData(data);
                 setPatientID(data.Patient_ID);
@@ -43,18 +47,18 @@ function UpdateInsurance({ id, onClose }) {
         fetchData();
     }, [id]);
 
-    useEffect(() => {
-        const fetchAllInsurances = async () => {
-            try {
-                const response = await axios.get('http://localhost:9004/api/insurance');
-                setInsurance(response.data);
-            } catch (error) {
-                console.error('Error fetching insurance:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchAllInsurances = async () => {
+    //         try {
+    //             const response = await axios.get('http://localhost:9004/api/insurance');
+    //             setInsurance(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching insurance:', error);
+    //         }
+    //     };
 
-        fetchAllInsurances();
-    }, []);
+    //     fetchAllInsurances();
+    // }, []);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -136,6 +140,10 @@ function UpdateInsurance({ id, onClose }) {
                 Maternity: maternity,
                 Dental: dental,
                 Optical: optical,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             // Close the modal after updating

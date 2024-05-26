@@ -3,6 +3,9 @@ const cors = require("cors");
 require("dotenv").config();
 const bodyParser = require('body-parser');
 const { getExpirationTime } = require('./controllers/AuthController'); // Import the shared module
+const { getExpirationTimeJWT } = require('./controllers/AuthController'); // Import the shared module
+
+const{refreshAccessToken} = require('./controllers/AuthController');
 
 const sequelize = require("./config/database");
 const MedicineRoute = require("./routes/MedicineRoutes");
@@ -40,16 +43,16 @@ const PORT = process.env.PORT || 9004;
 // });
 
 // Define your routes
-app.use("/api", MedicineRoute);
+app.use("/api",  MedicineRoute);
 app.use("/api", Emergency_ContactRoute);
 app.use("/api", AppointmentRoutes);
-app.use("/api", PatientRoutes);
+app.use("/api",PatientRoutes);
 app.use("/api", DepartmentRoutes);
 app.use("/api", InsuranceRoutes);
-app.use("/api", StaffRoutes);
+app.use("/api",StaffRoutes);
 app.use("/api", MedicalHistoryRoutes);
 app.use("/api", RoomRoutes);
-app.use("/api", NurseRoutes);
+app.use("/api",  NurseRoutes);
 app.use("/api", UserRoutes);
 app.use("/api", RatingRoutes);
 app.use("/api", DoctorRoutes);
@@ -66,6 +69,19 @@ app.get('/api/expiration', (req, res) => {
     }
     res.status(200).json({ message: 'Refresh token is active', expirationTime: new Date(expirationTime).toLocaleString() });
 });
+app.get('/api/expiration-jwt', (req, res) => {
+    const expirationTime = getExpirationTimeJWT();
+    if (!expirationTime) {
+        return res.status(200).json({ message: 'JWT token is expired or not set', expirationTime: null });
+    }
+    res.status(200).json({ message: 'JWT token is active', expirationTime: new Date(expirationTime).toLocaleString() });
+});
+
+
+// app.post('/api/refresh-token', async (req, res) => {
+//     console.log(req.body);  // Log the entire request body to see what is being received
+//     await refreshAccessToken(req, res);
+// });
 
 // Other routes
 app.use("/api", ReportRoutes);

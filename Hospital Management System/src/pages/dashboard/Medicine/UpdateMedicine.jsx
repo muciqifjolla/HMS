@@ -10,11 +10,15 @@
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const [medicine, setMedicines] = useState([]);
-
+    const token = sessionStorage.getItem('token'); 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/medicine/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/medicine/${id}`,{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = response.data;
                 setOriginalData(data);
                 setName(data.M_name);
@@ -29,18 +33,18 @@
         fetchData();
     }, [id]);
 
-    useEffect(() => {
-        const fetchAllMedicines = async () => {
-            try {
-                const response = await axios.get('http://localhost:9004/api/medicine');
-                setMedicines(response.data);
-            } catch (error) {
-                console.error('Error fetching medicines:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchAllMedicines = async () => {
+    //         try {
+    //             const response = await axios.get('http://localhost:9004/api/medicine');
+    //             setMedicines(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching medicines:', error);
+    //         }
+    //     };
 
-        fetchAllMedicines();
-    }, []);
+    //     fetchAllMedicines();
+    // }, []);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -82,10 +86,14 @@
 
         try {
             await axios.put(`http://localhost:9004/api/medicine/update/${id}`, {
-                M_name: name,
-                M_Quantity: quantity,
-                M_Cost: cost,
-            });
+                    M_name: name,
+                    M_Quantity: quantity,
+                    M_Cost: cost,
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
     
             // Close the modal after updating
             window.location.reload(); // Refresh the page to show the updated data

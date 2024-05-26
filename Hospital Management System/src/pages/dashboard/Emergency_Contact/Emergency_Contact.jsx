@@ -15,10 +15,14 @@ const [searchQuery, setSearchQuery] = useState('');
 const [filteredContacts, setFilteredContacts] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [recordsPerPage] = useState(7);
-
+const token = sessionStorage.getItem('token'); 
 useEffect(() => {
     axios
-        .get('http://localhost:9004/api/emergency_contact')
+        .get('http://localhost:9004/api/emergency_contact',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
         .then((res) => {
             console.log("Emergency Contacts data:", res.data);
             setEmergencyContacts(res.data);
