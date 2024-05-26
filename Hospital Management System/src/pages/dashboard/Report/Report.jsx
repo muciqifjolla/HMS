@@ -1,257 +1,217 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { saveAs } from 'file-saver';
-import './Report.css';
-import ErrorModal from '../../../components/ErrorModal';
+import CreateReport from './CreateReport';
 
-const Report = () => {
-  const [formData, setFormData] = useState({
-    patientName: '',
-    age: '',
-    patientGender: '',
-    bloodType: '',
-    admissionDate: '',
-    dischargeDate: '',
-    diagnosis: '',
-    doctorName: '',
-    email: '',
-    phone: '',
-    medicines: '',
-  });
+function Report({ showCreateForm, setShowCreateForm }) {
+  const [reports, setReports] = useState([]);
+  const [deleteReportId, setDeleteReportId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [modalMessage, setModalMessage] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [filteredReports, setFilteredReports] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10);
 
-  const personalNumberRegex = /^\d{10}$/;
+  useEffect(() => {
+    refreshReports();
+  }, []);
 
-  const handleChange = ({ target: { value, name } }) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const calculateAge = (birthDate) => {
-    const today = new Date();
-    const dob = new Date(birthDate);
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  const fetchPatientInfo = async (personalNumber) => {
-    if (!personalNumber.match(personalNumberRegex)) {
-      setModalMessage('Please enter a valid personal number.');
-      setShowModal(true);
-      return;
-    }
-
+  const refreshReports = async () => {
     try {
-      const response = await axios.get(`http://localhost:9004/api/patient/personalNumber/${personalNumber}`);
-      if (response.status === 404) {
-        setModalMessage('Patient not found.');
-        setShowModal(true);
-        return;
-      }
-
-      const { Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Admission_Date, Discharge_Date, Phone, Condition, Doctor_Name } = response.data;
-
-      const age = calculateAge(Birth_Date);
-
-      setFormData({
-        patientName: `${Patient_Fname} ${Patient_Lname}`,
-        age,
-        patientGender: Gender,
-        bloodType: Blood_type,
-        admissionDate: Admission_Date,
-        dischargeDate: Discharge_Date,
-        diagnosis: Condition,
-        doctorName: Doctor_Name,
-        email: Email,
-        phone: Phone,
-        medicines: '',
+      const res = await axios.get('http://localhost:9004/api/report/fetch-reports');
+      const reportsWithUrls = res.data.map(report => {
+        const uint8Array = new Uint8Array(report.report.data);
+        const blob = new Blob([uint8Array], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        return { ...report, pdfUrl: url };
       });
-      setErrorMessage('');
-    } catch (error) {
-      setModalMessage('An error occurred while fetching patient information.');
-      setShowModal(true);
-      console.error('Error fetching patient info:', error);
+      setReports(reportsWithUrls);
+      setFilteredReports(reportsWithUrls);
+    } catch (err) {
+      console.error('Error fetching reports:', err);
     }
   };
-const createAndDownloadPdf = async () => {
-  // Validate form fields
-  if (!formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.admissionDate || !formData.dischargeDate || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone || !formData.medicines) {
-    setModalMessage('Please fill in all fields before creating PDF.');
-    setShowModal(true);
-    return;
+
+  function formatDate(dateString) {
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', options);
   }
 
-  try {
-    const medicinesArray = formData.medicines.split(',').map(medicine => medicine.trim());
+  const handleDelete = async (id) => {
+    setDeleteReportId(id);
+  };
 
-    const pdfResponse = await axios.post('http://localhost:9004/api/create-pdf', {
-      ...formData,
-      medicines: medicinesArray
-    }, {
-      responseType: 'blob' // Ensure the response is handled as a Blob
-    });
+  const handleDeleteConfirm = async () => {
+    try {
+      await axios.delete(`http://localhost:9004/api/report/delete/${deleteReportId}`);
+      setReports(reports.filter(item => item.Report_ID !== deleteReportId));
+      setFilteredReports(filteredReports.filter((item) => item.Report_ID !== deleteReportId));
 
-    const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
-    saveAs(blob, 'patient_report.pdf');
-    setModalMessage('PDF created successfully.');
-    setShowModal(true);
-  } catch (error) {
-    setModalMessage('Error creating PDF.');
-    setShowModal(true);
-    console.error('Error:', error);
-  }
-};
-
-const sendEmailWithPdf = async () => {
-  // Validate form fields
-  if (!formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.admissionDate || !formData.dischargeDate || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone || !formData.medicines) {
-    setModalMessage('Please fill in all fields before sending email.');
-    setShowModal(true);
-    return;
-  }
-
-  try {
-    const emailResponse = await axios.post('http://localhost:9004/api/send-email', {
-      email: formData.email,
-      pdfPath: 'result.pdf' // Assuming this is the path where the PDF is saved
-    });
-
-    setModalMessage('Email sent successfully.');
-    setShowModal(true);
-    console.log('Email sent:', emailResponse.data);
-  } catch (error) {
-    setModalMessage('Error sending email.');
-    setShowModal(true);
-    console.error('Error:', error);
-  }
-};
-
+      if (showCreateForm) {
+        setShowCreateForm(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+    setDeleteReportId(null);
+  };
 
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
+    setCurrentPage(1);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setModalMessage('');
+  const handleCreateFormToggle = () => {
+    setShowCreateForm(!showCreateForm);
+  };
+
+  useEffect(() => {
+    if (reports.length > 0) {
+      const filtered = reports
+        .filter((item) => {
+          const personalNumberRegex = /^\d+$/;
+          const personalNumberStr = String(item.personal_number);
+          if (!personalNumberRegex.test(personalNumberStr)) {
+            console.warn(`Invalid personal number: ${personalNumberStr}`);
+            return false;
+          }
+          if (searchQuery === '') {
+            return true;
+          }
+          return personalNumberStr.startsWith(searchQuery);
+        })
+        .sort((a, b) => b.Report_ID - a.Report_ID);
+      setFilteredReports(filtered);
+    }
+  }, [searchQuery, reports]);
+
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredReports.slice(indexOfFirstRecord, indexOfLastRecord);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= Math.ceil(filteredReports.length / recordsPerPage)) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const openPDF = (reportData) => {
+    window.open(reportData.pdfUrl, '_blank');
   };
 
   return (
-    <div className="report-container p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
-  <div className="search-section mb-6">
-    <div className="flex items-center mb-4">
-      <input
-        type="text"
-        id="ubt"
-        placeholder="Search by personal number..."
-        value={searchQuery}
-        onChange={handleSearchInputChange}
-        className="search-input flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button
-        onClick={() => fetchPatientInfo(searchQuery)}
-        className="ml-4 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-      >
-        Search
-      </button>
-    </div>
-    {errorMessage && (
-      <div className="error-message text-red-500">
-        {errorMessage}
-      </div>
+    <div className='container-fluid mt-4'>
+        {deleteReportId && (
+                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+                    <div className="bg-white p-8 mx-auto rounded-lg">
+                        <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
+                        <p className="mb-4">Are you sure you want to delete this patient record?</p>
+                        <div className="flex justify-end">
+                            <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded" onClick={handleDeleteConfirm}>Delete</button>
+                            <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded" onClick={() => setDeleteReportId(null)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+        )}
+      {showCreateForm ? null : (
+        <div className="mt-4">
+          <button
+            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            style={{ borderRadius: '0.5rem' }}
+            onClick={handleCreateFormToggle}
+          >
+            Create Report
+          </button>
+        </div>
+      )}
+    {showCreateForm && (
+        <CreateReport onClose={() => setShowCreateForm(false)} onSaveSuccess={refreshReports} />
     )}
-  </div>
-  <div className="patient-info mb-6">
-    <h2 className="text-xl font-bold mb-4">Patient Information</h2>
-    <div className="mb-2">
-      <label className="block font-semibold">Patient Name:</label>
-      <span>{formData.patientName}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Age:</label>
-      <span>{formData.age}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Gender:</label>
-      <span>{formData.patientGender}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Blood Type:</label>
-      <span>{formData.bloodType}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Admission Date:</label>
-      <span>{formData.admissionDate}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Discharge Date:</label>
-      <span>{formData.dischargeDate}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Email:</label>
-      <span>{formData.email}</span>
-    </div>
-    <div className="mb-2">
-      <label className="block font-semibold">Phone:</label>
-      <span>{formData.phone}</span>
-    </div>
-  </div>
-  <div className="other-info mb-6">
-    <h2 className="text-xl font-bold mb-4">Other Information</h2>
-    <input
-      type="text"
-      id="ubt"
-      placeholder="Diagnosis"
-      name="diagnosis"
-      onChange={handleChange}
-      className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    <input
-      type="text"
-      id="ubt"
-      placeholder="Medicines (comma-separated)"
-      name="medicines"
-      onChange={handleChange}
-      className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    <input
-      type="text"
-      id="ubt"
-      placeholder="Doctor Name"
-      name="doctorName"
-      onChange={handleChange}
-      className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
-  <div className="flex justify-between">
-    <button
-      onClick={createAndDownloadPdf}
-      className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-    >
-      Download PDF
-    </button>
-    <button
-      onClick={sendEmailWithPdf}
-      className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
-    >
-      Send Email
-    </button>
-  </div>
-  {showModal && (
-    <ErrorModal message={modalMessage} onClose={closeModal} />
-  )}
-</div>
 
+      <div className="mt-4">
+        {filteredReports.length > recordsPerPage && (
+          <div className="flex justify-end">
+            {currentPage > 1 && (
+              <button
+                className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => paginate(currentPage - 1)}
+              >
+                Previous
+              </button>
+            )}
+            {currentPage < Math.ceil(filteredReports.length / recordsPerPage) && (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => paginate(currentPage + 1)}
+              >
+                Next
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="mt-4">
+        <input
+          type="text"
+          placeholder="Search by personal number"
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+          className="border border-gray-300 px-4 py-2 rounded-md"
+        />
+      </div>
+      <div className="table-responsive">
+        <div>
+          <div className="py-8">
+            <div>
+              <h2 className="text-2xl font-semibold leading-tight">Reports</h2>
+            </div>
+            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+              <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
+                <table className="min-w-full leading-normal">
+                  <thead>
+                    <tr>
+                      <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
+                      <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Personal Number</th>
+                      <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Report</th>
+                      <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Time created</th>
+                      <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRecords.map((data, i) => (
+                      <tr key={i}>
+                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{data.Report_ID}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{data.personal_number}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          {data.report && (
+                            <button
+                              onClick={() => openPDF(data)}
+                              className="text-blue-600 hover:underline focus:outline-none"
+                            >
+                              {`Report_${data.Report_ID}.pdf`}
+                            </button>
+                          )}
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{formatDate(data.created_at)}</p>
+                        </td>
+                        <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
+                            <button className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={() => handleDelete(data.Report_ID)} style={{ borderRadius: '0.5rem', padding: '5px 10px' }}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
+}
 
 export default Report;

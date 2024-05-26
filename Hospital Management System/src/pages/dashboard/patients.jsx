@@ -20,7 +20,6 @@ export function Patients() {
             await axios.delete(`http://localhost:9004/api/patient/delete/${id}`);
             setShowCreateForm(false);
             setShowUpdateForm(false);
-            // Fetch and update medicine list here if needed
         } catch (error) {
             console.error('Error deleting patient:', error);
         }
