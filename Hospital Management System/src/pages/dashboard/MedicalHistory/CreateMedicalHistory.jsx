@@ -13,6 +13,7 @@ function CreateMedicalHistory({onClose}) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,7 +29,12 @@ function CreateMedicalHistory({onClose}) {
 
     const fetchMedicalHistory = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/medicalhistory');
+            const response = await axios.get('http://localhost:9004/api/medicalhistory',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
             setMedicalHistory(response.data);
         } catch (error) {
             console.error('Error fetching Medical History:', error);
@@ -37,12 +43,17 @@ function CreateMedicalHistory({onClose}) {
 
     const handleAddMedicalHistory = async () => {
         try {
-            await axios.post("http://localhost:9004/api/medicalhistory/create", formData);
-            navigate('/dashboard/medicalhistory');
+            await axios.post("http://localhost:9004/api/medicalhistory/create", formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
+            navigate('/dashboard/medicalhistorys');
             window.location.reload(); // Refresh after successful addition
         } catch (error) {
             console.error('Error adding MedicalHistory:', error);
-            showAlert('Error adding MedicalHistory. Please try again.');
+            showAlert(error.response.data.message);
         }
     };
 

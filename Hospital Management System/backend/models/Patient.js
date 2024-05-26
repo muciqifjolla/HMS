@@ -10,7 +10,6 @@ const Patient = sequelize.define('Patient', {
     Personal_Number: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true,
     },
     Patient_Fname: {
       type: DataTypes.STRING,

@@ -53,7 +53,6 @@ const handleUpdateButtonClick = (appointmentId) => {
 };
 
 const handleDelete = (id) => {
-    console.log(id);
     setDeleteAppointmentId(id);
 };
 
@@ -89,13 +88,12 @@ const handleSearchInputChange = (event) => {
     setCurrentPage(1); // Reset currentPage to 1 when the search query changes
 };
 
-
+// {data.Patient.Patient_Fname}
 useEffect(() => {
-    const filtered = appointment
-        .filter((item) =>
-            getPatientName(item.Patient_ID).toLowerCase().startsWith(searchQuery.toLowerCase())
-        )
-        .sort((a, b) => b.Appoint_ID - a.Appoint_ID); 
+    const filtered = appointment.filter((item) =>
+        (item.Patient.Patient_Fname.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
+        item.Patient.Patient_Lname.toLowerCase().startsWith(searchQuery.toLowerCase()))
+    ).sort((a, b) => b.Medicine_ID - a.Medicine_ID);
 
     setFilteredAppointment(filtered);
 }, [searchQuery, appointment]);
@@ -110,18 +108,7 @@ const paginate = pageNumber => {
     setCurrentPage(pageNumber);
 };
 
-
-const getPatientName = (patientId) => { 
-
-    const patient = patients.find(pat => pat.Patient_ID === patientId);
-
-    if (patient) {
-        return `${patient.Patient_Fname} ${patient.Patient_Lname}`;
-    } else {
-        return 'Unknown';
-    }
-};
-        return (
+     return (
            
 
             <div className="container-fluid mt-4">
@@ -216,8 +203,8 @@ const getPatientName = (patientId) => {
                                     <tbody>
                                         {currentRecords.map((data, i) => (
                                             <tr key={i}>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getPatientName(data.Patient_ID)}</td>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Doctor_ID}</td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Patient.Patient_Fname} {data.Patient.Patient_Lname}</td>
+                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Doctor.Staff.Emp_Fname} {data.Doctor.Staff.Emp_Lname}</td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Scheduled_On}</td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date}</td>
                                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Time}</td>

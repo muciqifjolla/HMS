@@ -1,8 +1,22 @@
 const Appointment = require('../models/Appointment');
+const Doctor = require('../models/Doctor');
+const Staff = require('../models/Staff');
+const Patient = require('../models/Patient');
 
 const FindAllAppointments = async (req, res) => {
     try {
-        const appointments = await Appointment.findAll();
+        const appointments = await Appointment.findAll({
+            include: [{
+                model: Doctor,
+                include: [{
+                    model: Staff,
+                    attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the full_name attribute
+                }]
+            }, {
+                model: Patient
+            }]
+        });
+        console.log(appointments);
         res.json(appointments);
     } catch (error) {
         console.error('Error fetching all appointments:', error);

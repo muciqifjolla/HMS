@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Doctor = require('./Doctor'); 
 const Patient = require('./Patient'); 
+const Staff = require('./Staff'); 
 
 const Appointment = sequelize.define('Appointment', {
   Appoint_ID: {
@@ -37,6 +38,9 @@ const Appointment = sequelize.define('Appointment', {
       key: 'Patient_ID',
     },
   },
+  Doctor_FullName: {
+    type: DataTypes.VIRTUAL, // Define a virtual field to hold the full name of the doctor
+  },
 }, {
   tableName: 'appointment',
   timestamps: false,
@@ -45,5 +49,7 @@ const Appointment = sequelize.define('Appointment', {
 
 Appointment.belongsTo(Doctor, { foreignKey: 'Doctor_ID' });
 Appointment.belongsTo(Patient, { foreignKey: 'Patient_ID' });
+Doctor.belongsTo(Staff, { foreignKey: 'Emp_ID', targetKey: 'Emp_ID' }); // Assuming Emp_ID is the foreign key to the Staff model
+
 
 module.exports = Appointment;

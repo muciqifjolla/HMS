@@ -15,12 +15,19 @@ const [searchQuery, setSearchQuery] = useState('');
 const [filteredMedicalHistory, setFilteredMedicalHistory] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [recordsPerPage] = useState(7);
+const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
 
 useEffect(() => {
     axios
-        .get('http://localhost:9004/api/medicalhistory')
+        .get('http://localhost:9004/api/medicalhistory',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+            
+        )
         .then((res) => {
-            console.log("Medical History data:", res.data);
             setMedicalHistory(res.data);
             setFilteredMedicalHistory(res.data);
         })
@@ -29,7 +36,6 @@ useEffect(() => {
         axios
         .get('http://localhost:9004/api/patient')
         .then((res) => {
-            console.log("Patients data:", res.data);
             setPatients(res.data);
         })
         .catch((err) => console.error('Error fetching patients:', err));
@@ -50,23 +56,24 @@ const handleDelete = (id) => {
     setDeleteMedicalHistoryId(id);
 };
 
+
 const handleDeleteConfirm = async () => {
     try {
         await axios.delete(`http://localhost:9004/api/medicalhistory/delete/${deleteMedicalHistoryId}`);
-        setMedicalHistory(medicalhistory.filter((data) => data.Record_ID !== deleteMedicalHistoryId));
-        setFilteredMedicalHistory(filteredMedicalHistory.filter((data) => data.Record_ID !== deleteMedicalHistoryId));
+        setMedicalHistory(medicalHistory.filter((item) => item.Record_ID !== deleteMedicalHistoryId));
+
+        setFilteredMedicalHistory(filteredMedicalHistory.filter((item) => item.Record_ID !== deleteMedicalHistoryId));
         if (showCreateForm) {
             setShowCreateForm(false);
         }
-        if (showUpdateForm) {
+        if(showUpdateForm){
             setShowUpdateForm(false);
         }
     } catch (err) {
-        console.error('Error deleting Medical History:', err);
+        console.log(err);
     }
     setDeleteMedicalHistoryId(null);
 };
-
 const handleCreateFormToggle = () => {
     setShowCreateForm(!showCreateForm);
     setShowUpdateForm(false); 
@@ -105,11 +112,8 @@ const paginate = pageNumber => {
 
 
 const getPatientName = (patientId) => { 
-    console.log("Patient ID:", patientId);
-    console.log("Patients:", patients);
 
     const patient = patients.find(pat => pat.Patient_ID === patientId);
-    console.log("Found Patient:", patient);
 
     if (patient) {
         return `${patient.Patient_Fname} ${patient.Patient_Lname}`;

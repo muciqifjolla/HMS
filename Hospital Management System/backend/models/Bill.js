@@ -14,15 +14,7 @@ const Bill = sequelize.define('Bill', {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  Room_cost: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: true,
-  },
   Other_charges: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: true,
-  },
-  M_Cost: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
   },

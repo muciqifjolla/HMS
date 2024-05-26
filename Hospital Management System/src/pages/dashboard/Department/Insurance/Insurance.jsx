@@ -104,11 +104,8 @@ const paginate = pageNumber => {
 
 
 const getPatientName = (patientId) => { 
-    console.log("Patient ID:", patientId);
-    console.log("Patients:", patients);
 
     const patient = patients.find(pat => pat.Patient_ID === patientId);
-    console.log("Found Patient:", patient);
 
     if (patient) {
         return `${patient.Patient_Fname} ${patient.Patient_Lname}`;

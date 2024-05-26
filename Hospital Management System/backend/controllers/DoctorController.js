@@ -2,7 +2,12 @@ const Doctor = require('../models/Doctor');
 
 const FindAllDoctors = async (req, res) => {
     try {
-        const doctors = await Doctor.findAll();
+        const doctors = await Doctor.findAll({
+            include: [{
+                model: Staff,
+                attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the full_name attribute
+            }]
+        });
         res.json(doctors);
     } catch (error) {
         console.error('Error fetching all doctors:', error);
@@ -12,7 +17,12 @@ const FindAllDoctors = async (req, res) => {
 
 const FindSingleDoctor = async (req, res) => {
     try {
-        const doctor = await Doctor.findByPk(req.params.id);
+        const doctor = await Doctor.findByPk(req.params.id, {
+            include: [{
+                model: Staff,
+                attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the full_name attribute
+            }]
+        });
         if (!doctor) {
             res.status(404).json({ error: 'Doctor not found' });
             return;
@@ -23,6 +33,7 @@ const FindSingleDoctor = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 const AddDoctor = async (req, res) => {
     try {

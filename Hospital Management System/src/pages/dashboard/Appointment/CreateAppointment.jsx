@@ -32,7 +32,13 @@ function CreateAppointment({ onClose }) {
 
     const fetchAppointment = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/appointment');
+            const response = await axios.get('http://localhost:9004/api/appointment',
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
             await axios.get('http://localhost:9004/api/appointment', {
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -11,11 +11,19 @@ function UpdateMedicalHistory({ id, onClose }) {
     });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/medicalhistory/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/medicalhistory/${id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                );
                 const data = response.data;
                 setFormData(data);
             } catch (error) {
@@ -42,7 +50,13 @@ function UpdateMedicalHistory({ id, onClose }) {
 
     const handleUpdateMedicalHistory = async () => {
         try {
-            await axios.put(`http://localhost:9004/api/medicalhistory/update/${id}`, formData);
+            await axios.put(`http://localhost:9004/api/medicalhistory/update/${id}`, formData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
             onClose(); // Close the modal after updating
             window.location.reload(); // Reload the page
         } catch (error) {
