@@ -114,10 +114,12 @@ const loginUser = async (req, res) => {
 
 const registerUser = async (req, res) => {
     try {
-        const { email, username, password } = req.body;
+        const { email, username, password, role } = req.body;
+
+        console.log(req.body);
 
         // Validate required fields
-        if (!email || !username || !password) {
+        if (!email || !username || !password ) {
             return res.status(400).json({ message: 'Email, username, and password are required' });
         }
 
@@ -158,11 +160,11 @@ const registerUser = async (req, res) => {
             email,
             username,
             password: hashedPassword,
-            role: 'user' // Default role for new users
+            role, // Default role for new users
         });
 
         // Generate JWT token
-        const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: newUser.id, role: newUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Send welcome email
         const mailOptions = {

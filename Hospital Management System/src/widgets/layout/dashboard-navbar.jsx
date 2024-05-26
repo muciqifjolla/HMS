@@ -25,6 +25,7 @@ export function DashboardNavbar() {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('username');
     sessionStorage.removeItem('email');
+    sessionStorage.removeItem('role');
     
     // Redirect to the login page
     navigate('/login');

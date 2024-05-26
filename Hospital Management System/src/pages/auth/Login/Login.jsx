@@ -7,6 +7,8 @@ import logo from '../../auth/LoginAssets/llogo.png';
 import { FaUserShield } from "react-icons/fa";
 import { BsFillShieldLockFill } from "react-icons/bs";
 import { AiOutlineSwapRight } from "react-icons/ai";
+import { jwtDecode } from 'jwt-decode';
+
 
 const Login = () => {
     const [loginUserName, setLoginUserName] = useState('');
@@ -17,10 +19,7 @@ const Login = () => {
     const navigateTo = useNavigate();
 
     useEffect(() => {
-        const storedToken = sessionStorage.getItem('token');
-        if (storedToken) {
-            navigateTo('/dashboard/home');
-        }
+        setToken(sessionStorage.getItem('token'));
     }, [navigateTo]);
 
     const loginUser = async (e) => {
@@ -36,6 +35,8 @@ const Login = () => {
                 username: loginUserName,
                 password: loginPassword
             });
+
+            
     
             const { data } = response;
             if (data.token) {
@@ -44,10 +45,13 @@ const Login = () => {
                 sessionStorage.setItem('refreshToken', data.refreshToken);
                 sessionStorage.setItem('username', data.username);
                 sessionStorage.setItem('email', data.email);
+                const user = jwtDecode(data.token);
+                sessionStorage.setItem('role', user.role);
                 navigateTo('/dashboard/home');
             } else {
                 setErrorMessage('An error occurred while logging in. Please try again later.');
             }
+            
         } catch (error) {
             if (error.response) {
                 const { data } = error.response;

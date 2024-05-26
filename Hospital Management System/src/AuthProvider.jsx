@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
             sessionStorage.removeItem('refreshToken');
             sessionStorage.removeItem('username');
             sessionStorage.removeItem('email');
+            sessionStorage.removeItem('role');
             navigate('/login');
           }
         } catch (error) {

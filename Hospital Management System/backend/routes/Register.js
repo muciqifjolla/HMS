@@ -7,10 +7,10 @@ const User = require('../models/User'); // Assuming you have a User model
 // Route for handling registration
 router.post('/register', async (req, res) => {
     try {
-        const { email, username, password } = req.body;
+        const { email, username, password, role } = req.body;
 
         // Validate required fields
-        if (!email || !username || !password) {
+        if (!email || !username || !password || !role) {
             return res.status(400).json({ message: 'Email, username, and password are required' });
         }
 
@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
             email,
             username,           
             password: hashedPassword,
-            role: 'user' // Default role for new users
+            role, 
         });
 
         // Generate JWT token
