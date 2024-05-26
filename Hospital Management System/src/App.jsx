@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard, Auth } from '@/layouts';
 import Home_Page from './pages/Main_Page/Home_Page';
+import Unauthorized from './pages/Main_Page/Unauthorized';
 import Login from './pages/auth/Login/Login.jsx';
 import Register from './pages/auth/Register/Register.jsx';
 import Logout from './pages/auth/Login/Logout.jsx';
@@ -18,7 +19,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>
   );

@@ -1,5 +1,6 @@
 
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from '../ProtectedRoute';
 
 import {
   Sidenav,
@@ -10,6 +11,8 @@ import routes from "@/routes";
 import { useMaterialTailwindController } from "@/context";
 
 export function Dashboard() {
+  const userRole = sessionStorage.getItem('role');
+
 
   const [controller] = useMaterialTailwindController();
   const { sidenavType } = controller;
@@ -26,12 +29,21 @@ export function Dashboard() {
 
 
           <Routes>
-            {routes.map(
-              ({ layout, pages }) =>
-                layout === "dashboard" &&
-                pages.map(({ path, element }) => (
-                  <Route exact path={path} element={element} />
-                ))
+            {routes.map(({ layout, pages }) =>
+              layout === 'dashboard' &&
+              pages.map(({ path, element, allowedRoles }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <ProtectedRoute
+                      element={element}
+                      allowedRoles={allowedRoles}
+                      userRole={userRole}
+                    />
+                  }
+                />
+              ))
             )}
           </Routes>
 
