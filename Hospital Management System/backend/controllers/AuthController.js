@@ -40,6 +40,22 @@ const setExpirationTimer = (expirationString, user) => {
     };
 };
 
+
+const renewJWT = async (user) => {
+    // Assume generateRefreshToken returns an object with a refreshToken and its own expiration
+    if (!refreshTokenExpirationTimer || Date.now() >= refreshTokenExpirationTimer.expirationTime) {
+        console.log('Refresh token is expired or missing. User must log in again.');
+        return;
+    }
+
+    const newJwt = generateJWTToken(user);
+    console.log(`New JWT generated for user: ${user.username}`);
+
+    // Optionally, update any relevant state or database entries here
+};
+
+
+
 let jwtExpirationTimer = null;
 
 const setJwtExpirationTimer = (expirationString, user) => {
@@ -47,15 +63,19 @@ const setJwtExpirationTimer = (expirationString, user) => {
     if (jwtExpirationTimer) {
         clearTimeout(jwtExpirationTimer.timer);
     }
-    const expirationTime = Date.now() + expiresIn;
+    const renewalBuffer = 30000; // 30 seconds before actual expiration to attempt renewal
+    const expirationTime = Date.now() + expiresIn - renewalBuffer;
+
     jwtExpirationTimer = {
         timer: setTimeout(() => {
-            console.log(`JWT token expired for user: ${user.username}`);
-            jwtExpirationTimer = null;
-        }, expiresIn),
+            console.log(`JWT token is about to expire for user: ${user.username}`);
+            // Renew JWT using refresh token
+            renewJWT(user);
+        }, expiresIn - renewalBuffer),
         expirationTime
     };
 };
+
 
 // Configure Nodemailer using environment variables
 const transporter = nodemailer.createTransport({
@@ -90,13 +110,12 @@ const generateRefreshToken = (user) => {
 
     setExpirationTimer('7d', user);
 
-    // return jwt.sign(
-    //     { user_id: user.user_id },
-    //     secret, // Now using the dynamically generated secret
-    //     { algorithm } // Using the dynamically generated algorithm
-    // );
+    return jwt.sign(
+        { user_id: user.user_id },
+        secret,
+        { algorithm }
+    );
 };
-
 
 const getExpirationTime = () => {
     if (!refreshTokenExpirationTimer) return null;
@@ -134,7 +153,7 @@ const loginUser = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-        const token1 = generateJWTToken(user);
+        const token1 = generateJWTToken(user);//qita leje mos e hek se masanej ka infinit loop kur t kryhet jwt
         
         // Generate refresh token
         const refreshToken = generateRefreshToken(user);
