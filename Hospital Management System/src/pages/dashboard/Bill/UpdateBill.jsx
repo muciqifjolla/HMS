@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal'; 
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function UpdateBill({ id, onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
@@ -14,7 +14,7 @@ function UpdateBill({ id, onClose }) {
     });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+    const token = Cookies.get('token');  // Retrieve the token from localStorage
 
     useEffect(() => {
         const fetchData = async () => {

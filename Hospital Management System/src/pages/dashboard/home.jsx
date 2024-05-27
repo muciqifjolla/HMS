@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Typography } from '@material-tailwind/react';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 export function Home() {
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
@@ -9,45 +9,38 @@ export function Home() {
   const [staff, setStaff] = useState([]);
   const [room, setRoom] = useState([]);
   const [medicine, setMedicine] = useState([]);
-  const token = sessionStorage.getItem('token'); 
+  const token = Cookies.get('token'); // Retrieve token from cookies
+  
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch appointments
-        const appointmentResponse = await axios.get('http://localhost:9004/api/appointment',{headers: {
+        const headers = {
           'Authorization': `Bearer ${token}`
-      }
-  });
-        const fetchedAppointments = appointmentResponse.data;
-        setAppointments(fetchedAppointments);
+        };
+
+        // Fetch appointments
+        const appointmentResponse = await axios.get('http://localhost:9004/api/appointment', { headers });
+        setAppointments(appointmentResponse.data);
 
         // Fetch patients
-        const patientResponse = await axios.get('http://localhost:9004/api/patient');
-        const fetchedPatients = patientResponse.data;
-        setPatients(fetchedPatients);
+        const patientResponse = await axios.get('http://localhost:9004/api/patient', { headers });
+        setPatients(patientResponse.data);
 
         // Fetch departments
-        const departmentResponse = await axios.get('http://localhost:9004/api/department');
-        const fetchedDepartments = departmentResponse.data;
-        setDepartment(fetchedDepartments);
+        const departmentResponse = await axios.get('http://localhost:9004/api/department', { headers });
+        setDepartment(departmentResponse.data);
 
         // Fetch staff
-        const staffResponse = await axios.get('http://localhost:9004/api/staff');
-        const fetchedStaff = staffResponse.data;
-        setStaff(fetchedStaff);
+        const staffResponse = await axios.get('http://localhost:9004/api/staff', { headers });
+        setStaff(staffResponse.data);
 
-        const roomResponse = await axios.get('http://localhost:9004/api/room');
-        const fetchedRooms = roomResponse.data;
-        setRoom(fetchedRooms);
+        // Fetch rooms
+        const roomResponse = await axios.get('http://localhost:9004/api/room', { headers });
+        setRoom(roomResponse.data);
 
-
-        const nurseMedicine = await axios.get('http://localhost:9004/api/medicine',{
-          headers: {
-              'Authorization': `Bearer ${token}`
-          }
-      });
-        const fetchedMedicine = nurseMedicine.data;
-        setMedicine(fetchedMedicine);
+        // Fetch medicines
+        const medicineResponse = await axios.get('http://localhost:9004/api/medicine', { headers });
+        setMedicine(medicineResponse.data);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -55,7 +48,7 @@ export function Home() {
     }
 
     fetchData();
-  }, []);
+  }, [token]); 
 
   return (
     <div className="mt-12">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CreateAppointment from './CreateAppointment';
+import Cookies from 'js-cookie'; // Import js-cookie
 function Appointment({
     showCreateForm,
     setShowCreateForm,
@@ -15,10 +16,12 @@ const [searchQuery, setSearchQuery] = useState('');
 const [filteredAppointment, setFilteredAppointment] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [recordsPerPage] = useState(7);
-const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
-
+// Retrieve the token from localStorage
+const token = Cookies.get('token'); 
 
 useEffect(() => {
+    // Ensure the token is updated if it changes
+
     axios
         .get('http://localhost:9004/api/appointment', {
             headers: {
@@ -31,16 +34,19 @@ useEffect(() => {
         })
         .catch((err) => console.error('Error fetching appointment:', err));
 
-        axios
-        .get('http://localhost:9004/api/patient')
+    axios
+        .get('http://localhost:9004/api/patient', {
+            headers: {
+                'Authorization': `Bearer ${token}` // Using token from cookies for patient data as well
+            }
+        })
         .then((res) => {
             setPatients(res.data);
         })
         .catch((err) => console.error('Error fetching patients:', err));
 
+}, [token]);  // Add token to the dependency array to re-fetch when token changes
 
-
-}, []);
 
 
 

@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function CreateEmergencyContact({onClose}) {
   const [formData, setFormData] = useState({
     Contact_Name: '',
@@ -13,7 +13,7 @@ function CreateEmergencyContact({onClose}) {
   const [emergency_contact, setEmergency_contact] = useState([]);
   const [alertMessage, setAlertMessage] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const token = sessionStorage.getItem('token'); 
+  const token = Cookies.get('token'); 
   const navigate = useNavigate();
 
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function CreateDoctor({ onClose }) {
     const [formData, setFormData] = useState({
         Qualifications: '',
@@ -14,7 +14,7 @@ function CreateDoctor({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-    const token = sessionStorage.getItem('token'); 
+    const token = Cookies.get('token'); 
 
  
     useEffect(() => {

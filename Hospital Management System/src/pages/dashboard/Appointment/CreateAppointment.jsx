@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function CreateAppointment({ onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
@@ -11,7 +11,7 @@ function CreateAppointment({ onClose }) {
         Date: '',
         Time: '',
     });
-    const token = sessionStorage.getItem('token'); // Retrieve the token from sessionStorage
+    const token = Cookies.get('token');
 
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);

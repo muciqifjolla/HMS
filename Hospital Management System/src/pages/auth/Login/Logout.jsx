@@ -6,10 +6,7 @@ const Logout = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Clear the token and username from sessionStorage
-        // sessionStorage.removeItem('username');
-        // sessionStorage.removeItem('token');
-        // Redirect to the login page
+
         navigate('/login');
     }, [navigate]);
 

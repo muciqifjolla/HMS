@@ -1,3 +1,4 @@
+// using this shit code
 import React, { useState, useEffect } from 'react';
 import '../../auth/App.css';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,7 +9,7 @@ import { FaUserShield } from "react-icons/fa";
 import { BsFillShieldLockFill } from "react-icons/bs";
 import { AiOutlineSwapRight } from "react-icons/ai";
 import { jwtDecode } from 'jwt-decode';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 
 const Login = () => {
     const [loginUserName, setLoginUserName] = useState('');
@@ -19,7 +20,11 @@ const Login = () => {
     const navigateTo = useNavigate();
 
     useEffect(() => {
-        setToken(sessionStorage.getItem('token'));
+
+        const storedToken = Cookies.get('token');
+        if (storedToken) {
+            setToken(storedToken);
+        }
     }, [navigateTo]);
 
     const loginUser = async (e) => {
@@ -36,17 +41,15 @@ const Login = () => {
                 password: loginPassword
             });
 
-            
-    
             const { data } = response;
             if (data.token) {
-                setToken(data.token);
-                sessionStorage.setItem('token', data.token);
-                sessionStorage.setItem('refreshToken', data.refreshToken);
-                sessionStorage.setItem('username', data.username);
-                sessionStorage.setItem('email', data.email);
+
+                Cookies.set('token', data.token);
+                // Cookies.set('refreshToken', data.refreshToken);
+                Cookies.set('username', data.username);
+                Cookies.set('email', data.email);
                 const user = jwtDecode(data.token);
-                sessionStorage.setItem('role', user.role);
+                Cookies.set('role', user.role);
                 navigateTo('/dashboard/home');
             } else {
                 setErrorMessage('An error occurred while logging in. Please try again later.');
@@ -68,7 +71,6 @@ const Login = () => {
             }
         }
     };
-    
 
     return (
         <div className='loginPage flex'>
@@ -96,7 +98,7 @@ const Login = () => {
                             <label htmlFor="username">Username</label>
                             <div className="input flex">
                                 <FaUserShield className='icon'/>
-                                <input type="text" name="" id="username" placeholder='Enter Username'
+                                <input type="text" id="username" placeholder='Enter Username'
                                     value={loginUserName}
                                     onChange={(event) => setLoginUserName(event.target.value)} />
                             </div>
@@ -105,7 +107,7 @@ const Login = () => {
                             <label htmlFor="password">Password</label>
                             <div className="input flex">
                                 <BsFillShieldLockFill className='icon'/>
-                                <input type="password" name="" id="password" placeholder='Enter password' 
+                                <input type="password" id="password" placeholder='Enter password' 
                                     value={loginPassword}
                                     onChange={(event) => setLoginPassword(event.target.value)} />
                             </div>

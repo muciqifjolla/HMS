@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CreateInsurance from './CreateInsurance';
+import Cookies from 'js-cookie'; // Import js-cookie
 function Insurance({
     showCreateForm,
     setShowCreateForm,
@@ -15,7 +16,7 @@ const [searchQuery, setSearchQuery] = useState('');
 const [filteredInsurance, setFilteredInsurance] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [recordsPerPage] = useState(7);
-const token = sessionStorage.getItem('token'); 
+const token = Cookies.get('token');
 useEffect(() => {
     axios
         .get('http://localhost:9004/api/insurance',{

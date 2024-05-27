@@ -9,7 +9,7 @@ import {
 import { useMaterialTailwindController, setOpenSidenav } from '@/context';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
@@ -20,16 +20,16 @@ export function DashboardNavbar() {
 
 
   const handleLogout = () => {
-    // Clear the token from sessionStorage
-    sessionStorage.removeItem('refreshToken');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('username');
-    sessionStorage.removeItem('email');
-    sessionStorage.removeItem('role');
+
+
+    Cookies.remove('token');
+    Cookies.remove('username');
+    Cookies.remove('email');
+    Cookies.remove('role');
     
-    // Redirect to the login page
+
     navigate('/login');
-  };
+};
 
   return (
     <Navbar

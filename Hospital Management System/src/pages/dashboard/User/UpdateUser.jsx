@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function UpdateUser({ id, onClose }) {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
@@ -9,7 +9,7 @@ function UpdateUser({ id, onClose }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const [users, setUsers] = useState([]);
-    const token = sessionStorage.getItem('token'); 
+    const token = Cookies.get('token'); 
 
 
     useEffect(() => {

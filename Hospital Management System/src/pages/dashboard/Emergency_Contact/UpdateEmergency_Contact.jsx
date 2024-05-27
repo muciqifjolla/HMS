@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal'; // Assuming this component exists for handling error messages
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function UpdateEmergency_Contact({ id, onClose }) {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -13,7 +13,7 @@ function UpdateEmergency_Contact({ id, onClose }) {
     const [originalData, setOriginalData] = useState({});
     const navigate = useNavigate();
     const [emergency_contact, setEmergency_contact] = useState([]);
-
+    const token = Cookies.get('token'); 
     
     useEffect(() => {
         const fetchData = async () => {

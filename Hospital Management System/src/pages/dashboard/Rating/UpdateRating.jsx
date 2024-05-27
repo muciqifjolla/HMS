@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal'; // Ensure this component exists for error handling
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function UpdateRating({ id, onClose}) {
     const [emp_ID, setEmp_ID] = useState('');
     const [rating, setRating] = useState('');
@@ -12,7 +12,7 @@ function UpdateRating({ id, onClose}) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-    const token = sessionStorage.getItem('token');
+    const token = Cookies.get('token'); 
     useEffect(() => {
         const fetchData = async () => {
             try {

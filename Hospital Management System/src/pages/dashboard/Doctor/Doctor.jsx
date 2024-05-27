@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CreateDoctor from './CreateDoctor';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function Doctor({
     showCreateForm,
     setShowCreateForm,
@@ -16,7 +16,7 @@ function Doctor({
     const [filteredDoctors, setFilteredDoctors] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
-    const token = sessionStorage.getItem('token'); 
+    const token = Cookies.get('token'); 
 
     useEffect(() => {
         axios

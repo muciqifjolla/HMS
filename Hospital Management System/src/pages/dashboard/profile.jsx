@@ -5,6 +5,7 @@ import {
   Typography,
   Image,
 } from "@material-tailwind/react";
+import Cookies from 'js-cookie'; // Import js-cookie
 
 export function Profile() {
   const [username, setUsername] = useState('');
@@ -12,8 +13,8 @@ export function Profile() {
   const [showPhoto, setShowPhoto] = useState(false);
 
   useEffect(() => {
-    const storedUsername = sessionStorage.getItem('username');
-    const storedEmail = sessionStorage.getItem('email');
+    const storedUsername = Cookies.get('username');
+    const storedEmail = Cookies.get('email');
 
     if (storedUsername) {
       setUsername(storedUsername);

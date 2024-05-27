@@ -90,11 +90,11 @@ const generateRefreshToken = (user) => {
 
     setExpirationTimer('7d', user);
 
-    return jwt.sign(
-        { user_id: user.user_id },
-        secret, // Now using the dynamically generated secret
-        { algorithm } // Using the dynamically generated algorithm
-    );
+    // return jwt.sign(
+    //     { user_id: user.user_id },
+    //     secret, // Now using the dynamically generated secret
+    //     { algorithm } // Using the dynamically generated algorithm
+    // );
 };
 
 

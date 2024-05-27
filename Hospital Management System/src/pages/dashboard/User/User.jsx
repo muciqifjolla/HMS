@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CreateUser from './CreateUser';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 
 function User({
     showCreateForm,
@@ -16,7 +16,7 @@ function User({
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
-    const token = sessionStorage.getItem('token'); 
+    const token = Cookies.get('token'); 
 
 
     // const handleUpdateButtonClick = (userId) => {

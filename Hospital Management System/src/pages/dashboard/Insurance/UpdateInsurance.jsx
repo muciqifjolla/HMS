@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal'; // Assuming this component exists for handling error messages
-
+import Cookies from 'js-cookie'; // Import js-cookie
 function UpdateInsurance({ id, onClose }) {
     const [patientID, setPatientID] = useState('');
     const [insCode, setInsCode] = useState('');
@@ -17,7 +17,7 @@ function UpdateInsurance({ id, onClose }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const [insurance, setInsurance] = useState([]);
-    const token = sessionStorage.getItem('token'); 
+    const token = Cookies.get('token');
     useEffect(() => {
         const fetchData = async () => {
             try {

@@ -1,4 +1,3 @@
-//e kena thirr te dashboard mrena layouts
 import PropTypes from "prop-types";
 import { Link, NavLink } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -9,11 +8,12 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
+import Cookies from 'js-cookie'; // Import js-cookie
 
 export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav } = controller;
-  const userRole = sessionStorage.getItem('role');
+  const userRole = Cookies.get('role'); // Retrieve the user role from cookies
 
   const sidenavTypes = {
     dark: "bg-gradient-to-br from-gray-800 to-gray-900",
@@ -82,11 +82,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
     </aside>
   );
 }
-
-// Sidenav.defaultProps = {
-//   brandImg: "/img/logo-ct.png",
-//   brandName: "Hospital Management System",
-// };
 
 Sidenav.propTypes = {
   brandImg: PropTypes.string,

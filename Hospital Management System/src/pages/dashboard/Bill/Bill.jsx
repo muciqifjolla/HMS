@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CreateBill from './CreateBill';
-
+import Cookies from 'js-cookie'; // Import js-cookie
 
 function Bill({
     showCreateForm,
@@ -16,7 +16,7 @@ function Bill({
     const [filteredBill, setFilteredBill] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
-    const token = sessionStorage.getItem('token'); // Retrieve the token from localStorage
+    const token = Cookies.get('token'); // Retrieve the token from localStorage
 
 
     useEffect(() => {
