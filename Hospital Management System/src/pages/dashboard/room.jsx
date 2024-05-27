@@ -9,17 +9,20 @@ export function Rooms() {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [selectedRoomId, setSelectedRoomId] = useState(null); // Corrected state name
 
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
-        }
+
+    const handleUpdateButtonClick = (roomId) => {
+        setSelectedPatientId(roomId);
+        setShowUpdateForm((prevState) => prevState === roomId ? null : roomId);
+        setShowCreateForm(false); 
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/room/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+        } catch (error) {
+            console.error('Error deleting room:', error);
         }
     };
     return (
@@ -27,13 +30,15 @@ export function Rooms() {
             <div> 
                 <Room
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
+                    setShowCreateForm={setShowCreateForm}
                     showUpdateForm={showUpdateForm} 
-                    setShowUpdateForm={handleUpdateFormToggle}
-                    setSelectedRoomId={setSelectedRoomId} // Corrected state setter function name
+                    setShowUpdateForm={setShowUpdateForm}
+                    setSelectedRoomId={setSelectedRoomId}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete} // Corrected state setter function name
                 />
-                {showCreateForm && <CreateRoom />}
-                {showUpdateForm && <UpdateRoom id={selectedRoomId} />} 
+                {showCreateForm && <CreateRoom onClose={() => setShowCreateForm(false)}/>}
+                {showUpdateForm && <UpdateRoom id={selectedRoomId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)} />} 
             </div>
         </>
     );

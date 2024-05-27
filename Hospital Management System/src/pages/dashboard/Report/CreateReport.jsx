@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import ErrorModal from '../../../components/ErrorModal';
+const token = sessionStorage.getItem('token');
 
 const CreateReport = ({ onClose, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
@@ -50,7 +51,11 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:9004/api/patient/personalNumber/${personalNumber}`);
+      const response = await axios.get(`http://localhost:9004/api/patient/personalNumber/${personalNumber}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
       if (response.status === 404) {
         setModalMessage('Patient not found.');
         setShowModal(true);
@@ -98,7 +103,11 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
         medicines: medicinesArray
       }, {
         responseType: 'blob'
-      });
+      }, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
 
       const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
       saveAs(blob, `${formData.personalNumber}_Report.pdf`);
@@ -123,11 +132,14 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
         email: formData.email,
         patientName: formData.patientName,
         
-      });
+      }, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
 
       setModalMessage('Email sent successfully.');
       setShowModal(true);
-      console.log('Email sent:', emailResponse.data);
     } catch (error) {
       setModalMessage('Error sending email.');
       setShowModal(true);
@@ -149,7 +161,11 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
         medicines: medicinesArray
       }, {
         responseType: 'blob'
-      });
+      }, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
   
       const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
       const formDataWithPdf = new FormData();
@@ -163,12 +179,14 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      });
+      }, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
   
       setModalMessage('PDF report saved to database successfully.');
       setShowModal(true);
-      console.log('PDF report saved:', response.data);
-
       onSaveSuccess(); // Notify the parent component to refresh the reports
     } catch (error) {
       setModalMessage('Error creating PDF or saving report to database.');

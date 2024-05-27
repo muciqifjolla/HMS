@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { DataGrid } from '@mui/x-data-grid';
+import CreateRoom from './CreateRoom';
+import UpdateRoom from './UpdateRoom';
+import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import Cookies from 'js-cookie';
+import { Add } from '@mui/icons-material';
 
-function Room({
-    showCreateForm,
-    setShowCreateForm,
-    showUpdateForm,
-    setShowUpdateForm,
-    setSelectedRoomId,
-}) {
-    const [room, setRoom] = useState([]);
+function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedRoomId }) {
+    const [rooms, setRooms] = useState([]);
     const [deleteRoomId, setDeleteRoomId] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const token = Cookies.get('token');
 
     const handleUpdateButtonClick = (roomId) => {
         setSelectedRoomId(roomId);
-        setShowUpdateForm(!showUpdateForm);
+        setShowUpdateForm(true);
     };
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/room')
-            .then((res) => setRoom(res.data))
-            .catch((err) => console.log(err));
-    }, []);
+        console.log("Token from Cookies:", token); // Debugging
+
+        axios.get('http://localhost:9004/api/room', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then((res) => {
+            console.log("Fetched rooms:", res.data); // Debugging
+            setRooms(res.data);
+        })
+        .catch((err) => {
+            console.log(err);
+            console.log("Error response data:", err.response?.data); // Debugging
+        });
+    }, [token]);
 
     const handleDelete = (id) => {
         setDeleteRoomId(id);
@@ -29,97 +43,120 @@ function Room({
     const handleDeleteConfirm = async () => {
         try {
             await axios.delete(`http://localhost:9004/api/room/delete/${deleteRoomId}`);
-            setRoom(room.filter((item) => item.Room_ID  !== deleteRoomId));
-
-
-            if (showUpdateForm) {
-                setShowUpdateForm(false);
-            }
-            
-            if (showCreateForm) {
-                setShowCreateForm(false);
-            }
-            
+            setRooms(rooms.filter(item => item.Room_ID !== deleteRoomId));
+            setShowUpdateForm(false);
+            setShowCreateForm(false);
         } catch (err) {
             console.log(err);
         }
         setDeleteRoomId(null);
     };
 
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        setShowUpdateForm(false);
+    };
+
+    const handleSearchInputChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+
+    const filteredRooms = rooms.filter((room) =>
+        room.Room_ID?.toString().includes(searchQuery)
+    );
+
+    const columns = [
+        { field: 'Room_ID', headerName: 'ID', width: 100 },
+        { field: 'Room_type', headerName: 'Room Type', width: 300 },
+        { field: 'Patient_ID', headerName: 'Patient ID', width: 300 },
+        { field: 'Room_cost', headerName: 'Cost (€)', width: 300 },
+        {
+            field: 'update',
+            headerName: 'Update',
+            width: 150,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUpdateButtonClick(params.row.Room_ID)}
+                >
+                    Update
+                </Button>
+            )
+        },
+        {
+            field: 'delete',
+            headerName: 'Delete',
+            width: 150,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDelete(params.row.Room_ID)}
+                >
+                    Delete
+                </Button>
+            )
+        }
+    ];
+
     return (
-        <div className="container-fluid mt-4">
+        <div className='container-fluid mt-4'>
             {deleteRoomId && (
-                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-                    <div className="bg-white p-8 mx-auto rounded-lg">
-                        <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
-                        <p className="mb-4">Are you sure you want to delete this medicine record?</p>
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
-                                onClick={handleDeleteConfirm}> Delete</button>
-                            <button
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-                                onClick={() => setDeleteRoomId(null)}> Cancel</button>
-                        </div>
-                    </div>
-                </div>
+                <Dialog
+                    open={!!deleteRoomId}
+                    onClose={() => setDeleteRoomId(null)}
+                >
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this room record?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteRoomId(null)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteConfirm} color="secondary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             )}
 
-            <button
-                className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                style={{ borderRadius: '0.5rem' }}
-                onClick={() => setShowCreateForm(!showCreateForm)}
-            >
-                {showCreateForm ? 'Close Add Form' : 'Add Room'}
-            </button>
+            {showCreateForm ? null : (
+                <Box mt={4}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                    </Button>
+                </Box>
+            )}
 
-            <div className="table-responsive">
-                <div className="py-8">
-                    <h2 className="text-2xl font-semibold leading-tight">Rooms</h2>
-                    <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                        <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
-                            <table className="min-w-full leading-normal">
-                                <thead>
-                                    <tr>
-                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Type</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient ID</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cost (€)</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {room.map((data, i) => (
-                                        <tr key={i}>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Room_ID }</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Room_type}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Patient_ID }</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Room_cost}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button
-                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleUpdateButtonClick(data.Room_ID)}
-                                                >
-                                                    {showUpdateForm ? 'Close Update Form' : 'Update'}
-                                                </button>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button
-                                                    className="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleDelete(data.Room_ID)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {showCreateForm && <CreateRoom onClose={() => setShowCreateForm(false)} />}
+
+            <Box mt={4}>
+                <TextField
+                    label="Search by Room ID"
+                    variant="outlined"
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    fullWidth
+                />
+            </Box>
+
+            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
+                <DataGrid
+                    rows={filteredRooms}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Room_ID}
+                />
+            </Box>
         </div>
     );
 }

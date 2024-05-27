@@ -2,8 +2,10 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
 
-function CreateRoom() {
+
+function CreateRoom({ onClose }) {
     const [formData, setFormData] = useState({
         Room_type: '',
         Patient_ID: '',
@@ -13,6 +15,7 @@ function CreateRoom() {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -24,7 +27,11 @@ function CreateRoom() {
 
     const handleAddRoom = async () => {
         try {
-            await axios.post('http://localhost:9004/api/room/create', formData);
+            await axios.post('http://localhost:9004/api/room/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             navigate('/dashboard/room');
             window.location.reload();
         } catch (error) {
@@ -51,7 +58,11 @@ function CreateRoom() {
         }
 
         try {
-            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
         } catch (error) {
             console.error('Error checking patient ID:', error);
             showAlert('Patient ID does not exist');
@@ -72,12 +83,13 @@ function CreateRoom() {
     };
 
     return (
-        <div className='container mt-4'>
+        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+        <div className="bg-white p-8 mx-auto rounded-lg w-96">
             {showErrorModal && (
                 <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
             )}
-            <div className='bg-white rounded p-3'>
-                <div className='mb-2'>
+            <h1 className="text-lg font-bold mb-4">Add Room</h1>
+                <div className='mb-4'>
                     <label htmlFor='roomType'>Room Type:</label>
                     <input
                         type='text'
@@ -89,7 +101,7 @@ function CreateRoom() {
                         onChange={handleChange}
                     />
                 </div>
-                <div className='mb-2'>
+                <div className='mb-4'>
                     <label htmlFor='roomPatientID'>Patient ID:</label>
                     <input
                         type='number'
@@ -101,7 +113,7 @@ function CreateRoom() {
                         onChange={handleChange}
                     />
                 </div>
-                <div className='mb-2'>
+                <div className='mb-4'>
                     <label htmlFor='roomCost'>Cost (in €):</label>
                     <input
                         type='number'
@@ -113,13 +125,20 @@ function CreateRoom() {
                         onChange={handleChange}
                     />
                 </div>
-                <button
-                    type='button'
-                    className='btn btn-success'
-                    onClick={handleValidation}
-                >
-                    Submit
-                </button>
+                <div className="flex justify-end">
+                    <button
+                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={handleValidation}
+                    >
+                        Submit
+                    </button>
+                    <button
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </button>
+                </div>
             </div>
         </div>
     );

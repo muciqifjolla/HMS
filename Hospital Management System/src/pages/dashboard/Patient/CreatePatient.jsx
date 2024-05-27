@@ -2,6 +2,10 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
+
+
+
 
 function CreatePatient({ onClose }) {
     const [formData, setFormData] = useState({
@@ -22,14 +26,20 @@ function CreatePatient({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
+    
     useEffect(() => {
         fetchPatients();
     }, []);
 
     const fetchPatients = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/patient');
+            const response = await axios.get('http://localhost:9004/api/patient', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             setPatients(response.data);
         } catch (error) {
             console.error('Error fetching patients:', error);
@@ -46,7 +56,11 @@ function CreatePatient({ onClose }) {
 
     const handleAddPatient = async () => {
         try {
-            const response = await axios.post('http://localhost:9004/api/patient/create', formData);
+            const response = await axios.post('http://localhost:9004/api/patient/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             console.log(response.data);
             navigate('/dashboard/patient');
             window.location.reload();

@@ -2,6 +2,8 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
+
 
 function UpdatePatient({ id, onClose }) {
     const [personal_Number, setPersonal_Number] = useState('');
@@ -20,11 +22,16 @@ function UpdatePatient({ id, onClose }) {
     const [originalData, setOriginalData] = useState({});
     const [patient, setPatient] = useState([]);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/patient/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/patient/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const formattedAdmission_Date = new Date(response.data.Admission_Date).toISOString().split('T')[0];
                 const formattedDischarge_Date = new Date(response.data.Discharge_Date).toISOString().split('T')[0];
                 setOriginalData(response.data);
@@ -50,7 +57,11 @@ function UpdatePatient({ id, onClose }) {
     useEffect(() => {
         const fetchAllPatients = async () => {
             try {
-                const response = await axios.get('http://localhost:9004/api/patient');
+                const response = await axios.get('http://localhost:9004/api/patient', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 setPatient(response.data);
             } catch (error) {
                 console.error('Error fetching patients:', error);
@@ -132,6 +143,10 @@ function UpdatePatient({ id, onClose }) {
                 Admission_Date: admission_Date,
                 Discharge_Date: discharge_Date,
                 Phone: phone,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
     
             navigate('/dashboard/patient');

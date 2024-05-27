@@ -1,4 +1,6 @@
 const express = require("express");
+const router = express.Router();
+const { authenticateToken } = require('../middleware/authMiddleware');
 const{ 
         FindAllPatients, 
         FindSinglepatientPatient, 
@@ -10,15 +12,15 @@ const{
      } = require("../controllers/PatientController");
 
      
-const router = express.Router();
 
-router.get("/patient", FindAllPatients);
-router.get("/patient/:id", FindSinglepatientPatient);
-router.post("/patient/create", AddPatient);
-router.put("/patient/update/:id", UpdatePatient);
+
+router.get("/patient", authenticateToken(['admin','doctor', 'receptionist']), FindAllPatients);
+router.get("/patient/:id", authenticateToken(['admin','doctor', 'receptionist']), FindSinglepatientPatient);
+router.post("/patient/create", authenticateToken(['admin','doctor', 'receptionist']), AddPatient);
+router.put("/patient/update/:id", authenticateToken(['admin','doctor', 'receptionist']), UpdatePatient);
 router.delete("/patient/delete/:id", DeletePatient);
-router.get('/patient/check/:id', CheckPatientExistence); 
-router.get(`/patient/personalNumber/:personalNumber`, FindPatientByPersonalNumber);
+router.get('/patient/check/:id', authenticateToken(['admin','doctor', 'receptionist']), CheckPatientExistence); 
+router.get(`/patient/personalNumber/:personalNumber`, authenticateToken(['admin','doctor', 'receptionist']), FindPatientByPersonalNumber);
 
 
 

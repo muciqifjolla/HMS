@@ -2,8 +2,9 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
 
-function UpdateRoom({ id }) {
+function UpdateRoom({ id, onClose }) {
     const [roomType, setRoomType] = useState('');
     const [patientID, setPatientID] = useState('');
     const [cost, setCost] = useState('');
@@ -11,33 +12,43 @@ function UpdateRoom({ id }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/room/${id}`);
-                const responseData = response.data; 
+                const response = await axios.get(`http://localhost:9004/api/room/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const responseData = response.data;
                 setOriginalData(responseData);
                 setRoomType(responseData.Room_type);
                 setPatientID(responseData.Patient_ID);
                 setCost(responseData.Room_cost);
             } catch (error) {
-                console.error('Error fetching room:', error);
-                setAlertMessage('Error fetching room details.');
+                if (error.response && error.response.status === 401) {
+                    // Handle unauthorized access
+                    console.error('Unauthorized access - perhaps the token is invalid or expired');
+                    setAlertMessage('Invalid or expired authentication token. Please log in again.');
+                } else {
+                    console.error('Error fetching room:', error);
+                    setAlertMessage('Error fetching room details.');
+                }
                 setShowErrorModal(true);
             }
         };
-    
+
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     const handleUpdateRoom = async () => {
-        if (roomType ==='' || patientID ==='' || cost === '') {
+        if (roomType === '' || patientID === '' || cost === '') {
             showAlert('All fields are required');
-            setShowErrorModal(true);
             return;
         }
-    
+
         if (
             roomType === originalData.Room_type &&
             parseInt(patientID) === parseInt(originalData.Patient_ID) &&
@@ -47,20 +58,24 @@ function UpdateRoom({ id }) {
             setShowErrorModal(true);
             return;
         }
-    
+
         if (parseInt(patientID) < 1) {
             showAlert("Patient ID must be at least 1.");
             return;
         }
-    
+
         if (!isValidDecimal(cost)) {
             showAlert('Cost must be a valid decimal (10.2)');
             return;
         }
-  
+
         try {
             // Check if patient ID exists
-            await axios.get(`http://localhost:9004/api/patient/check/${patientID}`);
+            await axios.get(`http://localhost:9004/api/patient/check/${patientID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
         } catch (error) {
             console.error('Error checking patient ID:', error);
             showAlert('Patient ID does not exist');
@@ -72,9 +87,13 @@ function UpdateRoom({ id }) {
                 Room_type: roomType,
                 Patient_ID: patientID,
                 Room_cost: cost,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
-            navigate('/dashboard/room'); 
+            navigate('/dashboard/room');
             window.location.reload();
         } catch (error) {
             console.error('Error updating room:', error);
@@ -87,7 +106,7 @@ function UpdateRoom({ id }) {
         const decimalRegex = /^\d{0,8}(\.\d{1,2})?$/;
         return decimalRegex.test(value);
     };
-    
+
     const closeErrorModal = () => {
         setShowErrorModal(false);
     };
@@ -96,40 +115,34 @@ function UpdateRoom({ id }) {
         setAlertMessage(message);
         setShowErrorModal(true);
     };
-    
+
     return (
-        <div className="container mt-4">
-            {showErrorModal && (
-                <ErrorModal message={alertMessage} onClose={() => closeErrorModal(false)} />
-            )}
-            <div className="bg-white rounded p-3">
-                <div className="mb-2">
-                    <label htmlFor="roomType">Room Type:</label>
+        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <div className="bg-white p-8 mx-auto rounded-lg w-96">
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
+                <h1 className="text-lg font-bold mb-4">Update Room</h1>
+                <div className='mb-4'>
+                    <label htmlFor="roomType">Room Type: </label>
                     <input
-                        type='text'
-                        id='roomType'
-                        name='Room_type'
-                        placeholder='Enter Room Type'
-                        className='form-control'
-                        value={roomType}
-                        onChange={(e) => setRoomType(e.target.value)}
+                        type='text' id="roomType" placeholder='Enter Room Type' className='form-control' value={roomType}
+                        onChange={e => setRoomType(e.target.value)}
                     />
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                     <label htmlFor="roomPatientID">Patient ID:</label>
                     <input
                         type='number'
                         id='roomPatientID'
-                        name='Patient_ID '
+                        name='Patient_ID'
                         placeholder='Enter Patient ID'
                         className='form-control'
                         value={patientID}
-                        onChange={(e) => setPatientID(e.target.value)}
+                        onChange={e => setPatientID(e.target.value)}
                     />
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                     <label htmlFor="roomCost">Cost (in €):</label>
                     <input
                         type='number'
@@ -138,11 +151,24 @@ function UpdateRoom({ id }) {
                         placeholder='Enter Cost'
                         className='form-control'
                         value={cost}
-                        onChange={(e) => setCost(e.target.value)}
+                        onChange={e => setCost(e.target.value)}
                     />
                 </div>
 
-                <button type="button" className="btn btn-success" onClick={handleUpdateRoom}>Submit</button>
+                <div className="flex justify-end">
+                    <button
+                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={handleUpdateRoom}
+                    >
+                        Submit
+                    </button>
+                    <button
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </button>
+                </div>
             </div>
         </div>
     );

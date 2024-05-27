@@ -29,6 +29,7 @@ export function DashboardNavbar() {
     
 
     navigate('/login');
+    window.location.reload(); 
 };
 
   return (
