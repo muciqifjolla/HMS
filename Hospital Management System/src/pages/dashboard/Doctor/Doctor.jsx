@@ -20,7 +20,7 @@ function Doctor({
 
     useEffect(() => {
         axios
-            .get('http://localhost:9004/api/doctor',
+            .get('http://localhost:9004/api/doctors',
             {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -33,13 +33,13 @@ function Doctor({
                 setFilteredDoctors(res.data);
             })
             .catch((err) => console.error('Error fetching doctors:', err));
-            axios
-            .get('http://localhost:9004/api/staff')
-            .then((res) => {
-                console.log("Staff data:", res.data);
-                setStaff(res.data);
-            })
-            .catch((err) => console.error('Error fetching staff:', err));
+            // axios
+            // .get('http://localhost:9004/api/staff')
+            // .then((res) => {
+            //     console.log("Staff data:", res.data);
+            //     setStaff(res.data);
+            // })
+            // .catch((err) => console.error('Error fetching staff:', err));
     
     }, []);
 
@@ -57,13 +57,19 @@ function Doctor({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`, {
+            console.log('Attempting to delete doctor with ID:', deleteDoctorId);
+            const response = await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`, 
+            {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            
+            console.log('Delete response:', response);
+            
             setDoctors(doctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
             setFilteredDoctors(filteredDoctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
+    
             if (showCreateForm) {
                 setShowCreateForm(false);
             }
@@ -75,6 +81,7 @@ function Doctor({
         }
         setDeleteDoctorId(null);
     };
+    
 
     const handleCreateFormToggle = () => {
         setShowCreateForm(!showCreateForm);
@@ -91,13 +98,16 @@ function Doctor({
     };
 
     useEffect(() => {
-        const filtered = doctors
-            .filter((item) =>
-            getDoctorName(item.Doctor_ID).toLowerCase().startsWith(searchQuery.toLowerCase())        
-        )
-
-        setFilteredDoctors(filtered);
-    }, [searchQuery, doctors]);
+        if (doctors && Array.isArray(doctors)) {
+            const filtered = doctors
+                .filter((item) =>
+                    getDoctorName(item.Doctor_ID, doctors).toLowerCase().startsWith(searchQuery.toLowerCase())
+                );
+    
+            setFilteredDoctors(filtered);
+        }
+    }, [searchQuery, doctors, currentPage]);
+    
 
     // Logic to calculate current records for pagination
     const indexOfLastRecord = currentPage * recordsPerPage;
@@ -109,15 +119,15 @@ function Doctor({
         setCurrentPage(pageNumber);
     };
 
-    const getDoctorName = (empid) => { 
+    const getDoctorName = (empid, staff) => { 
         console.log("Employee ID:", empid);
         console.log("Doctors:", staff);
     
-        const staff = staff.find(doc => doc.Emp_ID === empid);
-        console.log("Found Doctor:", staff);
+        const doctor = staff.find(doc => doc.Emp_ID === empid);
+        console.log("Found Doctor:", doctor);
     
-        if (staff) {
-            return `${staff.Emp_Fname} ${staff.Emp_Lname}`;
+        if (doctor) {
+            return `${doctor.Emp_Fname} ${doctor.Emp_Lname}`;
         } else {
             return 'Unknown';
         }

@@ -16,13 +16,7 @@ function CreateDoctor({ onClose }) {
     const navigate = useNavigate();
     const token = sessionStorage.getItem('token'); 
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
+ 
     useEffect(() => {
         // Fetch existing medicines when component mounts
         fetchDoctor();
@@ -30,7 +24,7 @@ function CreateDoctor({ onClose }) {
 
     const fetchDoctor = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/doctor',{
+            const response = await axios.get('http://localhost:9004/api/doctors',{
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -40,11 +34,18 @@ function CreateDoctor({ onClose }) {
             console.error('Error fetching doctor:', error);
         }
     };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
 
 
     const handleAddDoctor = async () => {
         try {
-            await axios.post("http://localhost:9004/api/doctor/create", formData,{
+            await axios.post("http://localhost:9004/api/doctors/create", formData,{
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -82,14 +83,14 @@ function CreateDoctor({ onClose }) {
             showAlert('Doctor with the same Emp_ID already exists');
             return;
         }
-        try {
-            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
-            // Proceed with form submission after successful validation
-            handleAddDoctor();
-        } catch (error) {
-            console.error('Error checking Emp ID:', error);
-            showAlert('Emp ID does not exist');
-        }
+        // try {
+        //     await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
+            
+        //     handleAddDoctor();
+        // } catch (error) {
+        //     console.error('Error checking Emp ID:', error);
+        //     showAlert('Emp ID does not exist');
+        // }
     };
 
     return (

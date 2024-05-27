@@ -66,7 +66,7 @@ function Bill({
                 setShowUpdateForm(false);
             }
         } catch (err) {
-            console.error('Error deleting insurance:', err);
+            console.error('Error deleting bill:', err);
         }
         setDeleteBillId(null);
     };

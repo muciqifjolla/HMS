@@ -1,8 +1,17 @@
 const Doctor = require('../models/Doctor');
+const User = require('../models/User');
+const Staff = require('../models/Staff');
 
 const FindAllDoctors = async (req, res) => {
     try {
-        const doctors = await Doctor.findAll();
+        const doctors = await Doctor.findAll({
+            include: [{
+                model: User,
+            }, {
+                model: Staff
+            }
+        ]
+    });
         res.json(doctors);
     } catch (error) {
         console.error('Error fetching all doctors:', error);
@@ -12,7 +21,9 @@ const FindAllDoctors = async (req, res) => {
 
 const FindSingleDoctor = async (req, res) => {
     try {
-        const doctor = await Doctor.findByPk(req.params.id);
+        const doctor = await Doctor.findByPk(req.params.id,{
+            include: [User, Staff ]
+        });
         if (!doctor) {
             res.status(404).json({ error: 'Doctor not found' });
             return;
