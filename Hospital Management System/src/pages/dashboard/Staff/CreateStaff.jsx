@@ -121,7 +121,19 @@ function CreateStaff({ onClose }) {
                 </div>
                 <div className='mb-2'>
                     <label htmlFor="Emp_type">Employee Type: </label>
-                    <input type='text' name="Emp_type" placeholder='Enter Employee Type' className='form-control w-full' value={formData.Emp_type} onChange={handleChange} />
+                    <select
+                        name="Emp_type"
+                        className="form-control w-full"
+                        value={formData.Emp_type}
+                        onChange={handleChange}
+                    >
+                        <option value="">Select Employee Type</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contractor">Contractor</option>
+                        <option value="Intern">Intern</option>
+                    </select>
+
                 </div>
                 <div className='mb-2'>
                     <label htmlFor="Email">Email: </label>

@@ -225,12 +225,17 @@ const getDepartmentName = (departmentId) => {
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.DOB}</td>
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date_Separation}</td>
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                {showUpdateForm === data.Emp_ID ? (
+                                                    // If the update form is shown for this medicine, render nothing
+                                                    null
+                                                ) : (
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => handleUpdateButtonClick(data.Emp_ID)}
                                     >
                                         Update
                                     </button>
+                                                )}
                                 </td>
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <button

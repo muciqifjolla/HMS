@@ -2,12 +2,7 @@ const Doctor = require('../models/Doctor');
 
 const FindAllDoctors = async (req, res) => {
     try {
-        const doctors = await Doctor.findAll({
-            include: [{
-                model: Staff,
-                attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the full_name attribute
-            }]
-        });
+        const doctors = await Doctor.findAll();
         res.json(doctors);
     } catch (error) {
         console.error('Error fetching all doctors:', error);
@@ -17,12 +12,7 @@ const FindAllDoctors = async (req, res) => {
 
 const FindSingleDoctor = async (req, res) => {
     try {
-        const doctor = await Doctor.findByPk(req.params.id, {
-            include: [{
-                model: Staff,
-                attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the full_name attribute
-            }]
-        });
+        const doctor = await Doctor.findByPk(req.params.id);
         if (!doctor) {
             res.status(404).json({ error: 'Doctor not found' });
             return;
@@ -37,12 +27,10 @@ const FindSingleDoctor = async (req, res) => {
 
 const AddDoctor = async (req, res) => {
     try {
-        const { Doctor_ID, Qualifications, Emp_ID, Specialization, user_id } = req.body;
+        const { Qualifications, Emp_ID, Specialization, user_id } = req.body;
 
         // Validate input fields
-        if (!Doctor_ID) {
-            return res.status(400).json({ error: 'Doctor_ID cannot be empty' });
-        }
+        
         if (!Qualifications) {
             return res.status(400).json({ error: 'Qualifications cannot be empty' });
         }
@@ -57,13 +45,12 @@ const AddDoctor = async (req, res) => {
         }
 
         // Check if the doctor already exists
-        const existingDoctor = await Doctor.findOne({ where: { Doctor_ID } });
+        const existingDoctor = await Doctor.findOne({ where: { Emp_ID } });
         if (existingDoctor) {
             return res.status(400).json({ error: 'Doctor with the same ID already exists' });
         }
 
         const newDoctor = await Doctor.create({
-            Doctor_ID,
             Qualifications,
             Emp_ID,
             Specialization,
@@ -78,12 +65,9 @@ const AddDoctor = async (req, res) => {
 
 const UpdateDoctor = async (req, res) => {
     try {
-        const { Doctor_ID, Qualifications, Emp_ID, Specialization, user_id } = req.body;
+        const { Qualifications, Emp_ID, Specialization, user_id } = req.body;
 
         // Validation
-        if (!Doctor_ID) {
-            return res.status(400).json({ error: 'Doctor_ID cannot be empty' });
-        }
         if (!Qualifications) {
             return res.status(400).json({ error: 'Qualifications cannot be empty' });
         }

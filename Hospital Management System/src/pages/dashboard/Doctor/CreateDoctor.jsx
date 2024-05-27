@@ -14,6 +14,7 @@ function CreateDoctor({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = sessionStorage.getItem('token'); 
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -29,7 +30,11 @@ function CreateDoctor({ onClose }) {
 
     const fetchDoctor = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/doctor');
+            const response = await axios.get('http://localhost:9004/api/doctor',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+                });
             setDoctor(response.data);
         } catch (error) {
             console.error('Error fetching doctor:', error);
@@ -39,23 +44,24 @@ function CreateDoctor({ onClose }) {
 
     const handleAddDoctor = async () => {
         try {
-            await axios.post("http://localhost:9004/api/doctor/create", formData);
+            await axios.post("http://localhost:9004/api/doctor/create", formData,{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+                });
             navigate('/dashboard/doctors');
             window.location.reload(); // Refresh after successful addition
         } catch (error) {
             console.error('Error adding doctor:', error);
-            showAlert('Error adding doctor. Please try again.');
+            
         }
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        // Automatically hide the error modal after 3 seconds
-        setTimeout(() => {
-            setAlertMessage('');
-            setShowErrorModal(false);
-        }, 3000);
+        
+        
     };
 
     const handleValidation = async () => {

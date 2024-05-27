@@ -6,13 +6,14 @@ const {
     UpdateDoctor,
     DeleteDoctor
 } = require("../controllers/DoctorController");
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.get("/doctors", FindAllDoctors);
-router.get("/doctors/:id", FindSingleDoctor);
-router.post("/doctors/create", AddDoctor);
-router.put("/doctors/update/:id", UpdateDoctor);
+router.get("/doctors",authenticateToken(['admin','receptionist']), FindAllDoctors);
+router.get("/doctors/:id",authenticateToken(['admin','receptionist']), FindSingleDoctor);
+router.post("/doctors/create",authenticateToken(['admin','receptionist']), AddDoctor);
+router.put("/doctors/update/:id",authenticateToken(['admin','receptionist']), UpdateDoctor);
 router.delete("/doctors/delete/:id", DeleteDoctor);
 
 module.exports = router;
