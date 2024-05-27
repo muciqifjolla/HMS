@@ -1,9 +1,8 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
-
 
 function CreateRoom({ onClose }) {
     const [formData, setFormData] = useState({
@@ -11,11 +10,28 @@ function CreateRoom({ onClose }) {
         Patient_ID: '',
         Room_cost: '',
     });
-
+    const [patients, setPatients] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get('token');
+
+    useEffect(() => {
+        fetchPatients();
+    }, []);
+
+    const fetchPatients = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/patient', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setPatients(response.data);
+        } catch (error) {
+            console.error('Error fetching patients:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,7 +65,7 @@ function CreateRoom({ onClose }) {
             return;
         }
         if (parseInt(Patient_ID) < 1) {
-            showAlert('Patient ID can not be less than 1');
+            showAlert('Patient ID cannot be less than 1');
             return;
         }
         if (!isValidDecimal(Room_cost)) {
@@ -84,11 +100,11 @@ function CreateRoom({ onClose }) {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-        <div className="bg-white p-8 mx-auto rounded-lg w-96">
-            {showErrorModal && (
-                <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-            )}
-            <h1 className="text-lg font-bold mb-4">Add Room</h1>
+            <div className="bg-white p-8 mx-auto rounded-lg w-96">
+                {showErrorModal && (
+                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
+                )}
+                <h1 className="text-lg font-bold mb-4">Add Room</h1>
                 <div className='mb-4'>
                     <label htmlFor='roomType'>Room Type:</label>
                     <input
@@ -102,16 +118,21 @@ function CreateRoom({ onClose }) {
                     />
                 </div>
                 <div className='mb-4'>
-                    <label htmlFor='roomPatientID'>Patient ID:</label>
-                    <input
-                        type='number'
+                    <label htmlFor='roomPatientID'>Patient:</label>
+                    <select
                         id='roomPatientID'
                         name='Patient_ID'
-                        placeholder='Enter Patient ID'
                         className='form-control'
                         value={formData.Patient_ID}
                         onChange={handleChange}
-                    />
+                    >
+                        <option value=''>Select Patient</option>
+                        {patients.map(patient => (
+                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div className='mb-4'>
                     <label htmlFor='roomCost'>Cost (in €):</label>

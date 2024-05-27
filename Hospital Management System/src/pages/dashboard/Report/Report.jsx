@@ -45,11 +45,7 @@ function Report({ showCreateForm, setShowCreateForm }) {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:9004/api/report/delete/${deleteReportId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+      await axios.delete(`http://localhost:9004/api/report/delete/${deleteReportId}`);
       setReports(reports.filter(item => item.Report_ID !== deleteReportId));
       setFilteredReports(filteredReports.filter((item) => item.Report_ID !== deleteReportId));
 

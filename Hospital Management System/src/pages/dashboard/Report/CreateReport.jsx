@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import ErrorModal from '../../../components/ErrorModal';
-const token = sessionStorage.getItem('token');
+import Cookies from 'js-cookie';
 
 const CreateReport = ({ onClose, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
@@ -22,6 +22,7 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const token = Cookies.get('token');
 
   const personalNumberRegex = /^\d{10}$/;
 
@@ -53,9 +54,9 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     try {
       const response = await axios.get(`http://localhost:9004/api/patient/personalNumber/${personalNumber}`, {
         headers: {
-            'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-    });
+      });
       if (response.status === 404) {
         setModalMessage('Patient not found.');
         setShowModal(true);
@@ -102,12 +103,11 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
         ...formData,
         medicines: medicinesArray
       }, {
-        responseType: 'blob'
-      }, {
+        responseType: 'blob',
         headers: {
-            'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-    });
+      });
 
       const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
       saveAs(blob, `${formData.personalNumber}_Report.pdf`);
@@ -128,15 +128,14 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     }
 
     try {
-      const emailResponse = await axios.post('http://localhost:9004/api/report/send-email', {
+      await axios.post('http://localhost:9004/api/report/send-email', {
         email: formData.email,
         patientName: formData.patientName,
-        
       }, {
         headers: {
-            'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-    });
+      });
 
       setModalMessage('Email sent successfully.');
       setShowModal(true);
@@ -155,18 +154,17 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     }
     try {
       const medicinesArray = formData.medicines.split(',').map(medicine => medicine.trim());
-  
+
       const pdfResponse = await axios.post('http://localhost:9004/api/report/create-pdf', {
         ...formData,
         medicines: medicinesArray
       }, {
-        responseType: 'blob'
-      }, {
+        responseType: 'blob',
         headers: {
-            'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-    });
-  
+      });
+
       const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
       const formDataWithPdf = new FormData();
       formDataWithPdf.append('personal_number', formData.personalNumber);
@@ -174,17 +172,14 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
       for (const key in formData) {
         formDataWithPdf.append(key, formData[key]);
       }
-  
-      const response = await axios.post('http://localhost:9004/api/report/save-report-to-db', formDataWithPdf, {
+
+      await axios.post('http://localhost:9004/api/report/save-report-to-db', formDataWithPdf, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         }
-      }, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-  
+      });
+
       setModalMessage('PDF report saved to database successfully.');
       setShowModal(true);
       onSaveSuccess(); // Notify the parent component to refresh the reports
@@ -203,6 +198,7 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     setShowModal(false);
     setModalMessage('');
   };
+
   return (
     <div className="report-container p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
       <div className="flex justify-start">
@@ -210,9 +206,9 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
           className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
           onClick={onClose}
           style={{ marginBottom: '15px' }}
-          >
-            Cancel
-          </button>
+        >
+          Cancel
+        </button>
       </div>
       <div className="search-section mb-6">
         <div className="flex items-center mb-4">
