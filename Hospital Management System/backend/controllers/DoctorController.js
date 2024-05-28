@@ -123,10 +123,26 @@ const DeleteDoctor = async (req, res) => {
     }
 };
 
+const getAllDoctors = async (req, res) => {
+    try {
+        const doctors = await Doctor.findAll({
+            include: [{
+                model: Staff,
+                attributes: ['Emp_Fname', 'Emp_Lname'],
+            }],
+        });
+        res.json(doctors);
+    } catch (error) {
+        console.error('Error fetching doctors:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     FindAllDoctors,
     FindSingleDoctor,
     AddDoctor,
     UpdateDoctor,
     DeleteDoctor,
+    getAllDoctors
 };

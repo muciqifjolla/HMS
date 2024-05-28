@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreateRoom from './CreateRoom';
-import UpdateRoom from './UpdateRoom';
+import CreateVisit from './CreateVisit';
+import UpdateVisit from './UpdateVisit';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Update } from '@mui/icons-material';
 
-function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedRoomId }) {
-    const [rooms, setRooms] = useState([]);
-    const [deleteRoomId, setDeleteRoomId] = useState(null);
+function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedVisitId }) {
+    const [visits, setVisits] = useState([]);
+    const [deleteVisitId, setDeleteVisitId] = useState(null);
     const token = Cookies.get('token');
 
-    const handleUpdateButtonClick = (roomId) => {
-        setSelectedRoomId(roomId);
+    const handleUpdateButtonClick = (visitId) => {
+        setSelectedVisitId(visitId);
         setShowUpdateForm(true);
     };
 
     useEffect(() => {
         console.log("Token from Cookies:", token); // Debugging
 
-        axios.get('http://localhost:9004/api/room', {
+        axios.get('http://localhost:9004/api/visit', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then((res) => {
-            console.log("Fetched rooms:", res.data); // Debugging
-            setRooms(res.data);
+            console.log("Fetched visits:", res.data); // Debugging
+            setVisits(res.data);
         })
         .catch((err) => {
             console.log(err);
@@ -36,19 +36,19 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
     }, [token]);
 
     const handleDelete = (id) => {
-        setDeleteRoomId(id);
+        setDeleteVisitId(id);
     };
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/room/delete/${deleteRoomId}`);
-            setRooms(rooms.filter(item => item.Room_ID !== deleteRoomId));
+            await axios.delete(`http://localhost:9004/api/visit/delete/${deleteVisitId}`);
+            setVisits(visits.filter(item => item.Visit_ID !== deleteVisitId));
             setShowUpdateForm(false);
             setShowCreateForm(false);
         } catch (err) {
             console.log(err);
         }
-        setDeleteRoomId(null);
+        setDeleteVisitId(null);
     };
 
     const handleCreateFormToggle = () => {
@@ -57,10 +57,13 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
     };
 
     const columns = [
-        { field: 'Room_ID', headerName: 'ID', width: 100 },
-        { field: 'Room_type', headerName: 'Room Type', width: 300 },
-        { field: 'Patient_ID', headerName: 'Patient ID', width: 300 },
-        { field: 'Room_cost', headerName: 'Cost (€)', width: 300 },
+        { field: 'Visit_ID', headerName: 'ID', width: 100 },
+        { field: 'Patient_ID', headerName: 'Patient ID', width: 150 },
+        { field: 'Doctor_ID', headerName: 'Doctor ID', width: 150 },
+        { field: 'date_of_visit', headerName: 'Date of Visit', width: 150 },
+        { field: 'condition', headerName: 'Condition', width: 200 },
+        { field: 'diagnosis', headerName: 'Diagnosis', width: 200 },
+        { field: 'therapy', headerName: 'Therapy', width: 200 },
         {
             field: 'update',
             headerName: 'Update',
@@ -69,7 +72,7 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => handleUpdateButtonClick(params.row.Room_ID)}
+                    onClick={() => handleUpdateButtonClick(params.row.Visit_ID)}
                     startIcon={<Update />}
                 >
                     
@@ -84,7 +87,7 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                 <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => handleDelete(params.row.Room_ID)}
+                    onClick={() => handleDelete(params.row.Visit_ID)}
                     startIcon={<Delete />}
                 >
                     
@@ -95,19 +98,19 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
 
     return (
         <div className='container-fluid mt-4'>
-            {deleteRoomId && (
+            {deleteVisitId && (
                 <Dialog
-                    open={!!deleteRoomId}
-                    onClose={() => setDeleteRoomId(null)}
+                    open={!!deleteVisitId}
+                    onClose={() => setDeleteVisitId(null)}
                 >
                     <DialogTitle>Confirm Deletion</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Are you sure you want to delete this room record?
+                            Are you sure you want to delete this visit record?
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setDeleteRoomId(null)} color="primary">
+                        <Button onClick={() => setDeleteVisitId(null)} color="primary">
                             Cancel
                         </Button>
                         <Button onClick={handleDeleteConfirm} color="secondary">
@@ -119,7 +122,7 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
 
             <Box mt={4} display="flex" alignItems="center">
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
-                    Rooms
+                    Visits
                 </Typography>
                 {showCreateForm ? null : (
                     <Button
@@ -132,19 +135,19 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                 )}
             </Box>
 
-            {showCreateForm && <CreateRoom onClose={() => setShowCreateForm(false)} />}
+            {showCreateForm && <CreateVisit onClose={() => setShowCreateForm(false)} />}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={rooms}
+                    rows={visits}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}
-                    getRowId={(row) => row.Room_ID}
+                    getRowId={(row) => row.Visit_ID}
                 />
             </Box>
         </div>
     );
 }
 
-export default Room;
+export default Visit;

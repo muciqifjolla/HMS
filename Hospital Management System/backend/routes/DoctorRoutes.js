@@ -4,7 +4,8 @@ const {
     FindSingleDoctor,
     AddDoctor,
     UpdateDoctor,
-    DeleteDoctor
+    DeleteDoctor,
+    getAllDoctors
 } = require("../controllers/DoctorController");
 const { authenticateToken } = require('../middleware/authMiddleware');
 
@@ -15,5 +16,6 @@ router.get("/doctors/:id",authenticateToken(['admin','receptionist']), FindSingl
 router.post("/doctors/create",authenticateToken(['admin','receptionist']), AddDoctor);
 router.put("/doctors/update/:id",authenticateToken(['admin','receptionist']), UpdateDoctor);
 router.delete("/doctors/delete/:id", DeleteDoctor);
+router.get('/doctor', authenticateToken(['admin','receptionist']), getAllDoctors);
 
 module.exports = router;

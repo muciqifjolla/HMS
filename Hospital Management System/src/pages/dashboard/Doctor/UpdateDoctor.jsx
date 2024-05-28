@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal'; // Assuming this component exists for handling error messages
+import Cookies from 'js-cookie';
+
 
 function UpdateDoctor({ id, onClose }) {
     const [qualifications, setQualifications] = useState('');
@@ -9,11 +11,15 @@ function UpdateDoctor({ id, onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
-
+    const token = Cookies.get('token');
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/doctor/${id}`);
+                const response = await axios.get(`http://localhost:9004/api/doctors/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = response.data;
                 setOriginalData(data);
                 setQualifications(data.Qualifications);
@@ -26,7 +32,7 @@ function UpdateDoctor({ id, onClose }) {
         };
 
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -53,7 +59,11 @@ function UpdateDoctor({ id, onClose }) {
         }
 
         try {
-            await axios.put(`http://localhost:9004/api/doctor/update/${id}`, {
+            await axios.put(`http://localhost:9004/api/doctors/update/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }, {
                 Qualifications: qualifications,
                 Emp_ID: empID,
                 Specialization: specialization,

@@ -29,6 +29,8 @@ const LoginRoutes = require('./routes/Login');
 const RegisterRoutes = require('./routes/Register');
 const ReportRoutes = require('./routes/ReportRoutes');
 const BillRoutes = require('./routes/BillRoutes');
+const VisitRoutes = require('./routes/VisitRoutes');
+
 
 const app = express();
 
@@ -65,6 +67,8 @@ app.use("/api", DoctorRoutes);
 app.use("/api", LoginRoutes);
 app.use("/api", RegisterRoutes);
 app.use("/api", BillRoutes);
+app.use("/api", ReportRoutes);
+app.use("/api", VisitRoutes);
 
 
 
@@ -90,8 +94,6 @@ app.get('/api/expiration-jwt', (req, res) => {
 //     await refreshAccessToken(req, res);
 // });
 
-// Other routes
-app.use("/api", ReportRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
