@@ -11,12 +11,28 @@ function CreateEmergencyContact({onClose}) {
     Patient_ID: '',
   });
   const [emergency_contact, setEmergency_contact] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [alertMessage, setAlertMessage] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   const token = Cookies.get('token'); 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchPatients();
+}, []);
 
+const fetchPatients = async () => {
+    try {
+        const response = await axios.get('http://localhost:9004/api/patient', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setPatients(response.data);
+    } catch (error) {
+        console.error('Error fetching patients:', error);
+    }
+};
   useEffect(() => {
     // Fetch existing medicines when component mounts
     fetchEmergency_contact();
@@ -90,7 +106,11 @@ const fetchEmergency_contact = async () => {
             return;
         }
         try {
-          await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
+          await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`,{
+            headers: {
+              'Authorization': `Bearer ${token}`
+          }
+          });
           // Proceed with form submission after successful validation
           handleAddEmergencyContact()
       } catch (error) {
@@ -162,8 +182,8 @@ const fetchEmergency_contact = async () => {
         </div>
 
         <div className='mb-2'>
-          <label htmlFor='Patient_ID'>Patient ID:</label>
-          <input
+          <label htmlFor='Patient_ID'>Patient :</label>
+          <select
             type='number'
             id='Patient_ID'
             name='Patient_ID'
@@ -171,7 +191,14 @@ const fetchEmergency_contact = async () => {
             className='form-control'
             value={formData.Patient_ID}
             onChange={handleChange}
-          />
+          >
+            <option value=''>Select</option>
+                        {patients.map(patient => (
+                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </option>
+                        ))}
+          </select>
         </div>
         <div className='flex justify-end'>
             <button

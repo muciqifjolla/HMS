@@ -18,6 +18,27 @@ function UpdateInsurance({ id, onClose }) {
     const [originalData, setOriginalData] = useState({});
     const [insurance, setInsurance] = useState([]);
     const token = Cookies.get('token');
+    const [patients, setPatients] = useState([]);
+
+    
+    useEffect(() => {
+        fetchPatients();
+    }, []);
+
+    const fetchPatients = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/patient', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setPatients(response.data);
+        } catch (error) {
+            console.error('Error fetching patients:', error);
+        }
+    };
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -164,15 +185,23 @@ function UpdateInsurance({ id, onClose }) {
         <h1 className="text-lg font-bold mb-4">Update Insurance</h1>
             <div className="mb-4">
                 <label htmlFor="patientID">Patient ID:</label>
-                <input
+                <select
                     type="number"
                     id="patientID"
                     placeholder="Enter Patient ID"
                     className="form-control"
                     value={patientID}
                     onChange={(e) => setPatientID(e.target.value)}
+                    
                     disabled
-                />
+                >
+                    <option value=''>Select Patient</option>
+                        {patients.map(patient => (
+                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </option>
+                        ))}
+                        </select>
             </div>
             <div className="mb-4">
                 <label htmlFor="insCode">Insurance Code:</label>

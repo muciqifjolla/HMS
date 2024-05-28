@@ -16,6 +16,7 @@ function CreateInsurance({onClose}) {
         Dental: '',
         Optical: '',
     });
+    const [patients, setPatients] = useState([]);
     const [insurance, setInsurance] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -28,6 +29,25 @@ function CreateInsurance({onClose}) {
             [name]: value,
         }));
     };
+
+    useEffect(() => {
+        fetchPatients();
+    }, []);
+
+    const fetchPatients = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/patient', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setPatients(response.data);
+        } catch (error) {
+            console.error('Error fetching patients:', error);
+        }
+    };
+
+
     useEffect(() => {
         // Fetch existing medicines when component mounts
         fetchInurance();
@@ -102,8 +122,12 @@ function CreateInsurance({onClose}) {
             return;
         }
         try {
-            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
-            // Proceed with form submission after successful validation
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`,{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
             handleAddInsurance();
         } catch (error) {
             console.error('Error checking patient ID:', error);
@@ -122,15 +146,23 @@ function CreateInsurance({onClose}) {
                 <h1 className='text-lg font-bold mb-4'>Add Insurance</h1>
                 {/* Patient ID */}
                 <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient ID:</label>
-                    <input
+                    <label htmlFor='Patient_ID'>Select Patient</label>
+                    <select
                         type='number'
                         name='Patient_ID'
                         placeholder='Enter Patient ID'
                         className='form-control w-full'
                         value={formData.Patient_ID}
                         onChange={handleChange}
-                    />
+                    >
+                        <option value=''>Select</option>
+                        {patients.map(patient => (
+                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </option>
+                        ))}
+                    </select>
+                    
                 </div>
                 {/* Ins_Code */}
                 <div className='mb-2'>

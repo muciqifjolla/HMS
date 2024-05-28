@@ -10,6 +10,7 @@ function CreateRating({onClose}) {
         Comments: '',
         Date: new Date().toISOString().slice(0, 10), // Default to today's date
     });
+    const [staff, setStaff] = useState([]);
     const [rating, setRatings] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -22,6 +23,26 @@ function CreateRating({onClose}) {
             [name]: value,
         }));
     };
+
+    useEffect(() => {
+        fetchStaff();
+    }, []);
+
+    const fetchStaff = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/staff', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setStaff(response.data);
+        } catch (error) {
+            console.error('Error fetching staff:', error);
+        }
+    };
+
+
+
     useEffect(() => {
         // Fetch existing medicines when component mounts
         fetchRating();
@@ -102,15 +123,15 @@ function CreateRating({onClose}) {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
+        <div className="bg-white p-8 mx-auto rounded-lg w-96">
                 {showErrorModal && (
                     <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
                 )}
                 <h1 className="text-lg font-bold mb-4">Add Rating</h1>
                 <div className='bg-white rounded p-3'>
                     <div className='mb-2'>
-                        <label htmlFor='Emp_ID'>Employee ID:</label>
-                        <input
+                        <label htmlFor='Emp_ID'>Select Staff:</label>
+                        <select
                             type='number'
                             id='Emp_ID'
                             name='Emp_ID'
@@ -118,7 +139,14 @@ function CreateRating({onClose}) {
                             className='form-control'
                             value={formData.Emp_ID}
                             onChange={handleChange}
-                        />
+                        >
+                            <option value=''>Select</option>
+                        {staff.map(staffs => (
+                            <option key={staffs.Emp_ID} value={staffs.Emp_ID}>
+                                {`${staffs.Emp_Fname} ${staffs.Emp_Lname}`}
+                            </option>
+                        ))}
+                            </select>
                     </div>
                     <div className='mb-2'>
                         <label htmlFor='Rating'>Rating:</label>
@@ -159,7 +187,7 @@ function CreateRating({onClose}) {
                             className='form-control'
                             value={formData.Date}
                             onChange={handleChange}
-                            disabled // Disable user input for date
+                            
                         />
                     </div>
                     <div className="flex justify-end">

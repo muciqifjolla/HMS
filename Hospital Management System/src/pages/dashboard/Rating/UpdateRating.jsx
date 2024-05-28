@@ -13,6 +13,26 @@ function UpdateRating({ id, onClose}) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get('token'); 
+    const [staff, setStaff] = useState([]);
+
+    useEffect(() => {
+        fetchStaff();
+    }, []);
+
+    const fetchStaff = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/staff', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setStaff(response.data);
+        } catch (error) {
+            console.error('Error fetching staff:', error);
+        }
+    };
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -100,8 +120,8 @@ function UpdateRating({ id, onClose}) {
             )}
             <h1 className="text-lg font-bold mb-4">Update Rating</h1>
                 <div className="mb-4">
-                    <label htmlFor="Staff ID">Emp_ID:</label>
-                    <input
+                    <label htmlFor="Staff ID">Employee:</label>
+                    <select
                         type='number'
                         id='Emp_ID'
                         name='Emp_ID'
@@ -110,7 +130,14 @@ function UpdateRating({ id, onClose}) {
                         value={emp_ID}
                         onChange={(e) => setEmp_ID(e.target.value)}
                         disabled
-                    />
+                    >
+                        <option value=''>Select</option>
+                        {staff.map(staffs => (
+                            <option key={staffs.Emp_ID} value={staffs.Emp_ID}>
+                                {`${staffs.Emp_Fname} ${staffs.Emp_Lname}`}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className='mb-4'>

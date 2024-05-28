@@ -13,8 +13,24 @@ function UpdateEmergency_Contact({ id, onClose }) {
     const [originalData, setOriginalData] = useState({});
     const navigate = useNavigate();
     const [emergency_contact, setEmergency_contact] = useState([]);
+    const [patients, setPatients] = useState([]);
     const token = Cookies.get('token'); 
-    
+    useEffect(() => {
+        fetchPatients();
+    }, []);
+
+    const fetchPatients = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/patient', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setPatients(response.data);
+        } catch (error) {
+            console.error('Error fetching patients:', error);
+        }
+    };
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -177,7 +193,7 @@ function UpdateEmergency_Contact({ id, onClose }) {
             </div>
             <div className="mb-4">
                 <label htmlFor="emergencyPatientID">Patient ID:</label>
-                <input
+                <select
                     type="number"
                     id="emergencyPatientID"
                     placeholder="Enter Patient ID"
@@ -185,7 +201,15 @@ function UpdateEmergency_Contact({ id, onClose }) {
                     value={patientID}
                     onChange={(e) => setPatientID(e.target.value)}
                     disabled
-                />
+                >
+                    <option value=''>Select Patient</option>
+                        {patients.map(patient => (
+                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </option>
+                        ))}
+                        
+                </select>
             </div>
             <div className="flex justify-end">
                 <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateContact}>
