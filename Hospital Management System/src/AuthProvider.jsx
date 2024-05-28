@@ -10,18 +10,6 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let intervalId;
-
-    const checkToken = () => {
-      const token = Cookies.get('token');
-      if (!token) {
-        setIsLoggedIn(false);
-        navigate('/login');
-      } else {
-        setIsLoggedIn(true);
-      }
-    };
-
     const checkTokenExpiration = async () => {
       const storedToken = Cookies.get('token'); // Get token from cookies
       if (storedToken) {
@@ -34,36 +22,27 @@ export const AuthProvider = ({ children }) => {
             console.log("Refresh token is active");
             setIsLoggedIn(true);
           } else {
-            logout();
+            setIsLoggedIn(false);
+            // Remove items from cookies
+            Cookies.remove('token');
+            Cookies.remove('refreshToken');
+            Cookies.remove('username');
+            Cookies.remove('email');
+            Cookies.remove('role');
+            navigate('/login');
           }
         } catch (error) {
           console.error('Error checking token expiration:', error);
-          logout();
+          window.location.reload(); // Consider more graceful fallback
+          setIsLoggedIn(false);
+          navigate('/login');
         }
       } else {
-        logout();
+        setIsLoggedIn(false);
       }
     };
 
-    const logout = () => {
-      setIsLoggedIn(false);
-      // Remove items from cookies
-      Cookies.remove('token');
-      Cookies.remove('refreshToken');
-      Cookies.remove('username');
-      Cookies.remove('email');
-      Cookies.remove('role');
-      navigate('/login');
-    };
-
-    // Check token on component mount and set interval to check repeatedly
     checkTokenExpiration();
-    intervalId = setInterval(checkToken, 1000 * 60); // Check every minute
-
-    // Cleanup function for the component
-    return () => {
-      clearInterval(intervalId);
-    };
   }, [navigate]);
 
   return (
