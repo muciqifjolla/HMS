@@ -6,11 +6,13 @@ import UpdateRoom from './UpdateRoom';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Update } from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 
 function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedRoomId }) {
     const [rooms, setRooms] = useState([]);
     const [deleteRoomId, setDeleteRoomId] = useState(null);
     const token = Cookies.get('token');
+    const location = useLocation();
 
     const handleUpdateButtonClick = (roomId) => {
         setSelectedRoomId(roomId);
@@ -33,7 +35,12 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
             console.log(err);
             console.log("Error response data:", err.response?.data); // Debugging
         });
-    }, [token]);
+
+        // Check if navigation state contains patientId to show the CreateRoom form
+        if (location.state?.patientId && location.state?.showCreateForm) {
+            setShowCreateForm(true);
+        }
+    }, [token, location.state]);
 
     const handleDelete = (id) => {
         setDeleteRoomId(id);
@@ -128,6 +135,7 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                         onClick={handleCreateFormToggle}
                         startIcon={<Add />}
                     >
+                        Add Room
                     </Button>
                 )}
             </Box>

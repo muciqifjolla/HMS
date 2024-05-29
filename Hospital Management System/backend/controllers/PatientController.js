@@ -26,7 +26,7 @@ const FindSinglepatientPatient = async (req, res) => {
 
 const AddPatient = async (req, res) => {
     try {
-        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
+        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Phone } = req.body;
         
         // Validation logic
         const personalNumberRegex = /^\d{10}$/;
@@ -42,9 +42,6 @@ const AddPatient = async (req, res) => {
             !Blood_type.match(bloodTypeRegex) ||
             !Email.match(emailRegex) ||
             !Gender ||
-            !Conditionn ||
-            !Admission_Date ||
-            !Discharge_Date ||
             !Phone.match(phoneRegex)
         ) {
             return res.status(400).json({ error: 'Invalid input data.' });
@@ -58,9 +55,6 @@ const AddPatient = async (req, res) => {
             Blood_type,
             Email,
             Gender,
-            Conditionn,
-            Admission_Date,
-            Discharge_Date,
             Phone
         });
         res.json({ success: true, message: 'Patient added successfully', data: newPatient });
@@ -72,9 +66,9 @@ const AddPatient = async (req, res) => {
 
 const UpdatePatient = async (req, res) => {
     try {
-        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = req.body;
+        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Phone } = req.body;
         const updated = await Patient.update(
-            { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone },
+            { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Phone },
             { where: { Patient_ID: req.params.id } }
         );
         if (updated[0] === 0) {

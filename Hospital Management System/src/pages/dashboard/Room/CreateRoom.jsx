@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
@@ -14,11 +14,16 @@ function CreateRoom({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const token = Cookies.get('token');
 
     useEffect(() => {
         fetchPatients();
-    }, []);
+        const patientId = location.state?.patientId;
+        if (patientId) {
+            setFormData((prevState) => ({ ...prevState, Patient_ID: patientId }));
+        }
+    }, [location.state]);
 
     const fetchPatients = async () => {
         try {

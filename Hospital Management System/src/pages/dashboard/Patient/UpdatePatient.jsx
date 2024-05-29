@@ -4,18 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
-
 function UpdatePatient({ id, onClose }) {
-    const [personal_Number, setPersonal_Number] = useState('');
-    const [patient_Fname, setPatient_Fname] = useState('');
-    const [patient_Lname, setPatient_Lname] = useState('');
-    const [birth_Date, setBirth_Date] = useState('');
-    const [blood_type, setBlood_type] = useState('');
+    const [personalNumber, setPersonalNumber] = useState('');
+    const [patientFname, setPatientFname] = useState('');
+    const [patientLname, setPatientLname] = useState('');
+    const [birthDate, setBirthDate] = useState('');
+    const [bloodType, setBloodType] = useState('');
     const [email, setEmail] = useState('');
     const [gender, setGender] = useState('');
-    const [conditionn, setConditionn] = useState('');
-    const [admission_Date, setAdmission_Date] = useState('');
-    const [discharge_Date, setDischarge_Date] = useState('');
     const [phone, setPhone] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -32,19 +28,15 @@ function UpdatePatient({ id, onClose }) {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                const formattedAdmission_Date = new Date(response.data.Admission_Date).toISOString().split('T')[0];
-                const formattedDischarge_Date = new Date(response.data.Discharge_Date).toISOString().split('T')[0];
+
                 setOriginalData(response.data);
-                setPersonal_Number(response.data.Personal_Number);
-                setPatient_Fname(response.data.Patient_Fname);
-                setPatient_Lname(response.data.Patient_Lname);
-                setBirth_Date(response.data.Birth_Date);
-                setBlood_type(response.data.Blood_type);
+                setPersonalNumber(response.data.Personal_Number);
+                setPatientFname(response.data.Patient_Fname);
+                setPatientLname(response.data.Patient_Lname);
+                setBirthDate(response.data.Birth_Date);
+                setBloodType(response.data.Blood_type);
                 setEmail(response.data.Email);
                 setGender(response.data.Gender);
-                setConditionn(response.data.Conditionn);
-                setAdmission_Date(formattedAdmission_Date);
-                setDischarge_Date(formattedDischarge_Date);
                 setPhone(response.data.Phone);
             } catch (error) {
                 console.error('Error fetching patient:', error);
@@ -52,7 +44,7 @@ function UpdatePatient({ id, onClose }) {
         };
 
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     useEffect(() => {
         const fetchAllPatients = async () => {
@@ -69,7 +61,7 @@ function UpdatePatient({ id, onClose }) {
         };
 
         fetchAllPatients();
-    }, []);
+    }, [token]);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -82,73 +74,67 @@ function UpdatePatient({ id, onClose }) {
             const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
             const bloodTypeRegex = /^(A|B|AB|O)[+-]$/;
-    
-            if (!patient_Fname.trim() || !patient_Lname.trim() || !blood_type.trim() || !email.trim() || !gender.trim() || !conditionn.trim() || !admission_Date.trim() || !discharge_Date.trim() || !phone.trim()) {
+
+            if (!patientFname.trim() || !patientLname.trim() || !bloodType.trim() || !email.trim() || !gender.trim() || !phone.trim()) {
                 showAlert('All fields are required.');
                 return;
             }
             if (
-                personal_Number === originalData.Personal_Number &&
-                patient_Fname === originalData.Patient_Fname &&
-                patient_Lname === originalData.Patient_Lname &&
-                birth_Date === originalData.Birth_Date &&
-                blood_type === originalData.Blood_type &&
+                personalNumber === originalData.Personal_Number &&
+                patientFname === originalData.Patient_Fname &&
+                patientLname === originalData.Patient_Lname &&
+                birthDate === originalData.Birth_Date &&
+                bloodType === originalData.Blood_type &&
                 email === originalData.Email &&
                 gender === originalData.Gender &&
-                conditionn === originalData.Conditionn &&
-                admission_Date === originalData.Admission_Date &&
-                discharge_Date === originalData.Discharge_Date &&
                 phone === originalData.Phone
             ) {
                 showAlert("Data must be changed before updating.");
                 return;
             }
-    
-            if (!String(personal_Number).match(personalNumberRegex)) {
+
+            if (!String(personalNumber).match(personalNumberRegex)) {
                 showAlert('Please enter a valid personal number');
                 return;
             }
-    
-            if (!blood_type.match(bloodTypeRegex)) {
+
+            if (!bloodType.match(bloodTypeRegex)) {
                 showAlert('Please enter a valid blood type (e.g., A+, B-, AB+, O-).');
                 return;
             }
-    
+
             if (!email.match(emailRegex)) {
                 showAlert('Please enter a valid email address.');
                 return;
             }
-    
+
             if (!phone.match(phoneRegex)) {
                 showAlert('Please enter a valid phone number (like: 044111222).');
                 return;
             }
-    
+
             // Check if patient with the same personal number already exists
-            const existingPatient = patient.find(pat => pat.Personal_Number === personal_Number && pat.Patient_ID !== id);
+            const existingPatient = patient.find(pat => pat.Personal_Number === personalNumber && pat.Patient_ID !== id);
             if (existingPatient) {
                 showAlert('Patient with the same personal number already exists.');
                 return;
             }
-    
+
             await axios.put(`http://localhost:9004/api/patient/update/${id}`, {
-                Personal_Number: personal_Number,
-                Patient_Fname: patient_Fname,
-                Patient_Lname: patient_Lname,
-                Birth_Date: birth_Date,
-                Blood_type: blood_type,
+                Personal_Number: personalNumber,
+                Patient_Fname: patientFname,
+                Patient_Lname: patientLname,
+                Birth_Date: birthDate,
+                Blood_type: bloodType,
                 Email: email,
                 Gender: gender,
-                Conditionn: conditionn,
-                Admission_Date: admission_Date,
-                Discharge_Date: discharge_Date,
                 Phone: phone,
             }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-    
+
             navigate('/dashboard/patient');
             window.location.reload();
         } catch (error) {
@@ -156,7 +142,6 @@ function UpdatePatient({ id, onClose }) {
             showAlert('An error occurred while updating the patient. Please try again later.');
         }
     };
-    
 
     const closeErrorModal = () => {
         setShowErrorModal(false);
@@ -170,24 +155,24 @@ function UpdatePatient({ id, onClose }) {
                 <div className='mb-4'>
                     <label htmlFor="personal_Number">Personal Number: </label>
                     <input 
-                        type='text' id="personal_Number" placeholder='Enter Personal Number' className='form-control'value={personal_Number} 
-                        onChange={e => setPersonal_Number(e.target.value)} 
+                        type='text' id="personal_Number" placeholder='Enter Personal Number' className='form-control'value={personalNumber} 
+                        onChange={e => setPersonalNumber(e.target.value)} 
                     />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="patient_Fname">First name: </label>
                     <input type='text' id="patient_Fname" placeholder='Enter Firstname' className='form-control'
-                        value={patient_Fname} onChange={e => setPatient_Fname(e.target.value)} />
+                        value={patientFname} onChange={e => setPatientFname(e.target.value)} />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="patient_Lname">Last name: </label>
                     <input type='text' id="patient_Lname" placeholder='Enter Lastname' className='form-control'
-                        value={patient_Lname} onChange={e => setPatient_Lname(e.target.value)} />
+                        value={patientLname} onChange={e => setPatientLname(e.target.value)} />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="birth_Date">Birth Date: </label>
                     <input type='date' id="birth_Date" placeholder='Enter Birth Date' className='form-control'
-                        value={birth_Date} onChange={e => setBirth_Date(e.target.value)} />
+                        value={birthDate} onChange={e => setBirthDate(e.target.value)} />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="gender">Gender: </label>
@@ -201,7 +186,7 @@ function UpdatePatient({ id, onClose }) {
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="blood_type">Blood Type: </label>
-                    <select id="blood_type" className='form-control' value={blood_type} onChange={e => setBlood_type(e.target.value)}>
+                    <select id="blood_type" className='form-control' value={bloodType} onChange={e => setBloodType(e.target.value)}>
                         <option value="">Select Blood Type</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
@@ -212,21 +197,6 @@ function UpdatePatient({ id, onClose }) {
                         <option value="O+">O+</option>
                         <option value="O-">O-</option>
                     </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="conditionn">Condition: </label>
-                    <input type='text' id="conditionn" placeholder='Enter Condition' className='form-control'
-                        value={conditionn} onChange={e => setConditionn(e.target.value)} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="admission_Date">Admission Date: </label>
-                    <input type='date' id="admission_Date" placeholder='Enter Admission Date' className='form-control'
-                        value={admission_Date} onChange={e => setAdmission_Date(e.target.value)} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="discharge_Date">Discharge Date: </label>
-                    <input type='date' id="discharge_Date" placeholder='Enter Discharge Date' className='form-control'
-                        value={discharge_Date} onChange={e => setDischarge_Date(e.target.value)} />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="email">Email: </label>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import ErrorModal from '../../../components/ErrorModal';
@@ -10,21 +10,81 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     age: '',
     patientGender: '',
     bloodType: '',
-    admissionDate: '',
-    dischargeDate: '',
     diagnosis: '',
     doctorName: '',
     email: '',
     phone: '',
-    medicines: '',
+    condition: '',
+    therapy: '',
+    dateOfVisit: ''
   });
-  const [searchQuery, setSearchQuery] = useState('');
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const token = Cookies.get('token');
 
-  const personalNumberRegex = /^\d{10}$/;
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await axios.get('http://localhost:9004/api/patient', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setPatients(response.data);
+      } catch (error) {
+        console.error('Error fetching patients:', error);
+      }
+    };
+
+    fetchPatients();
+  }, [token]);
+
+  const handlePatientSelect = async (event) => {
+    const patientId = event.target.value;
+    setSelectedPatient(patientId);
+
+    if (patientId) {
+      try {
+        const response = await axios.get(`http://localhost:9004/api/visit/patient/${patientId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const visits = response.data;
+        if (visits.length === 0) {
+          setModalMessage('No visits found for this patient.');
+          setShowModal(true);
+          return;
+        }
+
+        const visit = visits[0];
+        const patient = visit.Patient;
+        const doctor = visit.Doctor.Staff;
+
+        setFormData({
+          personalNumber: patient.Personal_Number,
+          patientName: `${patient.Patient_Fname} ${patient.Patient_Lname}`,
+          age: calculateAge(patient.Birth_Date),
+          patientGender: patient.Gender,
+          bloodType: patient.Blood_type,
+          diagnosis: visit.diagnosis,
+          doctorName: `${doctor.Emp_Fname} ${doctor.Emp_Lname}`,
+          email: patient.Email,
+          phone: patient.Phone,
+          condition: visit.condition,
+          therapy: visit.therapy,
+          dateOfVisit: visit.date_of_visit
+        });
+        setErrorMessage('');
+      } catch (error) {
+        console.error('Error fetching visit data:', error);
+      }
+    }
+  };
 
   const handleChange = ({ target: { value, name } }) => {
     setFormData((prevData) => ({
@@ -44,64 +104,16 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     return age;
   };
 
-  const fetchPatientInfo = async (personalNumber) => {
-    if (!personalNumber.match(personalNumberRegex)) {
-      setModalMessage('Please enter a valid personal number.');
-      setShowModal(true);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`http://localhost:9004/api/patient/personalNumber/${personalNumber}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.status === 404) {
-        setModalMessage('Patient not found.');
-        setShowModal(true);
-        return;
-      }
-
-      const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Admission_Date, Discharge_Date, Phone, Condition, Doctor_Name } = response.data;
-
-      const age = calculateAge(Birth_Date);
-
-      setFormData({
-        personalNumber: Personal_Number,
-        patientName: `${Patient_Fname} ${Patient_Lname}`,
-        age,
-        patientGender: Gender,
-        bloodType: Blood_type,
-        admissionDate: Admission_Date,
-        dischargeDate: Discharge_Date,
-        diagnosis: Condition,
-        doctorName: Doctor_Name,
-        email: Email,
-        phone: Phone,
-        medicines: '',
-      });
-      setErrorMessage('');
-    } catch (error) {
-      setModalMessage('An error occurred while fetching patient information.');
-      setShowModal(true);
-      console.error('Error fetching patient info:', error);
-    }
-  };
-
   const createAndDownloadPdf = async () => {
-    if (!formData.personalNumber || !formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.admissionDate || !formData.dischargeDate || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone || !formData.medicines) {
+    if (!formData.personalNumber || !formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone ) {
       setModalMessage('Please fill in all fields before creating PDF.');
       setShowModal(true);
       return;
     }
 
     try {
-      const medicinesArray = formData.medicines.split(',').map(medicine => medicine.trim());
-
       const pdfResponse = await axios.post('http://localhost:9004/api/report/create-pdf', {
         ...formData,
-        medicines: medicinesArray
       }, {
         responseType: 'blob',
         headers: {
@@ -121,7 +133,7 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
   };
 
   const sendEmailWithPdf = async () => {
-    if (!formData.personalNumber || !formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.admissionDate || !formData.dischargeDate || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone || !formData.medicines) {
+    if (!formData.personalNumber || !formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType  || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone ) {
       setModalMessage('Please fill in all fields before sending email.');
       setShowModal(true);
       return;
@@ -147,17 +159,14 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
   };
 
   const createPdfAndSaveToDb = async () => {
-    if (!formData.personalNumber || !formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.admissionDate || !formData.dischargeDate || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone || !formData.medicines) {
+    if (!formData.personalNumber || !formData.patientName || !formData.age || !formData.patientGender || !formData.bloodType || !formData.diagnosis || !formData.doctorName || !formData.email || !formData.phone ) {
       setModalMessage('Please fill in all fields before saving report.');
       setShowModal(true);
       return;
     }
     try {
-      const medicinesArray = formData.medicines.split(',').map(medicine => medicine.trim());
-
       const pdfResponse = await axios.post('http://localhost:9004/api/report/create-pdf', {
         ...formData,
-        medicines: medicinesArray
       }, {
         responseType: 'blob',
         headers: {
@@ -190,10 +199,6 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
     }
   };
 
-  const handleSearchInputChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
   const closeModal = () => {
     setShowModal(false);
     setModalMessage('');
@@ -210,28 +215,21 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
           Cancel
         </button>
       </div>
-      <div className="search-section mb-6">
-        <div className="flex items-center mb-4">
-          <input
-            type="text"
-            id="ubt"
-            placeholder="Search by personal number..."
-            value={searchQuery}
-            onChange={handleSearchInputChange}
-            className="search-input flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={() => fetchPatientInfo(searchQuery)}
-            className="ml-4 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Search
-          </button>
-        </div>
-        {errorMessage && (
-          <div className="error-message text-red-500">
-            {errorMessage}
-          </div>
-        )}
+      <div className="patient-selection mb-6">
+        <label htmlFor="patientSelect" className="block font-semibold mb-2">Select Patient:</label>
+        <select
+          id="patientSelect"
+          value={selectedPatient}
+          onChange={handlePatientSelect}
+          className="w-full p-2 border border-gray-300 rounded-lg"
+        >
+          <option value="">Select a patient</option>
+          {patients.map((patient) => (
+            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+              {patient.Patient_Fname} {patient.Patient_Lname}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="patient-info mb-6">
         <h2 className="text-xl font-bold mb-4">Patient Information</h2>
@@ -256,14 +254,6 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
           <span>{formData.bloodType}</span>
         </div>
         <div className="mb-2">
-          <label className="block font-semibold">Admission Date:</label>
-          <span>{formData.admissionDate}</span>
-        </div>
-        <div className="mb-2">
-          <label className="block font-semibold">Discharge Date:</label>
-          <span>{formData.dischargeDate}</span>
-        </div>
-        <div className="mb-2">
           <label className="block font-semibold">Email:</label>
           <span>{formData.email}</span>
         </div>
@@ -271,34 +261,24 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
           <label className="block font-semibold">Phone:</label>
           <span>{formData.phone}</span>
         </div>
+        <div className="mb-2">
+          <label className="block font-semibold">Condition:</label>
+          <span>{formData.condition}</span>
+        </div>
+        <div className="mb-2">
+          <label className="block font-semibold">Diagnosis:</label>
+          <span>{formData.diagnosis}</span>
+        </div>
+        <div className="mb-2">
+          <label className="block font-semibold">Therapy:</label>
+          <span>{formData.therapy}</span>
+        </div>
+        <div className="mb-2">
+          <label className="block font-semibold">Date of Visit:</label>
+          <span>{formData.dateOfVisit}</span>
+        </div>
       </div>
-      <div className="other-info mb-6">
-        <h2 className="text-xl font-bold mb-4">Other Information</h2>
-        <input
-          type="text"
-          id="ubt"
-          placeholder="Diagnosis"
-          name="diagnosis"
-          onChange={handleChange}
-          className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          id="ubt"
-          placeholder="Medicines (comma-separated)"
-          name="medicines"
-          onChange={handleChange}
-          className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          id="ubt"
-          placeholder="Doctor Name"
-          name="doctorName"
-          onChange={handleChange}
-          className="w-full p-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+  
       <div className="flex justify-between">
         <button
           onClick={createPdfAndSaveToDb}

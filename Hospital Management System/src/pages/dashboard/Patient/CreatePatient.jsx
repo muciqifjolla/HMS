@@ -16,9 +16,6 @@ function CreatePatient({ onClose }) {
         Blood_type: '',
         Email: '',
         Gender: '',
-        Conditionn: '',
-        Admission_Date: '',
-        Discharge_Date: '',
         Phone: ''
     });
 
@@ -165,21 +162,6 @@ function CreatePatient({ onClose }) {
                         <option value="O+">O+</option>
                         <option value="O-">O-</option>
                     </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Conditionn">Condition: </label>
-                    <input type='text' id="Conditionn" name="Conditionn" placeholder='Enter Condition' className='form-control'
-                        value={formData.Conditionn} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Admission_Date">Admission Date: </label>
-                    <input type='date' id="Admission_Date" name="Admission_Date" placeholder='Enter Admission Date' className='form-control'
-                        value={formData.Admission_Date} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Discharge_Date">Discharge Date: </label>
-                    <input type='date' id="Discharge_Date" name="Discharge_Date" placeholder='Enter Discharge Date' className='form-control'
-                        value={formData.Discharge_Date} onChange={handleChange} />
                 </div>
                 <div className='mb-4'>
                     <label htmlFor="Email">Email: </label>

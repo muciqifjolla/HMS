@@ -100,6 +100,28 @@ const DeleteVisit = async (req, res) => {
     }
 };
 
+const FindVisitsByPatientId = async (req, res) => {
+    const { patientId } = req.params;
+    try {
+        const visits = await Visit.findAll({
+            where: { Patient_ID: patientId },
+            include: [
+                { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname', 'Personal_Number', 'Birth_Date', 'Blood_type', 'Email', 'Gender', 'Phone'] },
+                { model: Doctor, attributes: ['Doctor_ID'], include: [{ model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }] }
+            ]
+        });
+
+        if (!visits.length) {
+            return res.status(404).json({ error: 'Visits not found' });
+        }
+
+        res.json(visits);
+    } catch (error) {
+        console.error('Error fetching visits by patient ID:', error.message);
+        console.error(error.stack); // Log the stack trace for debugging
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 
 module.exports = {
@@ -108,4 +130,5 @@ module.exports = {
     createVisit,
     UpdateVisit,
     DeleteVisit,
+    FindVisitsByPatientId
 };

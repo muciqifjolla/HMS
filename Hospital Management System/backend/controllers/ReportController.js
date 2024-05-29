@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 const pdfTemplate = require('../documents');
 const PdfReport = require('../models/PdfReport');
 require('dotenv').config();
-const Report = require('../models/PdfReport'); 
+const Report = require('../models/PdfReport');
 
 const outputFilePath = path.join(__dirname, '../result.pdf');
 
@@ -21,19 +21,13 @@ const transporter = nodemailer.createTransport({
 const createPdf = async (req, res) => {
     try {
         const {
-            personalNumber, patientName, age, patientGender, bloodType,
-            admissionDate, dischargeDate, diagnosis,
-            doctorName, email, phone, medicines
+            personalNumber, patientName, age, patientGender, bloodType, diagnosis,
+            doctorName, email, phone, condition, therapy, dateOfVisit
         } = req.body;
 
-        if (!Array.isArray(medicines)) {
-            throw new Error('Medicines should be an array');
-        }
-
         const htmlContent = pdfTemplate({
-            personalNumber, patientName, age, patientGender, bloodType,
-            admissionDate, dischargeDate, diagnosis,
-            doctorName, email, phone, medicines
+            personalNumber, patientName, age, patientGender, bloodType, diagnosis,
+            doctorName, email, phone, condition, therapy, dateOfVisit
         });
 
         const document = {
@@ -77,7 +71,6 @@ const sendEmailWithPdf = async (req, res) => {
 
             Please find the attached patient report for your recent hospital visit.
 
-
             If you have any questions or need further assistance, please do not hesitate to contact us.
 
             Best regards,
@@ -120,33 +113,27 @@ const fetchPdf = (req, res) => {
 
 const saveReportToDB = async (req, res) => {
     try {
-        console.log('Request files:', req.files); // Log the files object
-        console.log('Request body:', req.body); // Log the body object
+        console.log('Request files:', req.files);
+        console.log('Request body:', req.body);
 
-        let personalNumber = req.body.personalNumber; // Use the correct key
+        let personalNumber = req.body.personalNumber;
 
-        // Log the received personal number
         console.log('Received personalNumber:', personalNumber);
 
-        // Convert personalNumber to string if it's a number
         if (typeof personalNumber === 'number') {
             personalNumber = personalNumber.toString();
         }
 
-        // Validate personalNumber
         if (typeof personalNumber !== 'string') {
             throw new Error('personalNumber must be a string');
         }
 
-        // Check if the request contains a file named 'pdfReport'
         if (!req.files || !req.files.report) {
             throw new Error('PDF report file is missing');
         }
 
-        // Access the PDF report file data
         const pdfReportData = req.files.report.data;
 
-        // Create a new PdfReport instance and save it to the database
         const pdfReport = await PdfReport.create({
             personal_number: personalNumber,
             report: pdfReportData,
@@ -161,8 +148,7 @@ const saveReportToDB = async (req, res) => {
 
 const fetchReportsFromDB = async (req, res) => {
     try {
-        // Fetch reports from the database
-        const reports = await PdfReport.findAll();; // Assuming PdfReport is your Mongoose model
+        const reports = await PdfReport.findAll();
         res.json(reports);
     } catch (error) {
         console.error('Error fetching reports from database:', error);
@@ -170,7 +156,7 @@ const fetchReportsFromDB = async (req, res) => {
     }
 };
 
-const DeleteReport = async (req, res) => {
+const deleteReport = async (req, res) => {
     try {
         const deleted = await Report.destroy({
             where: { Report_ID: req.params.id },
@@ -185,12 +171,11 @@ const DeleteReport = async (req, res) => {
     }
 };
 
-
 module.exports = {
     createPdf,
     sendEmailWithPdf,
     fetchPdf,
-    saveReportToDB, 
+    saveReportToDB,
     fetchReportsFromDB,
-    DeleteReport
+    deleteReport
 };

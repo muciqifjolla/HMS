@@ -5,17 +5,23 @@ import CreatePatient from './CreatePatient';
 import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add } from '@mui/icons-material';
-
+import { useNavigate } from 'react-router-dom';
 
 function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSelectedPatientId }) {
     const [patients, setPatients] = useState([]);
     const [deletePatientId, setDeletePatientId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const token = Cookies.get('token');
+    const navigate = useNavigate();
 
     const handleUpdateButtonClick = (patientId) => {
         setSelectedPatientId(patientId);
         setShowUpdateForm(true);
+    };
+
+    const handleCreateRoomButtonClick = (patientId) => {
+        setShowCreateForm(true);
+        navigate('/dashboard/room', { state: { patientId, showCreateForm: true } });
     };
 
     useEffect(() => {
@@ -65,7 +71,6 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
         patient.Personal_Number?.toString().includes(searchQuery)
     );
 
-
     const columns = [
         { field: 'Patient_ID', headerName: 'ID', width: 90 },
         { field: 'Personal_Number', headerName: 'Personal Number', width: 150 },
@@ -78,17 +83,6 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
         },
         { field: 'Gender', headerName: 'Gender', width: 100 },
         { field: 'Blood_type', headerName: 'Blood Type', width: 110 },
-        { field: 'Conditionn', headerName: 'Condition', width: 150 },
-        { 
-            field: 'Admission_Date', 
-            headerName: 'Admission Date', 
-            width: 150, 
-        },
-        { 
-            field: 'Discharge_Date', 
-            headerName: 'Discharge Date', 
-            width: 150, 
-        },
         { field: 'Email', headerName: 'Email', width: 200 },
         { field: 'Phone', headerName: 'Phone', width: 150 },
         {
@@ -116,6 +110,20 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                     onClick={() => handleDelete(params.row.Patient_ID)}
                 >
                     Delete
+                </Button>
+            )
+        },
+        {
+            field: 'createRoom',
+            headerName: 'Create Room',
+            width: 150,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleCreateRoomButtonClick(params.row.Patient_ID)}
+                >
+                    + Room
                 </Button>
             )
         }
@@ -153,6 +161,7 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                         onClick={handleCreateFormToggle}
                         startIcon={<Add />}
                     >
+                        Add Patient
                     </Button>
                 </Box>
             )}

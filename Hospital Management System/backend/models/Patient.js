@@ -35,18 +35,6 @@ const Patient = sequelize.define('Patient', {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    Conditionn: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    Admission_Date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    Discharge_Date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
     Phone: {
       type: DataTypes.STRING,
       allowNull: false,
