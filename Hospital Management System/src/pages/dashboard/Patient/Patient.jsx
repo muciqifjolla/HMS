@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreatePatient from './CreatePatient';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSelectedPatientId }) {
     const [patients, setPatients] = useState([]);
     const [deletePatientId, setDeletePatientId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const token = Cookies.get('token');
     const navigate = useNavigate();
 
@@ -25,20 +24,16 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
     };
 
     useEffect(() => {
-        console.log("Token from Cookies:", token); // Debugging
-
         axios.get('http://localhost:9004/api/patient', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then((res) => {
-            console.log("Fetched patients:", res.data); // Debugging
             setPatients(res.data);
         })
         .catch((err) => {
-            console.log(err);
-            console.log("Error response data:", err.response?.data); // Debugging
+            console.error(err);
         });
     }, [token]);
 
@@ -53,7 +48,7 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
             setShowUpdateForm(false);
             setShowCreateForm(false);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
         setDeletePatientId(null);
     };
@@ -63,28 +58,20 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const filteredPatients = patients.filter((patient) =>
-        patient.Personal_Number?.toString().includes(searchQuery)
-    );
-
     const columns = [
-        { field: 'Patient_ID', headerName: 'ID', width: 90 },
+        { field: 'Patient_ID', headerName: 'ID', width: 60 },
         { field: 'Personal_Number', headerName: 'Personal Number', width: 150 },
-        { field: 'Patient_Fname', headerName: 'Firstname', width: 150 },
-        { field: 'Patient_Lname', headerName: 'Lastname', width: 150 },
+        { field: 'Patient_Fname', headerName: 'Firstname', width: 120 },
+        { field: 'Patient_Lname', headerName: 'Lastname', width: 120 },
         { 
             field: 'Birth_Date', 
             headerName: 'Birth Date', 
-            width: 150, 
+            width: 120, 
         },
         { field: 'Gender', headerName: 'Gender', width: 100 },
         { field: 'Blood_type', headerName: 'Blood Type', width: 110 },
         { field: 'Email', headerName: 'Email', width: 200 },
-        { field: 'Phone', headerName: 'Phone', width: 150 },
+        { field: 'Phone', headerName: 'Phone', width: 120 },
         {
             field: 'update',
             headerName: 'Update',
@@ -94,8 +81,8 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Patient_ID)}
+                    startIcon={<Edit />}
                 >
-                    Update
                 </Button>
             )
         },
@@ -108,8 +95,8 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Patient_ID)}
+                    startIcon={<Delete />}
                 >
-                    Delete
                 </Button>
             )
         },
@@ -153,8 +140,11 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                 </Dialog>
             )}
 
-            {showCreateForm ? null : (
-                <Box mt={4}>
+            <Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Patients
+                </Typography>
+                {showCreateForm ? null : (
                     <Button
                         variant="contained"
                         color="primary"
@@ -163,24 +153,14 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                     >
                         Add Patient
                     </Button>
-                </Box>
-            )}
+                )}
+            </Box>
 
             {showCreateForm && <CreatePatient onClose={() => setShowCreateForm(false)} />}
 
-            <Box mt={4}>
-                <TextField
-                    label="Search by personal number"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
-                />
-            </Box>
-
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={filteredPatients}
+                    rows={patients}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}

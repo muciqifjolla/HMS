@@ -1,22 +1,25 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
 function UpdatePatient({ id, onClose }) {
-    const [personalNumber, setPersonalNumber] = useState('');
-    const [patientFname, setPatientFname] = useState('');
-    const [patientLname, setPatientLname] = useState('');
-    const [birthDate, setBirthDate] = useState('');
-    const [bloodType, setBloodType] = useState('');
-    const [email, setEmail] = useState('');
-    const [gender, setGender] = useState('');
-    const [phone, setPhone] = useState('');
+    const [formData, setFormData] = useState({
+        Personal_Number: '',
+        Patient_Fname: '',
+        Patient_Lname: '',
+        Birth_Date: '',
+        Blood_type: '',
+        Email: '',
+        Gender: '',
+        Phone: ''
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
-    const [patient, setPatient] = useState([]);
+    const [patients, setPatients] = useState([]);
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
@@ -28,16 +31,18 @@ function UpdatePatient({ id, onClose }) {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                setOriginalData(response.data);
-                setPersonalNumber(response.data.Personal_Number);
-                setPatientFname(response.data.Patient_Fname);
-                setPatientLname(response.data.Patient_Lname);
-                setBirthDate(response.data.Birth_Date);
-                setBloodType(response.data.Blood_type);
-                setEmail(response.data.Email);
-                setGender(response.data.Gender);
-                setPhone(response.data.Phone);
+                const data = response.data;
+                setOriginalData(data);
+                setFormData({
+                    Personal_Number: data.Personal_Number,
+                    Patient_Fname: data.Patient_Fname,
+                    Patient_Lname: data.Patient_Lname,
+                    Birth_Date: data.Birth_Date,
+                    Blood_type: data.Blood_type,
+                    Email: data.Email,
+                    Gender: data.Gender,
+                    Phone: data.Phone
+                });
             } catch (error) {
                 console.error('Error fetching patient:', error);
             }
@@ -54,7 +59,7 @@ function UpdatePatient({ id, onClose }) {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                setPatient(response.data);
+                setPatients(response.data);
             } catch (error) {
                 console.error('Error fetching patients:', error);
             }
@@ -68,6 +73,14 @@ function UpdatePatient({ id, onClose }) {
         setShowErrorModal(true);
     };
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
     const handleUpdatePatient = async () => {
         try {
             const personalNumberRegex = /^\d{10}$/;
@@ -75,61 +88,54 @@ function UpdatePatient({ id, onClose }) {
             const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
             const bloodTypeRegex = /^(A|B|AB|O)[+-]$/;
 
-            if (!patientFname.trim() || !patientLname.trim() || !bloodType.trim() || !email.trim() || !gender.trim() || !phone.trim()) {
+            const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Phone } = formData;
+
+            if (!Patient_Fname.trim() || !Patient_Lname.trim() || !Blood_type.trim() || !Email.trim() || !Gender.trim() || !Phone.trim()) {
                 showAlert('All fields are required.');
                 return;
             }
             if (
-                personalNumber === originalData.Personal_Number &&
-                patientFname === originalData.Patient_Fname &&
-                patientLname === originalData.Patient_Lname &&
-                birthDate === originalData.Birth_Date &&
-                bloodType === originalData.Blood_type &&
-                email === originalData.Email &&
-                gender === originalData.Gender &&
-                phone === originalData.Phone
+                Personal_Number === originalData.Personal_Number &&
+                Patient_Fname === originalData.Patient_Fname &&
+                Patient_Lname === originalData.Patient_Lname &&
+                Birth_Date === originalData.Birth_Date &&
+                Blood_type === originalData.Blood_type &&
+                Email === originalData.Email &&
+                Gender === originalData.Gender &&
+                Phone === originalData.Phone
             ) {
                 showAlert("Data must be changed before updating.");
                 return;
             }
 
-            if (!String(personalNumber).match(personalNumberRegex)) {
+            if (!String(Personal_Number).match(personalNumberRegex)) {
                 showAlert('Please enter a valid personal number');
                 return;
             }
 
-            if (!bloodType.match(bloodTypeRegex)) {
+            if (!Blood_type.match(bloodTypeRegex)) {
                 showAlert('Please enter a valid blood type (e.g., A+, B-, AB+, O-).');
                 return;
             }
 
-            if (!email.match(emailRegex)) {
+            if (!Email.match(emailRegex)) {
                 showAlert('Please enter a valid email address.');
                 return;
             }
 
-            if (!phone.match(phoneRegex)) {
+            if (!Phone.match(phoneRegex)) {
                 showAlert('Please enter a valid phone number (like: 044111222).');
                 return;
             }
 
             // Check if patient with the same personal number already exists
-            const existingPatient = patient.find(pat => pat.Personal_Number === personalNumber && pat.Patient_ID !== id);
+            const existingPatient = patients.find(pat => pat.Personal_Number === Personal_Number && pat.Patient_ID !== id);
             if (existingPatient) {
                 showAlert('Patient with the same personal number already exists.');
                 return;
             }
 
-            await axios.put(`http://localhost:9004/api/patient/update/${id}`, {
-                Personal_Number: personalNumber,
-                Patient_Fname: patientFname,
-                Patient_Lname: patientLname,
-                Birth_Date: birthDate,
-                Blood_type: bloodType,
-                Email: email,
-                Gender: gender,
-                Phone: phone,
-            }, {
+            await axios.put(`http://localhost:9004/api/patient/update/${id}`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -143,88 +149,122 @@ function UpdatePatient({ id, onClose }) {
         }
     };
 
-    const closeErrorModal = () => {
-        setShowErrorModal(false);
-    };
-
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
-                <h1 className="text-lg font-bold mb-4">Update Patient</h1>
-                <div className='mb-4'>
-                    <label htmlFor="personal_Number">Personal Number: </label>
-                    <input 
-                        type='text' id="personal_Number" placeholder='Enter Personal Number' className='form-control'value={personalNumber} 
-                        onChange={e => setPersonalNumber(e.target.value)} 
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="patient_Fname">First name: </label>
-                    <input type='text' id="patient_Fname" placeholder='Enter Firstname' className='form-control'
-                        value={patientFname} onChange={e => setPatientFname(e.target.value)} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="patient_Lname">Last name: </label>
-                    <input type='text' id="patient_Lname" placeholder='Enter Lastname' className='form-control'
-                        value={patientLname} onChange={e => setPatientLname(e.target.value)} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="birth_Date">Birth Date: </label>
-                    <input type='date' id="birth_Date" placeholder='Enter Birth Date' className='form-control'
-                        value={birthDate} onChange={e => setBirthDate(e.target.value)} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="gender">Gender: </label>
-                    <select id="gender" className='form-control' value={gender} onChange={e => setGender(e.target.value)}>
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                        <option value="Prefer not to say">Prefer not to say</option>
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="blood_type">Blood Type: </label>
-                    <select id="blood_type" className='form-control' value={bloodType} onChange={e => setBloodType(e.target.value)}>
-                        <option value="">Select Blood Type</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="email">Email: </label>
-                    <input type='email' id="email" placeholder='Enter email' className='form-control'
-                        value={email} onChange={e => setEmail(e.target.value)} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="phone">Phone: </label>
-                    <input type='text' id="phone" placeholder='Enter Phone' className='form-control'
-                        value={phone} onChange={e => setPhone(e.target.value)} />
-                </div>
-
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleUpdatePatient}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Update Patient</Typography>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Personal Number"
+                    variant="outlined"
+                    id="Personal_Number"
+                    name="Personal_Number"
+                    placeholder="Enter Personal Number"
+                    value={formData.Personal_Number}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="First Name"
+                    variant="outlined"
+                    id="Patient_Fname"
+                    name="Patient_Fname"
+                    placeholder="Enter Firstname"
+                    value={formData.Patient_Fname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Last Name"
+                    variant="outlined"
+                    id="Patient_Lname"
+                    name="Patient_Lname"
+                    placeholder="Enter Lastname"
+                    value={formData.Patient_Lname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Birth Date"
+                    variant="outlined"
+                    type="date"
+                    id="Birth_Date"
+                    name="Birth_Date"
+                    value={formData.Birth_Date}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="gender-select-label">Gender</InputLabel>
+                    <Select
+                        labelId="gender-select-label"
+                        id="Gender"
+                        name="Gender"
+                        value={formData.Gender}
+                        onChange={handleChange}
+                        label="Gender"
                     >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
+                        <MenuItem value=""><em>Select Gender</em></MenuItem>
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                        <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="blood-type-select-label">Blood Type</InputLabel>
+                    <Select
+                        labelId="blood-type-select-label"
+                        id="Blood_type"
+                        name="Blood_type"
+                        value={formData.Blood_type}
+                        onChange={handleChange}
+                        label="Blood Type"
                     >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <MenuItem value=""><em>Select Blood Type</em></MenuItem>
+                        <MenuItem value="A+">A+</MenuItem>
+                        <MenuItem value="A-">A-</MenuItem>
+                        <MenuItem value="B+">B+</MenuItem>
+                        <MenuItem value="B-">B-</MenuItem>
+                        <MenuItem value="AB+">AB+</MenuItem>
+                        <MenuItem value="AB-">AB-</MenuItem>
+                        <MenuItem value="O+">O+</MenuItem>
+                        <MenuItem value="O-">O-</MenuItem>
+                    </Select>
+                </FormControl>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Email"
+                    variant="outlined"
+                    id="Email"
+                    name="Email"
+                    placeholder="Enter email"
+                    value={formData.Email}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Phone"
+                    variant="outlined"
+                    id="Phone"
+                    name="Phone"
+                    placeholder="Enter Phone"
+                    value={formData.Phone}
+                    onChange={handleChange}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdatePatient} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

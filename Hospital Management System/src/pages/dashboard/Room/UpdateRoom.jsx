@@ -1,13 +1,16 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Modal, InputAdornment } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
 function UpdateRoom({ id, onClose }) {
-    const [roomType, setRoomType] = useState('');
-    const [patientID, setPatientID] = useState('');
-    const [cost, setCost] = useState('');
+    const [formData, setFormData] = useState({
+        Room_type: '',
+        Patient_ID: '',
+        Room_cost: '',
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
@@ -18,98 +21,79 @@ function UpdateRoom({ id, onClose }) {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`http://localhost:9004/api/room/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` },
                 });
                 const responseData = response.data;
                 setOriginalData(responseData);
-                setRoomType(responseData.Room_type);
-                setPatientID(responseData.Patient_ID);
-                setCost(responseData.Room_cost);
+                setFormData({
+                    Room_type: responseData.Room_type,
+                    Patient_ID: responseData.Patient_ID,
+                    Room_cost: responseData.Room_cost,
+                });
             } catch (error) {
-                if (error.response && error.response.status === 401) {
-                    // Handle unauthorized access
-                    console.error('Unauthorized access - perhaps the token is invalid or expired');
-                    setAlertMessage('Invalid or expired authentication token. Please log in again.');
-                } else {
-                    console.error('Error fetching room:', error);
-                    setAlertMessage('Error fetching room details.');
-                }
+                const message = error.response?.status === 401
+                    ? 'Invalid or expired authentication token. Please log in again.'
+                    : 'Error fetching room details.';
+                setAlertMessage(message);
                 setShowErrorModal(true);
             }
         };
-
         fetchData();
     }, [id, token]);
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
+    };
+
     const handleUpdateRoom = async () => {
-        if (roomType === '' || patientID === '' || cost === '') {
+        const { Room_type, Patient_ID, Room_cost } = formData;
+
+        if (Room_type === '' || Patient_ID === '' || Room_cost === '') {
             showAlert('All fields are required');
             return;
         }
 
         if (
-            roomType === originalData.Room_type &&
-            parseInt(patientID) === parseInt(originalData.Patient_ID) &&
-            parseInt(cost) === parseInt(originalData.Room_cost)
+            Room_type === originalData.Room_type &&
+            parseInt(Patient_ID) === parseInt(originalData.Patient_ID) &&
+            parseInt(Room_cost) === parseInt(originalData.Room_cost)
         ) {
-            setAlertMessage("Data must be changed before updating.");
-            setShowErrorModal(true);
+            showAlert("Data must be changed before updating.");
             return;
         }
 
-        if (parseInt(patientID) < 1) {
+        if (parseInt(Patient_ID) < 1) {
             showAlert("Patient ID must be at least 1.");
             return;
         }
 
-        if (!isValidDecimal(cost)) {
+        if (!isValidDecimal(Room_cost)) {
             showAlert('Cost must be a valid decimal (10.2)');
             return;
         }
 
         try {
-            // Check if patient ID exists
-            await axios.get(`http://localhost:9004/api/patient/check/${patientID}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
             });
-        } catch (error) {
-            console.error('Error checking patient ID:', error);
-            showAlert('Patient ID does not exist');
-            return;
-        }
 
-        try {
-            await axios.put(`http://localhost:9004/api/room/update/${id}`, {
-                Room_type: roomType,
-                Patient_ID: patientID,
-                Room_cost: cost,
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            await axios.put(`http://localhost:9004/api/room/update/${id}`, formData, {
+                headers: { 'Authorization': `Bearer ${token}` },
             });
 
             navigate('/dashboard/room');
             window.location.reload();
         } catch (error) {
-            console.error('Error updating room:', error);
-            setAlertMessage('Error updating room.');
+            const message = error.response?.status === 401
+                ? 'Invalid or expired authentication token. Please log in again.'
+                : 'Error updating room.';
+            setAlertMessage(message);
             setShowErrorModal(true);
         }
     };
 
-    const isValidDecimal = (value) => {
-        const decimalRegex = /^\d{0,8}(\.\d{1,2})?$/;
-        return decimalRegex.test(value);
-    };
-
-    const closeErrorModal = () => {
-        setShowErrorModal(false);
-    };
+    const isValidDecimal = (value) => /^\d{0,8}(\.\d{1,2})?$/.test(value);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -117,60 +101,50 @@ function UpdateRoom({ id, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
-                <h1 className="text-lg font-bold mb-4">Update Room</h1>
-                <div className='mb-4'>
-                    <label htmlFor="roomType">Room Type: </label>
-                    <input
-                        type='text' id="roomType" placeholder='Enter Room Type' className='form-control' value={roomType}
-                        onChange={e => setRoomType(e.target.value)}
-                    />
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="roomPatientID">Patient ID:</label>
-                    <input
-                        type='number'
-                        id='roomPatientID'
-                        name='Patient_ID'
-                        placeholder='Enter Patient ID'
-                        className='form-control'
-                        value={patientID}
-                        onChange={e => setPatientID(e.target.value)}
-                    />
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="roomCost">Cost (in €):</label>
-                    <input
-                        type='number'
-                        id='roomCost'
-                        name='Room_cost'
-                        placeholder='Enter Cost'
-                        className='form-control'
-                        value={cost}
-                        onChange={e => setCost(e.target.value)}
-                    />
-                </div>
-
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleUpdateRoom}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Update Room</Typography>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Room type"
+                    variant="outlined"
+                    id="Room_type"
+                    name="Room_type"
+                    value={formData.Room_type}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Patient ID"
+                    variant="outlined"
+                    id="Patient_ID"
+                    name="Patient_ID"
+                    value={formData.Patient_ID}
+                    onChange={handleChange}
+                    disabled
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Room cost"
+                    variant="outlined"
+                    id="Room_cost"
+                    name="Room_cost"
+                    value={formData.Room_cost}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                    }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateRoom} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

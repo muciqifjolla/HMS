@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
@@ -28,9 +29,7 @@ function CreateVisit({ onClose }) {
     const fetchPatients = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/patient', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             setPatients(response.data);
         } catch (error) {
@@ -41,9 +40,7 @@ function CreateVisit({ onClose }) {
     const fetchDoctors = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/doctor', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             setDoctors(response.data);
         } catch (error) {
@@ -53,18 +50,13 @@ function CreateVisit({ onClose }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
     };
 
     const handleAddVisit = async () => {
         try {
             await axios.post('http://localhost:9004/api/visit/create', formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             navigate('/dashboard/visit');
             window.location.reload();
@@ -96,109 +88,97 @@ function CreateVisit({ onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Add Visit</h1>
-                <div className='mb-4'>
-                    <label htmlFor='visitPatientID'>Patient:</label>
-                    <select
-                        id='visitPatientID'
-                        name='Patient_ID'
-                        className='form-control'
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="patient-select-label">Patient</InputLabel>
+                    <Select
+                        labelId="patient-select-label"
+                        id="visitPatientID"
+                        name="Patient_ID"
                         value={formData.Patient_ID}
                         onChange={handleChange}
+                        label="Patient"
                     >
-                        <option value=''>Select Patient</option>
+                        <MenuItem value=""><em>Select Patient</em></MenuItem>
                         {patients.map(patient => (
-                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
+                            <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
                                 {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
-                            </option>
+                            </MenuItem>
                         ))}
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='visitDoctorID'>Doctor:</label>
-                    <select
-                        id='visitDoctorID'
-                        name='Doctor_ID'
-                        className='form-control'
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="doctor-select-label">Doctor</InputLabel>
+                    <Select
+                        labelId="doctor-select-label"
+                        id="visitDoctorID"
+                        name="Doctor_ID"
                         value={formData.Doctor_ID}
                         onChange={handleChange}
+                        label="Doctor"
                     >
-                        <option value=''>Select Doctor</option>
+                        <MenuItem value=""><em>Select Doctor</em></MenuItem>
                         {doctors.map(doctor => (
-                            <option key={doctor.Doctor_ID} value={doctor.Doctor_ID}>
+                            <MenuItem key={doctor.Doctor_ID} value={doctor.Doctor_ID}>
                                 {`${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}`}
-                            </option>
+                            </MenuItem>
                         ))}
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='dateOfVisit'>Date of Visit:</label>
-                    <input
-                        type='date'
-                        id='dateOfVisit'
-                        name='date_of_visit'
-                        className='form-control'
-                        value={formData.date_of_visit}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='condition'>Condition:</label>
-                    <input
-                        type='text'
-                        id='condition'
-                        name='condition'
-                        placeholder='Enter Condition'
-                        className='form-control'
-                        value={formData.condition}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='diagnosis'>Diagnosis:</label>
-                    <input
-                        type='text'
-                        id='diagnosis'
-                        name='diagnosis'
-                        placeholder='Enter Diagnosis'
-                        className='form-control'
-                        value={formData.diagnosis}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='therapy'>Therapy:</label>
-                    <input
-                        type='text'
-                        id='therapy'
-                        name='therapy'
-                        placeholder='Enter Therapy'
-                        className='form-control'
-                        value={formData.therapy}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </Select>
+                </FormControl>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Date of Visit"
+                    variant="outlined"
+                    type="date"
+                    id="dateOfVisit"
+                    name="date_of_visit"
+                    value={formData.date_of_visit}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Condition"
+                    variant="outlined"
+                    id="condition"
+                    name="condition"
+                    placeholder="Enter Condition"
+                    value={formData.condition}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Diagnosis"
+                    variant="outlined"
+                    id="diagnosis"
+                    name="diagnosis"
+                    placeholder="Enter Diagnosis"
+                    value={formData.diagnosis}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Therapy"
+                    variant="outlined"
+                    id="therapy"
+                    name="therapy"
+                    placeholder="Enter Therapy"
+                    value={formData.therapy}
+                    onChange={handleChange}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

@@ -5,7 +5,7 @@ import CreateRoom from './CreateRoom';
 import UpdateRoom from './UpdateRoom';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import { useLocation } from 'react-router-dom';
 
 function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedRoomId }) {
@@ -20,20 +20,16 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
     };
 
     useEffect(() => {
-        console.log("Token from Cookies:", token); // Debugging
-
         axios.get('http://localhost:9004/api/room', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then((res) => {
-            console.log("Fetched rooms:", res.data); // Debugging
             setRooms(res.data);
         })
         .catch((err) => {
-            console.log(err);
-            console.log("Error response data:", err.response?.data); // Debugging
+            console.error(err);
         });
 
         // Check if navigation state contains patientId to show the CreateRoom form
@@ -53,7 +49,7 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
             setShowUpdateForm(false);
             setShowCreateForm(false);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
         setDeleteRoomId(null);
     };
@@ -65,9 +61,9 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
 
     const columns = [
         { field: 'Room_ID', headerName: 'ID', width: 100 },
-        { field: 'Room_type', headerName: 'Room Type', width: 300 },
-        { field: 'Patient_ID', headerName: 'Patient ID', width: 300 },
-        { field: 'Room_cost', headerName: 'Cost (€)', width: 300 },
+        { field: 'Room_type', headerName: 'Room Type', width: 280 },
+        { field: 'Patient_ID', headerName: 'Patient ID', width: 280 },
+        { field: 'Room_cost', headerName: 'Cost (€)', width: 280 },
         {
             field: 'update',
             headerName: 'Update',
@@ -77,9 +73,8 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Room_ID)}
-                    startIcon={<Update />}
+                    startIcon={<Edit />}
                 >
-                    
                 </Button>
             )
         },
@@ -94,7 +89,6 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                     onClick={() => handleDelete(params.row.Room_ID)}
                     startIcon={<Delete />}
                 >
-                    
                 </Button>
             )
         }

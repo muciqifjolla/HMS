@@ -5,7 +5,7 @@ import CreateVisit from './CreateVisit';
 import UpdateVisit from './UpdateVisit';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 
 function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedVisitId }) {
     const [visits, setVisits] = useState([]);
@@ -18,20 +18,16 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
     };
 
     useEffect(() => {
-        console.log("Token from Cookies:", token); // Debugging
-
         axios.get('http://localhost:9004/api/visit', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then((res) => {
-            console.log("Fetched visits:", res.data); // Debugging
             setVisits(res.data);
         })
         .catch((err) => {
-            console.log(err);
-            console.log("Error response data:", err.response?.data); // Debugging
+            console.error(err);
         });
     }, [token]);
 
@@ -46,7 +42,7 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
             setShowUpdateForm(false);
             setShowCreateForm(false);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
         setDeleteVisitId(null);
     };
@@ -57,9 +53,9 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
     };
 
     const columns = [
-        { field: 'Visit_ID', headerName: 'ID', width: 100 },
-        { field: 'Patient_ID', headerName: 'Patient ID', width: 150 },
-        { field: 'Doctor_ID', headerName: 'Doctor ID', width: 150 },
+        { field: 'Visit_ID', headerName: 'ID', width: 50 },
+        { field: 'Patient_ID', headerName: 'Patient ID', width: 100 },
+        { field: 'Doctor_ID', headerName: 'Doctor ID', width: 100 },
         { field: 'date_of_visit', headerName: 'Date of Visit', width: 150 },
         { field: 'condition', headerName: 'Condition', width: 200 },
         { field: 'diagnosis', headerName: 'Diagnosis', width: 200 },
@@ -67,22 +63,21 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
         {
             field: 'update',
             headerName: 'Update',
-            width: 150,
+            width: 100,
             renderCell: (params) => (
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Visit_ID)}
-                    startIcon={<Update />}
+                    startIcon={<Edit />}
                 >
-                    
                 </Button>
             )
         },
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 150,
+            width: 100,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -90,7 +85,6 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
                     onClick={() => handleDelete(params.row.Visit_ID)}
                     startIcon={<Delete />}
                 >
-                    
                 </Button>
             )
         }
@@ -131,6 +125,7 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
                         onClick={handleCreateFormToggle}
                         startIcon={<Add />}
                     >
+                        Add Visit
                     </Button>
                 )}
             </Box>

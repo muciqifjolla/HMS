@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal, InputAdornment } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
@@ -28,9 +29,7 @@ function CreateRoom({ onClose }) {
     const fetchPatients = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/patient', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             setPatients(response.data);
         } catch (error) {
@@ -40,18 +39,13 @@ function CreateRoom({ onClose }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
     };
 
     const handleAddRoom = async () => {
         try {
             await axios.post('http://localhost:9004/api/room/create', formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             navigate('/dashboard/room');
             window.location.reload();
@@ -80,9 +74,7 @@ function CreateRoom({ onClose }) {
 
         try {
             await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
         } catch (error) {
             console.error('Error checking patient ID:', error);
@@ -93,10 +85,7 @@ function CreateRoom({ onClose }) {
         handleAddRoom();
     };
 
-    const isValidDecimal = (value) => {
-        const decimalRegex = /^\d{0,8}(\.\d{1,2})?$/;
-        return decimalRegex.test(value);
-    };
+    const isValidDecimal = (value) => /^\d{0,8}(\.\d{1,2})?$/.test(value);
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -104,69 +93,54 @@ function CreateRoom({ onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Add Room</h1>
-                <div className='mb-4'>
-                    <label htmlFor='roomType'>Room Type:</label>
-                    <input
-                        type='text'
-                        id='roomType'
-                        name='Room_type'
-                        placeholder='Enter Room Type'
-                        className='form-control'
-                        value={formData.Room_type}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='roomPatientID'>Patient:</label>
-                    <select
-                        id='roomPatientID'
-                        name='Patient_ID'
-                        className='form-control'
-                        value={formData.Patient_ID}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Patient</option>
-                        {patients.map(patient => (
-                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
-                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='roomCost'>Cost (in €):</label>
-                    <input
-                        type='number'
-                        id='roomCost'
-                        name='Room_cost'
-                        placeholder='Enter Cost'
-                        className='form-control'
-                        value={formData.Room_cost}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Room</Typography>
+                {['Room_type', 'Patient_ID', 'Room_cost'].map((field, idx) => (
+                    <Box key={idx} mb={2}>
+                        {field === 'Patient_ID' ? (
+                            <FormControl fullWidth variant="outlined">
+                                <InputLabel id="patient-select-label">Patient</InputLabel>
+                                <Select
+                                    labelId="patient-select-label"
+                                    id={field}
+                                    name={field}
+                                    value={formData[field]}
+                                    onChange={handleChange}
+                                    label="Patient"
+                                >
+                                    <MenuItem value=""><em>Select Patient</em></MenuItem>
+                                    {patients.map(patient => (
+                                        <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                            {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        ) : (
+                            <TextField
+                                fullWidth
+                                label={field.replace('_', ' ')}
+                                variant="outlined"
+                                id={field}
+                                name={field}
+                                type={field === 'Room_cost' ? 'number' : 'text'}
+                                value={formData[field]}
+                                onChange={handleChange}
+                                InputProps={field === 'Room_cost' ? {
+                                    startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                                } : null}
+                            />
+                        )}
+                    </Box>
+                ))}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

@@ -1,11 +1,9 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
-
-
-
 
 function CreatePatient({ onClose }) {
     const [formData, setFormData] = useState({
@@ -25,7 +23,6 @@ function CreatePatient({ onClose }) {
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
-    
     useEffect(() => {
         fetchPatients();
     }, []);
@@ -53,12 +50,11 @@ function CreatePatient({ onClose }) {
 
     const handleAddPatient = async () => {
         try {
-            const response = await axios.post('http://localhost:9004/api/patient/create', formData, {
+            await axios.post('http://localhost:9004/api/patient/create', formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response.data);
             navigate('/dashboard/patient');
             window.location.reload();
         } catch (error) {
@@ -69,13 +65,13 @@ function CreatePatient({ onClose }) {
     };
 
     const handleValidation = () => {
-        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Conditionn, Admission_Date, Discharge_Date, Phone } = formData;
+        const { Personal_Number, Patient_Fname, Patient_Lname, Birth_Date, Blood_type, Email, Gender, Phone } = formData;
         const personalNumberRegex = /^\d{10}$/;
         const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
         const bloodTypeRegex = /^(A|B|AB|O)[+-]$/;
 
-        if (Personal_Number === '' || Patient_Fname === '' || Patient_Lname === '' || Birth_Date === '' || Blood_type === '' || Email === '' || Gender === '' || Conditionn === '' || Admission_Date === '' || Discharge_Date === '' || Phone === '') {
+        if (Personal_Number === '' || Patient_Fname === '' || Patient_Lname === '' || Birth_Date === '' || Blood_type === '' || Email === '' || Gender === '' || Phone === '') {
             showAlert('All fields are required.');
             return;
         }
@@ -115,80 +111,121 @@ function CreatePatient({ onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
                 {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
-                <h1 className="text-lg font-bold mb-4">Add Patient</h1>
-                <div className='mb-4'>
-                    <label htmlFor="Personal_Number">Personal Number: </label>
-                    <input type='text' id="Personal_Number" name="Personal_Number" placeholder='Enter Personal Number' className='form-control'
-                        value={formData.Personal_Number} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Patient_Fname">First name: </label>
-                    <input type='text' id="Patient_Fname" name="Patient_Fname" placeholder='Enter Firstname' className='form-control'
-                        value={formData.Patient_Fname} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Patient_Lname">Last name: </label>
-                    <input type='text' id="Patient_Lname" name="Patient_Lname" placeholder='Enter Lastname' className='form-control'
-                        value={formData.Patient_Lname} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Birth_Date">Birth date: </label>
-                    <input type='date' id="Birth_Date" name="Birth_Date" placeholder='Enter Birth Date' className='form-control'
-                        value={formData.Birth_Date} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Gender">Gender: </label>
-                    <select id="Gender" name="Gender" className='form-control' value={formData.Gender} onChange={handleChange}>
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                        <option value="Prefer not to say">Prefer not to say</option>
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Blood_type">Blood Type: </label>
-                    <select id="Blood_type" name="Blood_type" className='form-control' value={formData.Blood_type} onChange={handleChange}>
-                        <option value="">Select Blood Type</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Email">Email: </label>
-                    <input type='email' id="Email" name="Email" placeholder='Enter email' className='form-control'
-                        value={formData.Email} onChange={handleChange} />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor="Phone">Phone: </label>
-                    <input type='text' id="Phone" name="Phone" placeholder='Enter Phone' className='form-control'
-                        value={formData.Phone} onChange={handleChange} />
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleValidation}
+                <Typography variant="h6" component="h1" gutterBottom>Add Patient</Typography>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Personal Number"
+                    variant="outlined"
+                    id="Personal_Number"
+                    name="Personal_Number"
+                    placeholder="Enter Personal Number"
+                    value={formData.Personal_Number}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="First Name"
+                    variant="outlined"
+                    id="Patient_Fname"
+                    name="Patient_Fname"
+                    placeholder="Enter Firstname"
+                    value={formData.Patient_Fname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Last Name"
+                    variant="outlined"
+                    id="Patient_Lname"
+                    name="Patient_Lname"
+                    placeholder="Enter Lastname"
+                    value={formData.Patient_Lname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Birth Date"
+                    variant="outlined"
+                    type="date"
+                    id="Birth_Date"
+                    name="Birth_Date"
+                    value={formData.Birth_Date}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="gender-select-label">Gender</InputLabel>
+                    <Select
+                        labelId="gender-select-label"
+                        id="Gender"
+                        name="Gender"
+                        value={formData.Gender}
+                        onChange={handleChange}
+                        label="Gender"
                     >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
+                        <MenuItem value=""><em>Select Gender</em></MenuItem>
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                        <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="blood-type-select-label">Blood Type</InputLabel>
+                    <Select
+                        labelId="blood-type-select-label"
+                        id="Blood_type"
+                        name="Blood_type"
+                        value={formData.Blood_type}
+                        onChange={handleChange}
+                        label="Blood Type"
                     >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <MenuItem value=""><em>Select Blood Type</em></MenuItem>
+                        <MenuItem value="A+">A+</MenuItem>
+                        <MenuItem value="A-">A-</MenuItem>
+                        <MenuItem value="B+">B+</MenuItem>
+                        <MenuItem value="B-">B-</MenuItem>
+                        <MenuItem value="AB+">AB+</MenuItem>
+                        <MenuItem value="AB-">AB-</MenuItem>
+                        <MenuItem value="O+">O+</MenuItem>
+                        <MenuItem value="O-">O-</MenuItem>
+                    </Select>
+                </FormControl>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Email"
+                    variant="outlined"
+                    id="Email"
+                    name="Email"
+                    placeholder="Enter email"
+                    value={formData.Email}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Phone"
+                    variant="outlined"
+                    id="Phone"
+                    name="Phone"
+                    placeholder="Enter Phone"
+                    value={formData.Phone}
+                    onChange={handleChange}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
