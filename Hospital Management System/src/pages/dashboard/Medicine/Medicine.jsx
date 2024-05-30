@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import CreateMedicine from './CreateMedicine';
 import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
+import { Add, Delete, Edit, Update } from '@mui/icons-material';
 
 function Medicine({
     showCreateForm,
@@ -81,8 +81,9 @@ function Medicine({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Medicine_ID)}
+                    startIcon={<Edit />}
                 >
-                    Update
+                    
                 </Button>
             ),
         },
@@ -95,8 +96,9 @@ function Medicine({
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Medicine_ID)}
+                    startIcon={<Delete />}
                 >
-                    Delete
+
                 </Button>
             ),
         }

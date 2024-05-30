@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import CreateRating from './CreateRating';
 import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
+import { Add, Delete, Edit, Update } from '@mui/icons-material';
 
 function Rating({
     showCreateForm,
@@ -94,11 +94,11 @@ function Rating({
         return employeeName.startsWith(searchQuery.toLowerCase());
     });
     const columns = [
-        { field: 'Rating_ID', headerName: 'ID', width: 290 },
-        { field: 'Employee_Name', headerName: 'Employee', width: 290 },
-        { field: 'Rating', headerName: 'Rating (1-5)', width: 290 },
-        { field: 'Comments', headerName: 'Comments', width: 290 },
-        { field: 'Date', headerName: 'Date', width: 290 },
+        { field: 'Rating_ID', headerName: 'ID', width: 250 },
+        { field: 'Employee_Name', headerName: 'Employee', width: 250 },
+        { field: 'Rating', headerName: 'Rating (1-5)', width: 250 },
+        { field: 'Comments', headerName: 'Comments', width: 250 },
+        { field: 'Date', headerName: 'Date', width: 250 },
         {
             field: 'update',
             headerName: 'Update',
@@ -108,8 +108,8 @@ function Rating({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Rating_ID)}
+                    startIcon={<Edit />}
                 >
-                    Update
                 </Button>
             ),
         },
@@ -122,8 +122,8 @@ function Rating({
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Rating_ID)}
+                    startIcon={<Delete />}
                 >
-                    Delete
                 </Button>
             ),
         }

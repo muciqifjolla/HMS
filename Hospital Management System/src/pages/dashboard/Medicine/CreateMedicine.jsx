@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Modal, Box, TextField, Button, Typography, InputAdornment } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
-import Cookies from 'js-cookie'; // Import js-cookie
+import Cookies from 'js-cookie';
 function CreateMedicine({ onClose }) {
     const [formData, setFormData] = useState({
         M_name: '',
@@ -102,64 +103,58 @@ function CreateMedicine({ onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Add Medicine</h1>
-                <div className='mb-4'>
-                    <label htmlFor='medicineName'>Medicine Name:</label>
-                    <input
-                        type='text'
-                        id='medicineName'
-                        name='M_name'
-                        placeholder='Enter Medicine Name'
-                        className='form-control w-full'
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Medicine</Typography>
+                <Box mb={2}>
+                    <TextField
+                        fullWidth
+                        label="Medicine Name"
+                        variant="outlined"
+                        id="M_name"
+                        name="M_name"
+                        type="text"
                         value={formData.M_name}
                         onChange={handleChange}
                     />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='medicineQuantity'>Quantity:</label>
-                    <input
-                        type='number'
-                        id='medicineQuantity'
-                        name='M_Quantity'
-                        placeholder='Enter Quantity'
-                        className='form-control w-full'
+                </Box>
+                <Box mb={2}>
+                    <TextField
+                        fullWidth
+                        label="Quantity"
+                        variant="outlined"
+                        id="M_Quantity"
+                        name="M_Quantity"
+                        type="number"
                         value={formData.M_Quantity}
                         onChange={handleChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">Units</InputAdornment>,
+                        }}
                     />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='medicineCost'>Cost:</label>
-                    <input
-                        type='number'
-                        id='medicineCost'
-                        name='M_Cost'
-                        placeholder='Enter Cost'
-                        className='form-control w-full'
+                </Box>
+                <Box mb={2}>
+                    <TextField
+                        fullWidth
+                        label="Cost"
+                        variant="outlined"
+                        id="M_Cost"
+                        name="M_Cost"
+                        type="number"
                         value={formData.M_Cost}
                         onChange={handleChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                        }}
                     />
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

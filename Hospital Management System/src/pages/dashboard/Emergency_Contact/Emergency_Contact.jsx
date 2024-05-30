@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import CreateEmergencyContact from './CreateEmergency_Contact';
 import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
+import { Add, Delete, Edit, Update } from '@mui/icons-material';
 
 function EmergencyContact({
     showCreateForm,
@@ -93,11 +93,11 @@ function EmergencyContact({
     });
 
     const columns = [
-        { field: 'Contact_ID', headerName: 'Contact ID', width: 130 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 180 },
-        { field: 'Contact_Name', headerName: 'Contact Name', width: 180 },
-        { field: 'Phone', headerName: 'Phone', width: 130 },
-        { field: 'Relation', headerName: 'Relation', width: 130 },
+        { field: 'Contact_ID', headerName: 'Contact ID', width: 250 },
+        { field: 'Patient_Name', headerName: 'Patient Name', width: 250 },
+        { field: 'Contact_Name', headerName: 'Contact Name', width: 250 },
+        { field: 'Phone', headerName: 'Phone', width: 250 },
+        { field: 'Relation', headerName: 'Relation', width: 250 },
         {
             field: 'update',
             headerName: 'Update',
@@ -107,8 +107,8 @@ function EmergencyContact({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Contact_ID)}
+                    startIcon={<Edit />}
                 >
-                    Update
                 </Button>
             ),
         },
@@ -121,8 +121,8 @@ function EmergencyContact({
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Contact_ID)}
+                    startIcon={<Delete />}
                 >
-                    Delete
                 </Button>
             ),
         }

@@ -91,7 +91,7 @@ const transporter = nodemailer.createTransport({
 const generateJWTToken = (user) => {
     const { secret, algorithm } = generateDynamicJwtToken();
 
-    setJwtExpirationTimer('2h', user);
+    setJwtExpirationTimer('7200s', user);
 
     // Adding more data to the JWT payload
     return jwt.sign(

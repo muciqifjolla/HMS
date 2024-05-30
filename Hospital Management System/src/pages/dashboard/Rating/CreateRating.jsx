@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Modal, Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
-import Cookies from 'js-cookie'; // Import js-cookie
-function CreateRating({onClose}) {
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+
+function CreateRating({ onClose }) {
     const [formData, setFormData] = useState({
         Emp_ID: '',
         Rating: '',
@@ -16,16 +18,10 @@ function CreateRating({onClose}) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get('token'); 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
 
     useEffect(() => {
         fetchStaff();
+        fetchRating();
     }, []);
 
     const fetchStaff = async () => {
@@ -41,13 +37,6 @@ function CreateRating({onClose}) {
         }
     };
 
-
-
-    useEffect(() => {
-        // Fetch existing medicines when component mounts
-        fetchRating();
-    }, []);
-
     const fetchRating = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/rating',{
@@ -60,6 +49,15 @@ function CreateRating({onClose}) {
             console.error('Error fetching rating:', error);
         }
     };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
     const handleAddRating = async () => {
         try {
             await axios.post('http://localhost:9004/api/rating/create', formData,{
@@ -78,12 +76,11 @@ function CreateRating({onClose}) {
             }
         }
     };
-    
 
     const handleValidation = async () => {
         const { Emp_ID, Rating, Comments, Date } = formData;
-    
-        // Ensure all required fields are filled
+        const phoneRegex = /^(?:\+\d{1,3}\s?)?\d{3}(?:\d{6,7})$/;
+
         if (Emp_ID === '' || Rating === '' || !Comments.trim()) {
             showAlert('All fields are required');
             return;
@@ -96,119 +93,114 @@ function CreateRating({onClose}) {
             showAlert('Limit of characters reached (30)');
             return;
         }
-    
-        // Check if the employee has already been rated
+
         const existingRating = rating.find(rating => rating.Emp_ID === Emp_ID);
         if (existingRating) {
             showAlert('Employee has already been rated');
             return;
         }
-    
+
         try {
             await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
-            // Proceed with form submission after successful validation
             handleAddRating();
         } catch (error) {
             console.error('Error checking employee ID:', error);
             showAlert('Employee ID does not exist');
         }
     };
-    
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        // Automatically hide the error modal after 3 seconds
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-        <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Add Rating</h1>
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Rating</Typography>
                 <div className='bg-white rounded p-3'>
                     <div className='mb-2'>
-                        <label htmlFor='Emp_ID'>Select Staff:</label>
-                        <select
-                            type='number'
-                            id='Emp_ID'
-                            name='Emp_ID'
-                            placeholder='Enter Employee ID'
-                            className='form-control'
-                            value={formData.Emp_ID}
-                            onChange={handleChange}
-                        >
-                            <option value=''>Select</option>
-                        {staff.map(staffs => (
-                            <option key={staffs.Emp_ID} value={staffs.Emp_ID}>
-                                {`${staffs.Emp_Fname} ${staffs.Emp_Lname}`}
-                            </option>
-                        ))}
-                            </select>
+                        <FormControl fullWidth>
+                            <InputLabel id='Emp_ID-label'>Select Staff:</InputLabel>
+                            <Select
+                                labelId='Emp_ID-label'
+                                id='Emp_ID'
+                                name='Emp_ID'
+                                value={formData.Emp_ID}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value=''><em>Select</em></MenuItem>
+                                {staff.map(staffs => (
+                                    <MenuItem key={staffs.Emp_ID} value={staffs.Emp_ID}>
+                                        {`${staffs.Emp_Fname} ${staffs.Emp_Lname}`}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor='Rating'>Rating:</label>
-                        <select
-                            id='Rating'
-                            name='Rating'
-                            className='form-control'
-                            value={formData.Rating}
-                            onChange={handleChange}
-                        >
-                            <option value='' disabled>Select Rating</option>
-                            <option value='1'>1</option>
-                            <option value='2'>2</option>
-                            <option value='3'>3</option>
-                            <option value='4'>4</option>
-                            <option value='5'>5</option>
-                        </select>
+                        <FormControl fullWidth>
+                            <InputLabel id='Rating-label'>Rating:</InputLabel>
+                            <Select
+                                labelId='Rating-label'
+                                id='Rating'
+                                name='Rating'
+                                value={formData.Rating}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value='' disabled>Select Rating</MenuItem>
+                                <MenuItem value='1'>1</MenuItem>
+                                <MenuItem value='2'>2</MenuItem>
+                                <MenuItem value='3'>3</MenuItem>
+                                <MenuItem value='4'>4</MenuItem>
+                                <MenuItem value='5'>5</MenuItem>
+                            </Select>
+                        </FormControl>
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor='Comment'>Comment:</label>
-                        <input
-                            type='text'
-                            id='Comment'
+                        <TextField
+                            fullWidth
+                            label='Comment'
+                            variant='outlined'
+                            margin='normal'
                             name='Comments'
-                            placeholder='Enter Comment'
-                            className='form-control'
                             value={formData.Comments}
                             onChange={handleChange}
                         />
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor='Date'>Date:</label>
-                        <input
+                        <TextField
+                            fullWidth
+                            label='Date'
                             type='date'
-                            id='date'
+                            variant='outlined'
+                            margin='normal'
                             name='Date'
-                            placeholder='Enter Date'
-                            className='form-control'
                             value={formData.Date}
                             onChange={handleChange}
-                            
                         />
                     </div>
                     <div className="flex justify-end">
-                        <button
-                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        <Button
+                            variant="contained"
+                            color="primary"
                             onClick={handleValidation}
+                            sx={{ mr: 1 }}
                         >
                             Submit
-                        </button>
-                        <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                            onClick={onClose} // Call the onClose function passed from props
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            onClick={onClose}
                         >
                             Cancel
-                        </button>
+                        </Button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </Box>
+        </Modal>
     );
-    
 }
 
 export default CreateRating;

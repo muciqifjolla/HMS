@@ -1,18 +1,22 @@
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import ErrorModal from '../../../components/ErrorModal'; // Ensure this component exists for error handling
-import Cookies from 'js-cookie'; // Import js-cookie
-function UpdateRating({ id, onClose}) {
-    const [emp_ID, setEmp_ID] = useState('');
-    const [rating, setRating] = useState('');
-    const [comments, setComments] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().slice(0, 10)); // Default to today's date
+import { Box, TextField, Button, Typography, Modal, MenuItem } from '@mui/material';
+
+function UpdateRating({ id, onClose }) {
+    const [formData, setFormData] = useState({
+        Emp_ID: '',
+        Rating: '',
+        Comments: '',
+        Date: new Date().toISOString().slice(0, 10)
+    });
     const [originalData, setOriginalData] = useState({});
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-    const token = Cookies.get('token'); 
+    const token = Cookies.get('token');
     const [staff, setStaff] = useState([]);
 
     useEffect(() => {
@@ -32,21 +36,22 @@ function UpdateRating({ id, onClose}) {
         }
     };
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/rating/${id}`,{
+                const response = await axios.get(`http://localhost:9004/api/rating/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                })
+                });
                 const data = response.data;
                 setOriginalData(data);
-                setEmp_ID(data.Emp_ID);
-                setRating(data.Rating);
-                setComments(data.Comments);
-                setDate(data.Date);
+                setFormData({
+                    Emp_ID: data.Emp_ID,
+                    Rating: data.Rating,
+                    Comments: data.Comments,
+                    Date: data.Date
+                });
             } catch (error) {
                 console.error('Error fetching rating:', error);
                 showAlert('Error fetching rating details.');
@@ -54,49 +59,47 @@ function UpdateRating({ id, onClose}) {
         };
 
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-
     };
 
     const handleUpdateRating = async () => {
         // Basic validation
         if (
-            emp_ID === originalData.Emp_ID &&
-            rating === originalData.Rating &&
-            comments === originalData.Comments &&
-            date === originalData.Date
+            formData.Emp_ID === originalData.Emp_ID &&
+            formData.Rating === originalData.Rating &&
+            formData.Comments === originalData.Comments &&
+            formData.Date === originalData.Date
         ) {
             showAlert("Data must be changed before updating.");
             return;
         }
-        if (!comments.trim()) {
+        if (!formData.Comments.trim()) {
             showAlert("Comment name cannot be empty.");
             return;
         }
-        if (!rating || (rating<1 || rating>5)) {
+        if (!formData.Rating || formData.Rating < 1 || formData.Rating > 5) {
             showAlert("Rating must be within 1-5.");
             return;
         }
-        if (!emp_ID || emp_ID < 1) {
+        if (!formData.Emp_ID || formData.Emp_ID < 1) {
             showAlert("Employee ID must be at least 1.");
             return;
         }
-        if(comments.length>30){
+        if (formData.Comments.length > 30) {
             showAlert('Limit of characters reached(30)');
             return;
         }
 
-
         try {
             const currentDate = new Date().toISOString().slice(0, 10); // Get current date
             await axios.put(`http://localhost:9004/api/rating/update/${id}`, {
-                Emp_ID: emp_ID,
-                Rating: rating,
-                Comments: comments,
+                Emp_ID: formData.Emp_ID,
+                Rating: formData.Rating,
+                Comments: formData.Comments,
                 Date: currentDate, // Update to current date
             }, {
                 headers: {
@@ -112,95 +115,80 @@ function UpdateRating({ id, onClose}) {
         }
     };
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
+    };
+
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-        <div className="bg-white p-8 mx-auto rounded-lg w-96">
-            {showErrorModal && (
-                <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-            )}
-            <h1 className="text-lg font-bold mb-4">Update Rating</h1>
-                <div className="mb-4">
-                    <label htmlFor="Staff ID">Employee:</label>
-                    <select
-                        type='number'
-                        id='Emp_ID'
-                        name='Emp_ID'
-                        placeholder='Enter Staff ID'
-                        className='form-control'
-                        value={emp_ID}
-                        onChange={(e) => setEmp_ID(e.target.value)}
-                        disabled
-                    >
-                        <option value=''>Select</option>
-                        {staff.map(staffs => (
-                            <option key={staffs.Emp_ID} value={staffs.Emp_ID}>
-                                {`${staffs.Emp_Fname} ${staffs.Emp_Lname}`}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className='mb-4'>
-                <label htmlFor='Rating'>Rating:</label>
-                <select
-                    type='number'
-                    id='Rating'
-                    name='M_Cost'
-                    className='form-control'
-                    value={rating}
-                    onChange={(e) => setRating(e.target.value)}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Update Rating</Typography>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Employee"
+                    variant="outlined"
+                    id="Emp_ID"
+                    name="Emp_ID"
+                    value={formData.Emp_ID}
+                    onChange={handleChange}
+                    disabled
                 >
-                    <option value='' disabled>Select Rating</option>
-                    <option value='1'>1</option>
-                    <option value='2'>2</option>
-                    <option value='3'>3</option>
-                    <option value='4'>4</option>
-                    <option value='5'>5</option>
-                </select>
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="Comments">Comments:</label>
-                    <input
-                        type='text'
-                        id='comments'
-                        name='Comment'
-                        placeholder='Enter Comment'
-                        className='form-control'
-                        value={comments}
-                        onChange={(e) => setComments(e.target.value)}
-                    />
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="Date">Date:</label>
-                    <input
-                         type='date'
-                         id='date'
-                         name='Date'
-                         placeholder='Enter Date'
-                         className='form-control'
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        disabled // Disable user input for date
-                    />
-                </div>
-
-
-                <div className="flex justify-end">
-                <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateRating}>
-                    Submit
-                </button>
-                <button
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                    onClick={onClose} // Call the onClose function passed from props
+                    <MenuItem value=''>Select</MenuItem>
+                    {staff.map((staff) => (
+                        <MenuItem key={staff.Emp_ID} value={staff.Emp_ID}>
+                            {`${staff.Emp_Fname} ${staff.Emp_Lname}`}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Rating"
+                    variant="outlined"
+                    id="Rating"
+                    name="Rating"
+                    value={formData.Rating}
+                    onChange={handleChange}
                 >
-                    Cancel
-                </button>
-            </div>
-            </div>
-        </div>
-
+                    <MenuItem value='' disabled>Select Rating</MenuItem>
+                    <MenuItem value='1'>1</MenuItem>
+                    <MenuItem value='2'>2</MenuItem>
+                    <MenuItem value='3'>3</MenuItem>
+                    <MenuItem value='4'>4</MenuItem>
+                    <MenuItem value='5'>5</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Comments"
+                    variant="outlined"
+                    id="Comments"
+                    name="Comments"
+                    value={formData.Comments}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Date"
+                    variant="outlined"
+                    id="Date"
+                    name="Date"
+                    value={formData.Date}
+                    onChange={handleChange}
+                    disabled
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateRating} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

@@ -1,20 +1,24 @@
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Box, TextField, Button, Typography, Modal, MenuItem } from '@mui/material';
+import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import ErrorModal from '../../../components/ErrorModal'; // Assuming this component exists for handling error messages
-import Cookies from 'js-cookie'; // Import js-cookie
+
 function UpdateEmergency_Contact({ id, onClose }) {
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [relation, setRelation] = useState('');
-    const [patientID, setPatientID] = useState('');
+    const [formData, setFormData] = useState({
+        Contact_Name: '',
+        Phone: '',
+        Relation: '',
+        Patient_ID: '',
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
-    const navigate = useNavigate();
-    const [emergency_contact, setEmergency_contact] = useState([]);
     const [patients, setPatients] = useState([]);
-    const token = Cookies.get('token'); 
+    const token = Cookies.get('token');
+    const navigate = useNavigate();
+
     useEffect(() => {
         fetchPatients();
     }, []);
@@ -31,201 +35,158 @@ function UpdateEmergency_Contact({ id, onClose }) {
             console.error('Error fetching patients:', error);
         }
     };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/emergency_contact/${id}`,{
+                const response = await axios.get(`http://localhost:9004/api/emergency_contact/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                }
-            )
+                });
                 const data = response.data;
                 setOriginalData(data);
-                setName(data.Contact_Name);
-                setPhone(data.Phone);
-                setRelation(data.Relation);
-                setPatientID(data.Patient_ID);
+                setFormData({
+                    Contact_Name: data.Contact_Name,
+                    Phone: data.Phone,
+                    Relation: data.Relation,
+                    Patient_ID: data.Patient_ID,
+                });
             } catch (error) {
                 console.error('Error fetching emergency contact:', error);
-                setAlertMessage('Error fetching emergency contact details.');
-                setShowErrorModal(true);
+                showAlert('Error fetching emergency contact details.');
             }
         };
 
         fetchData();
-    }, [id]);
-    // useEffect(() => {
-    //     const fetchAllEmergency_contact = async () => {
-    //         try {
-    //             const response = await axios.get('http://localhost:9004/api/emergency_contact');
-    //             setEmergency_contact(response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching emergency_contact:', error);
-    //         }
-    //     };
-
-    //     fetchAllEmergency_contact();
-    // }, []);
+    }, [id, token]);
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        // Automatically hide the error modal after 3 seconds
-
     };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
+    };
+
     const handleUpdateContact = async () => {
         const phoneRegex = /^(?:\+\d{1,2}\s?)?(?:\d{3})(?:\d{6})$/;
 
-        if (!name.trim()) {
-            setAlertMessage("Emergency contact name cannot be empty.");
-            setShowErrorModal(true);
+        if (!formData.Contact_Name.trim()) {
+            showAlert("Name cannot be empty.");
             return;
         }
 
-        if (!phone.trim() || !phone.match(phoneRegex) || phone.length !== 9) {
-            setAlertMessage("Phone can should be 9 characters long!");
-            setShowErrorModal(true);
+        if (!formData.Phone.trim() || !formData.Phone.match(phoneRegex) || formData.Phone.length !== 9) {
+            showAlert("Phone should be 9 characters long!");
             return;
         }
 
-        if (!relation.trim()) {
-            setAlertMessage("Relation cannot be empty.");
-            setShowErrorModal(true);
+        if (!formData.Relation.trim()) {
+            showAlert("Relation cannot be empty.");
             return;
         }
 
-        if (!patientID || patientID < 1) {
-            setAlertMessage("Invalid Patient ID.");
-            setShowErrorModal(true);
+        if (!formData.Patient_ID || formData.Patient_ID < 1) {
+            showAlert("Invalid Patient ID.");
             return;
         }
-        
 
         if (
-            name === originalData.Contact_Name &&
-            phone === originalData.Phone &&
-            relation === originalData.Relation &&
-            patientID === originalData.Patient_ID
+            formData.Contact_Name === originalData.Contact_Name &&
+            formData.Phone === originalData.Phone &&
+            formData.Relation === originalData.Relation &&
+            formData.Patient_ID === originalData.Patient_ID
         ) {
-            setAlertMessage("Data must be changed before updating.");
-            setShowErrorModal(true);
+            showAlert("Data must be changed before updating.");
             return;
         }
-        const existingMedicine = emergency_contact.find(emergency_contact => emergency_contact.Phone === phone && emergency_contact.Contact_ID!==id);
-        if (existingMedicine) {
-            showAlert('Phone number Exists');
-            return;
-        }
+
         try {
-            await axios.put(`http://localhost:9004/api/emergency_contact/update/${id}`, {
-                Contact_Name: name,
-                Phone: phone,
-                Relation: relation,
-                Patient_ID: patientID,
-            },{
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            await axios.put(`http://localhost:9004/api/emergency_contact/update/${id}`, formData, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             navigate('/dashboard/emergency_contact');
             window.location.reload();
         } catch (error) {
             console.error('Error updating emergency contact:', error);
-            setAlertMessage('Error updating emergency contact.');
-            setShowErrorModal(true);
+            showAlert('Error updating emergency contact.');
         }
     };
 
-    const closeErrorModal = () => {
-        setShowErrorModal(false);
-    };
-
     return (
-
-<div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-    <div className="bg-white p-8 mx-auto rounded-lg w-96">
-        {showErrorModal && (
-            <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-        )}
-        <h1 className="text-lg font-bold mb-4">Update Emergency Contact</h1>
-            <div className="mb-4">
-                <label htmlFor="emergencyName">Name:</label>
-                <input
-                    type="text"
-                    id="emergencyName"
-                    placeholder="Enter Name"
-                    className="form-control"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Update Emergency Contact</Typography>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Name"
+                    variant="outlined"
+                    id="Contact_Name"
+                    name="Contact_Name"
+                    value={formData.Contact_Name}
+                    onChange={handleChange}
                 />
-            </div>
-            <div className="mb-4">
-                <label htmlFor="emergencyPhone">Phone:</label>
-                <input
-                    type="number"
-                    id="emergencyPhone"
-                    placeholder="Enter Phone"
-                    className="form-control"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Phone"
+                    variant="outlined"
+                    id="Phone"
+                    name="Phone"
+                    value={formData.Phone}
+                    onChange={handleChange}
                     disabled
                 />
-            </div>
-            <div className='mb-4'>
-                <label htmlFor='Relation'>Relation:</label>
-                <select
-                    id='Relation'
-                    name='Relation'
-                    className='form-control'
-                    value={relation}
-                    onChange={(e) => setRelation(e.target.value)}
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Relation"
+                    variant="outlined"
+                    id="Relation"
+                    name="Relation"
+                    value={formData.Relation}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Relation</option>
-                    <option value='Mother'>Mother</option>
-                    <option value='Father'>Father</option>
-                    <option value='Sister'>Sister</option>
-                    <option value='Brother'>Brother</option>
-                    <option value='Close family Member'>Close Family Member</option>
-                    <option value='Friend'>Friend</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="emergencyPatientID">Patient ID:</label>
-                <select
-                    type="number"
-                    id="emergencyPatientID"
-                    placeholder="Enter Patient ID"
-                    className="form-control"
-                    value={patientID}
-                    onChange={(e) => setPatientID(e.target.value)}
+                    <MenuItem value=''>Select Relation</MenuItem>
+                    <MenuItem value='Mother'>Mother</MenuItem>
+                    <MenuItem value='Father'>Father</MenuItem>
+                    <MenuItem value='Sister'>Sister</MenuItem>
+                    <MenuItem value='Brother'>Brother</MenuItem>
+                    <MenuItem value='Close family Member'>Close Family Member</MenuItem>
+                    <MenuItem value='Friend'>Friend</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Patient"
+                    variant="outlined"
+                    id="Patient_ID"
+                    name="Patient_ID"
+                    value={formData.Patient_ID}
+                    onChange={handleChange}
                     disabled
                 >
-                    <option value=''>Select Patient</option>
-                        {patients.map(patient => (
-                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
-                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
-                            </option>
-                        ))}
-                        
-                </select>
-            </div>
-            <div className="flex justify-end">
-                <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateContact}>
-                    Submit
-                </button>
-                <button
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                    onClick={onClose} // Call the onClose function passed from props
-                >
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-
-
+                    <MenuItem value=''>Select Patient</MenuItem>
+                    {patients.map(patient => (
+                        <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                            {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateContact} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
