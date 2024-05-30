@@ -1,101 +1,71 @@
-    import React, { useState, useEffect } from 'react';
-    import axios from 'axios';
-    import ErrorModal from '../../../components/ErrorModal'; // Ensure this component exists for error handling
-    import Cookies from 'js-cookie'; // Import js-cookie
-    function UpdateMedicine({ id, onClose }) {
-        const [name, setName] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [cost, setCost] = useState('');
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Modal, Box, TextField, Button, Typography, InputAdornment } from '@mui/material';
+import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
+
+function UpdateMedicine({ id, onClose }) {
+    const [formData, setFormData] = useState({
+        M_name: '',
+        M_Quantity: '',
+        M_Cost: '',
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
-    const [medicine, setMedicines] = useState([]);
-    const token = Cookies.get('token'); 
+    const token = Cookies.get('token');
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/medicine/${id}`,{
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                const response = await axios.get(`http://localhost:9004/api/medicine/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = response.data;
                 setOriginalData(data);
-                setName(data.M_name);
-                setQuantity(data.M_Quantity);
-                setCost(data.M_Cost);
+                setFormData({
+                    M_name: data.M_name,
+                    M_Quantity: data.M_Quantity,
+                    M_Cost: data.M_Cost
+                });
             } catch (error) {
                 console.error('Error fetching medicine:', error);
                 showAlert('Error fetching medicine details.');
             }
         };
-
         fetchData();
     }, [id]);
 
-    // useEffect(() => {
-    //     const fetchAllMedicines = async () => {
-    //         try {
-    //             const response = await axios.get('http://localhost:9004/api/medicine');
-    //             setMedicines(response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching medicines:', error);
-    //         }
-    //     };
-
-    //     fetchAllMedicines();
-    // }, []);
-
-    const showAlert = (message) => {
-        setAlertMessage(message);
-        setShowErrorModal(true);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({ ...prevState, [name]: value }));
     };
-
     const handleUpdateMedicine = async () => {
         // Basic validation
+        if (!formData.M_name.trim() || !formData.M_Quantity || !formData.M_Cost) {
+            showAlert('All fields are required.');
+            return;
+        }
+    
+        if (parseInt(formData.M_Quantity) < 1 || parseFloat(formData.M_Cost) < 1) {
+            showAlert('Quantity and cost must be at least 1.');
+            return;
+        }
+    
+        // Check if any data has been changed
         if (
-            name === originalData.M_name &&
-            quantity === originalData.M_Quantity &&
-            cost === originalData.M_Cost
+            formData.M_name === originalData.M_name &&
+            formData.M_Quantity === originalData.M_Quantity.toString() &&
+            formData.M_Cost === originalData.M_Cost.toString()
         ) {
             showAlert('Data must be changed before updating.');
             return;
         }
     
-        if (!name.trim()) {
-            showAlert('Medicine name cannot be empty.');
-            return;
-        }
-    
-        if (!quantity || quantity < 1) {
-            showAlert('Quantity must be at least 1.');
-            return;
-        }
-    
-        if (!cost || cost < 1) {
-            showAlert('Cost must be at least 1.');
-            return;
-        }
-    
-        // Check if medicine with the same name already exists
-        const existingMedicine = medicine.find(medicine => medicine.M_name === name && medicine.Medicine_ID !== id);
-        if (existingMedicine) {
-            showAlert('Medicine with the same name already exists.');
-            return;
-        }
-
         try {
-            await axios.put(`http://localhost:9004/api/medicine/update/${id}`, {
-                    M_name: name,
-                    M_Quantity: quantity,
-                    M_Cost: cost,
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-    
-            // Close the modal after updating
+            await axios.put(`http://localhost:9004/api/medicine/update/${id}`, formData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating medicine:', error);
@@ -103,65 +73,59 @@
         }
     };
 
-        return (
-            <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-                <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                    {showErrorModal && (
-                        <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                    )}
-                    <h1 className="text-lg font-bold mb-4">Update Medicine</h1>
-                    <div className='mb-4'>
-                        <label htmlFor='medicineName'>Medicine Name:</label>
-                        <input
-                            type='text'
-                            id='medicineName'
-                            placeholder='Enter Medicine Name'
-                            className='form-control w-full'
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            disabled
-                        />
-                    </div>
-                    <div className='mb-4'>
-                        <label htmlFor='medicineQuantity'>Quantity:</label>
-                        <input
-                            type='number'
-                            id='medicineQuantity'
-                            placeholder='Enter Quantity'
-                            className='form-control w-full'
-                            value={quantity}
-                            onChange={(e) => setQuantity(e.target.value)}
-                        />
-                    </div>
-                    <div className='mb-4'>
-                        <label htmlFor='medicineCost'>Cost:</label>
-                        <input
-                            type='number'
-                            id='medicineCost'
-                            placeholder='Enter Cost'
-                            className='form-control w-full'
-                            value={cost}
-                            onChange={(e) => setCost(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex justify-end">
-                        <button
-                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            onClick={handleUpdateMedicine}
-                        >
-                            Submit
-                        </button>
-                        <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                            onClick={onClose} // Call the onClose function passed from props
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-        
-    }
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setShowErrorModal(true);
+    };
 
-    export default UpdateMedicine;
+    return (
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Update Medicine</Typography>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Medicine Name"
+                    variant="outlined"
+                    id="M_name"
+                    name="M_name"
+                    value={formData.M_name}
+                    onChange={handleChange}
+                    disabled
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Quantity"
+                    variant="outlined"
+                    id="M_Quantity"
+                    name="M_Quantity"
+                    type="number"
+                    value={formData.M_Quantity}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Cost"
+                    variant="outlined"
+                    id="M_Cost"
+                    name="M_Cost"
+                    type="number"
+                    value={formData.M_Cost}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">$</InputAdornment>
+                    }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateMedicine} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
+    );
+}
+
+export default UpdateMedicine;

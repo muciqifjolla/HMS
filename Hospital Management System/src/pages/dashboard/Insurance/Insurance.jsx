@@ -4,8 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import CreateInsurance from './CreateInsurance';
 import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
-
+import { Add, Delete, Edit, Update } from '@mui/icons-material';
 function Insurance({
     showCreateForm,
     setShowCreateForm,
@@ -99,17 +98,17 @@ function Insurance({
         return patientName.startsWith(searchQuery.toLowerCase());
     });
     const columns = [
-        { field: 'Policy_Number', headerName: 'Policy Number', width: 180 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 180 },
-        { field: 'Ins_Code', headerName: 'Ins. Code', width: 180 },
-        { field: 'End_Date', headerName: 'End Date', width: 180 },
-        { field: 'Provider', headerName: 'Provider', width: 180 },
-        { field: 'Plan', headerName: 'Plan', width: 180 },
-        { field: 'Co_Pay', headerName: 'Co-Pay', width: 180 },
-        { field: 'Coverage', headerName: 'Coverage', width: 180 },
-        { field: 'Maternity', headerName: 'Maternity', width: 180 },
-        { field: 'Dental', headerName: 'Dental', width: 180 },
-        { field: 'Optical', headerName: 'Optical', width: 180 },
+        { field: 'Policy_Number', headerName: 'Policy Number', width: 150 },
+        { field: 'Patient_Name', headerName: 'Patient Name', width: 150 },
+        { field: 'Ins_Code', headerName: 'Ins. Code', width: 150 },
+        { field: 'End_Date', headerName: 'End Date', width: 150 },
+        { field: 'Provider', headerName: 'Provider', width: 100 },
+        { field: 'Plan', headerName: 'Plan', width: 100 },
+        { field: 'Co_Pay', headerName: 'Co-Pay', width: 100 },
+        { field: 'Coverage', headerName: 'Coverage', width: 100 },
+        { field: 'Maternity', headerName: 'Maternity', width: 100 },
+        { field: 'Dental', headerName: 'Dental', width: 100 },
+        { field: 'Optical', headerName: 'Optical', width: 100 },
         {
             field: 'update',
             headerName: 'Update',
@@ -119,8 +118,9 @@ function Insurance({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Policy_Number)}
+                    startIcon={<Edit />}
                 >
-                    Update
+                    
                 </Button>
             ),
         },
@@ -133,8 +133,9 @@ function Insurance({
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Policy_Number)}
+                    startIcon={<Delete />}
                 >
-                    Delete
+                   
                 </Button>
             ),
         }

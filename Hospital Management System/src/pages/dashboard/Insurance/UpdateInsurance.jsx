@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Box, TextField, Button, Typography, Modal, InputAdornment, MenuItem } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal'; // Assuming this component exists for handling error messages
-import Cookies from 'js-cookie'; // Import js-cookie
+import Cookies from 'js-cookie';
 function UpdateInsurance({ id, onClose }) {
-    const [patientID, setPatientID] = useState('');
-    const [insCode, setInsCode] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [provider, setProvider] = useState('');
-    const [plan, setPlan] = useState('');
-    const [coPay, setCoPay] = useState('');
-    const [coverage, setCoverage] = useState('');
-    const [maternity, setMaternity] = useState('');
-    const [dental, setDental] = useState('');
-    const [optical, setOptical] = useState('');
+    const [formData, setFormData] = useState({
+        Patient_ID: '',
+        Ins_Code: '',
+        End_Date: '',
+        Provider: '',
+        Plan: '',
+        Co_Pay: '',
+        Coverage: '',
+        Maternity: '',
+        Dental: '',
+        Optical: '',
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
-    const [insurance, setInsurance] = useState([]);
-    const token = Cookies.get('token');
     const [patients, setPatients] = useState([]);
+    const token = Cookies.get('token');
 
-    
     useEffect(() => {
         fetchPatients();
     }, []);
@@ -38,7 +39,6 @@ function UpdateInsurance({ id, onClose }) {
         }
     };
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -46,19 +46,21 @@ function UpdateInsurance({ id, onClose }) {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                })
+                });
                 const data = response.data;
                 setOriginalData(data);
-                setPatientID(data.Patient_ID);
-                setInsCode(data.Ins_Code);
-                setEndDate(data.End_Date);
-                setProvider(data.Provider);
-                setPlan(data.Plan);
-                setCoPay(data.Co_Pay);
-                setCoverage(data.Coverage);
-                setMaternity(data.Maternity);
-                setDental(data.Dental);
-                setOptical(data.Optical);
+                setFormData({
+                    Patient_ID: data.Patient_ID,
+                    Ins_Code: data.Ins_Code,
+                    End_Date: data.End_Date,
+                    Provider: data.Provider,
+                    Plan: data.Plan,
+                    Co_Pay: data.Co_Pay,
+                    Coverage: data.Coverage,
+                    Maternity: data.Maternity,
+                    Dental: data.Dental,
+                    Optical: data.Optical,
+                });
             } catch (error) {
                 console.error('Error fetching insurance:', error);
                 showAlert('Error fetching insurance details.');
@@ -66,108 +68,95 @@ function UpdateInsurance({ id, onClose }) {
         };
 
         fetchData();
-    }, [id]);
-
-    // useEffect(() => {
-    //     const fetchAllInsurances = async () => {
-    //         try {
-    //             const response = await axios.get('http://localhost:9004/api/insurance');
-    //             setInsurance(response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching insurance:', error);
-    //         }
-    //     };
-
-    //     fetchAllInsurances();
-    // }, []);
+    }, [id, token]);
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
     };
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
+    };
+
     const handleUpdateInsurance = async () => {
         const numberRegex = /^\d+$/;
 
-        if (!patientID || patientID < 1) {
+        if (!formData.Patient_ID || formData.Patient_ID < 1) {
             showAlert("Patient ID must be a positive number.");
             return;
         }
 
-        if (!insCode) {
+        if (!formData.Ins_Code) {
             showAlert("Insurance Code must be a positive number.");
             return;
         }
 
-        if (insCode.length < 6) {
+        if (formData.Ins_Code.length < 6) {
             showAlert("Insurance Code must be at least 6 characters.");
             return;
         }
-        if (!endDate) {
+        if (!formData.End_Date) {
             showAlert("End Date is required.");
             return;
         }
 
-        if (!provider.trim()) {
+        if (!formData.Provider.trim()) {
             showAlert("Provider cannot be empty.");
             return;
         }
 
-        if (!plan.trim()) {
+        if (!formData.Plan.trim()) {
             showAlert("Plan cannot be empty.");
             return;
         }
 
-        if (!coPay.trim()) {
+        if (!formData.Co_Pay.trim()) {
             showAlert("Co-Pay cannot be empty.");
             return;
         }
 
-        if (!coverage.trim()) {
+        if (!formData.Coverage.trim()) {
             showAlert("Coverage cannot be empty.");
+            return;
+        }
+        if (!formData.Maternity.trim()) {
+            showAlert("Maternity cannot be empty.");
+            return;
+        }
+
+        if (!formData.Dental.trim()) {
+            showAlert("Dental cannot be empty.");
+            return;
+        }
+
+        if (!formData.Optical.trim()) {
+            showAlert("Optical cannot be empty.");
             return;
         }
 
         if (
-            patientID === originalData.Patient_ID &&
-            insCode === originalData.Ins_Code &&
-            endDate === originalData.End_Date &&
-            provider === originalData.Provider &&
-            plan === originalData.Plan &&
-            coPay === originalData.Co_Pay &&
-            coverage === originalData.Coverage &&
-            maternity === originalData.Maternity &&
-            dental === originalData.Dental &&
-            optical === originalData.Optical
+            formData.Patient_ID === originalData.Patient_ID &&
+            formData.Ins_Code === originalData.Ins_Code &&
+            formData.End_Date === originalData.End_Date &&
+            formData.Provider === originalData.Provider &&
+            formData.Plan === originalData.Plan &&
+            formData.Co_Pay === originalData.Co_Pay &&
+            formData.Coverage === originalData.Coverage &&
+            formData.Maternity === originalData.Maternity &&
+            formData.Dental === originalData.Dental &&
+            formData.Optical === originalData.Optical
         ) {
             showAlert("Data must be changed before updating.");
             return;
         }
 
-        const existingInsurance = insurance.find(insurance => insurance.Ins_Code === insCode && insurance.Policy_Number!==id);
-        if (existingInsurance) {
-            showAlert('Insurance with the same code already exists');
-            return;
-        }
         try {
-            await axios.put(`http://localhost:9004/api/insurance/update/${id}`, {
-                Patient_ID: patientID,
-                Ins_Code: insCode,
-                End_Date: endDate,
-                Provider: provider,
-                Plan: plan,
-                Co_Pay: coPay,
-                Coverage: coverage,
-                Maternity: maternity,
-                Dental: dental,
-                Optical: optical,
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            await axios.put(`http://localhost:9004/api/insurance/update/${id}`, formData, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            // Close the modal after updating
             onClose();
             window.location.reload();
         } catch (error) {
@@ -177,174 +166,165 @@ function UpdateInsurance({ id, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-        <div className="bg-white p-8 mx-auto rounded-lg w-96">
-        {showErrorModal && (
-            <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-        )}
-        <h1 className="text-lg font-bold mb-4">Update Insurance</h1>
-            <div className="mb-4">
-                <label htmlFor="patientID">Patient ID:</label>
-                <select
-                    type="number"
-                    id="patientID"
-                    placeholder="Enter Patient ID"
-                    className="form-control"
-                    value={patientID}
-                    onChange={(e) => setPatientID(e.target.value)}
-                    
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Update Insurance</Typography>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Patient ID"
+                    variant="outlined"
+                    id="Patient_ID"
+                    name="Patient_ID"
+                    value={formData.Patient_ID}
+                    onChange={handleChange}
                     disabled
                 >
-                    <option value=''>Select Patient</option>
-                        {patients.map(patient => (
-                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
-                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
-                            </option>
-                        ))}
-                        </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="insCode">Insurance Code:</label>
-                <input
-                    type="number"
-                    id="insCode"
-                    placeholder="Enter Insurance Code"
-                    className="form-control"
-                    value={insCode}
-                    onChange={(e) => setInsCode(e.target.value)}
+                    <MenuItem value=''>Select Patient</MenuItem>
+                    {patients.map(patient => (
+                        <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                            {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Insurance Code"
+                    variant="outlined"
+                    id="Ins_Code"
+                    name="Ins_Code"
+                    value={formData.Ins_Code}
+                    onChange={handleChange}
                     disabled
                 />
-            </div>
-            <div className="mb-4">
-                <label htmlFor="endDate">End Date:</label>
-                <input
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="End Date"
                     type="date"
-                    id="endDate"
-                    placeholder="Enter End Date"
-                    className="form-control"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    variant="outlined"
+                    id="End_Date"
+                    name="End_Date"
+                    value={formData.End_Date}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
                 />
-            </div>
-            <div className="mb-4">
-                <label htmlFor="provider">Provider:</label>
-                <select
-                    type="text"
-                    id="provider"
-                    placeholder="Enter Provider"
-                    className="form-control"
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Provider"
+                    variant="outlined"
+                    id="Provider"
+                    name="Provider"
+                    value={formData.Provider}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Yes/NO</option>
-                    <option value='No'>No</option>
-                    <option value='Yes'>Yes</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="plan">Plan:</label>
-                <select
-                    type="text"
-                    id="plan"
-                    placeholder="Enter Plan"
-                    className="form-control"
-                    value={plan}
-                    onChange={(e) => setPlan(e.target.value)}
+                    <MenuItem value=''>Select Yes/No</MenuItem>
+                    <MenuItem value='No'>No</MenuItem>
+                    <MenuItem value='Yes'>Yes</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Plan"
+                    variant="outlined"
+                    id="Plan"
+                    name="Plan"
+                    value={formData.Plan}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Yes/NO</option>
-                    <option value='No'>No</option>
-                    <option value='Yes'>Yes</option>
-                </select>
-            </div>
-            <div className='mb-4'>
-                <label htmlFor='Co_Pay'>Co-Pay:</label>
-                <select
-                    id='Co_Pay'
-                    name='Co_Pay'
-                    className='form-control'
-                    value={coPay}
-                    onChange={(e) => setCoPay(e.target.value)}
+                    <MenuItem value=''>Select Yes/No</MenuItem>
+                    <MenuItem value='No'>No</MenuItem>
+                    <MenuItem value='Yes'>Yes</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Co-Pay"
+                    variant="outlined"
+                    id="Co_Pay"
+                    name="Co_Pay"
+                    value={formData.Co_Pay}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Yes/NO</option>
-                    <option value='No'>No</option>
-                    <option value='Yes'>Yes</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="coverage">Coverage:</label>
-                <select
-                    type="text"
-                    id="coverage"
-                    placeholder="Enter Coverage"
-                    className="form-control"
-                    value={coverage}
-                    onChange={(e) => setCoverage(e.target.value)}
+                    <MenuItem value=''>Select Yes/No</MenuItem>
+                    <MenuItem value='No'>No</MenuItem>
+                    <MenuItem value='Yes'>Yes</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Coverage"
+                    variant="outlined"
+                    id="Coverage"
+                    name="Coverage"
+                    value={formData.Coverage}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Coverage</option>
-                    <option value='25%'>25%</option>
-                    <option value='50%'>50%</option>
-                    <option value='75%'>75%</option>
-                    <option value='100%'>100%</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="maternity">Maternity:</label>
-                <select
-                    type="text"
-                    id="maternity"
-                    placeholder="Enter Maternity"
-                    className="form-control"
-                    value={maternity}
-                    onChange={(e) => setMaternity(e.target.value)}
+                    <MenuItem value=''>Select Coverage</MenuItem>
+                    <MenuItem value='25%'>25%</MenuItem>
+                    <MenuItem value='50%'>50%</MenuItem>
+                    <MenuItem value='75%'>75%</MenuItem>
+                    <MenuItem value='100%'>100%</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Maternity"
+                    variant="outlined"
+                    id="Maternity"
+                    name="Maternity"
+                    value={formData.Maternity}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Yes/NO</option>
-                    <option value='No'>No</option>
-                    <option value='Yes'>Yes</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="dental">Dental:</label>
-                <select
-                    type="text"
-                    id="dental"
-                    placeholder="Enter Dental"
-                    className="form-control"
-                    value={dental}
-                    onChange={(e) => setDental(e.target.value)}
+                    <MenuItem value=''>Select Yes/No</MenuItem>
+                    <MenuItem value='No'>No</MenuItem>
+                    <MenuItem value='Yes'>Yes</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Dental"
+                    variant="outlined"
+                    id="Dental"
+                    name="Dental"
+                    value={formData.Dental}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Yes/NO</option>
-                    <option value='No'>No</option>
-                    <option value='Yes'>Yes</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label htmlFor="optical">Optical:</label>
-                <select
-                    type="text"
-                    id="optical"
-                    placeholder="Enter Optical"
-                    className="form-control"
-                    value={optical}
-                    onChange={(e) => setOptical(e.target.value)}
+                    <MenuItem value=''>Select Yes/No</MenuItem>
+                    <MenuItem value='No'>No</MenuItem>
+                    <MenuItem value='Yes'>Yes</MenuItem>
+                </TextField>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    select
+                    label="Optical"
+                    variant="outlined"
+                    id="Optical"
+                    name="Optical"
+                    value={formData.Optical}
+                    onChange={handleChange}
                 >
-                    <option value=''>Select Yes/NO</option>
-                    <option value='No'>No</option>
-                    <option value='Yes'>Yes</option>
-                </select>
-            </div>
-            <div className="flex justify-end">
-                <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateInsurance}>
-                    Submit
-                </button>
-                <button
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                    onClick={onClose} // Call the onClose function passed from props
-                >
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
+                    <MenuItem value=''>Select Yes/No</MenuItem>
+                    <MenuItem value='No'>No</MenuItem>
+                    <MenuItem value='Yes'>Yes</MenuItem>
+                </TextField>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateInsurance} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

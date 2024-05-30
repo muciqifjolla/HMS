@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Modal, Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
-import Cookies from 'js-cookie'; // Import js-cookie
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 function CreateInsurance({onClose}) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
@@ -138,172 +139,88 @@ function CreateInsurance({onClose}) {
     
 
     return (
-        <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
-            <div className='bg-white p-8 mx-auto rounded-lg w-96'>
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className='text-lg font-bold mb-4'>Add Insurance</h1>
-                {/* Patient ID */}
-                <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Select Patient</label>
-                    <select
-                        type='number'
-                        name='Patient_ID'
-                        placeholder='Enter Patient ID'
-                        className='form-control w-full'
-                        value={formData.Patient_ID}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select</option>
-                        {patients.map(patient => (
-                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
-                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
-                            </option>
-                        ))}
-                    </select>
-                    
-                </div>
-                {/* Ins_Code */}
-                <div className='mb-2'>
-                    <label htmlFor='Ins_Code'>Insurance Code:</label>
-                    <input
-                        type='number'
-                        name='Ins_Code'
-                        placeholder='Enter Insurance Code'
-                        className='form-control w-full'
-                        value={formData.Ins_Code}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* End Date */}
-                <div className='mb-2'>
-                    <label htmlFor='End_Date'>End Date:</label>
-                    <input
-                        type='date'
-                        name='End_Date'
-                        placeholder='Enter End Date'
-                        className='form-control w-full'
-                        value={formData.End_Date}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Provider */}
-                <div className='mb-2'>
-                    <label htmlFor='Provider'>Provider:</label>
-                    <select
-                        name='Provider'
-                        className='form-control w-full'
-                        value={formData.Provider}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Provider</option>
-                        <option value='No'>No</option>
-                        <option value='Yes'>Yes</option>
-                    </select>
-                </div>
-                {/* Plan */}
-                <div className='mb-2'>
-                    <label htmlFor='Plan'>Plan:</label>
-                    <select
-                        name='Plan'
-                        className='form-control w-full'
-                        value={formData.Plan}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Plan</option>
-                        <option value='No'>No</option>
-                        <option value='Yes'>Yes</option>
-                    </select>
-                </div>
-                {/* Co-Pay */}
-                <div className='mb-2'>
-                    <label htmlFor='Co_Pay'>Co-Pay:</label>
-                    <select
-                        name='Co_Pay'
-                        className='form-control w-full'
-                        value={formData.Co_Pay}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Co-Pay</option>
-                        <option value='No'>No</option>
-                        <option value='Yes'>Yes</option>
-                    </select>
-                </div>
-                {/* Coverage */}
-                <div className='mb-2'>
-                    <label htmlFor='Coverage'>Coverage:</label>
-                    <select
-                        name='Coverage'
-                        className='form-control w-full'
-                        value={formData.Coverage}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Coverage</option>
-                        <option value='25%'>25%</option>
-                        <option value='50%'>50%</option>
-                        <option value='75%'>75%</option>
-                        <option value='100%'>100%</option>
-                    </select>
-                </div>
-                {/* Maternity */}
-                <div className='mb-2'>
-                    <label htmlFor='Maternity'>Maternity:</label>
-                    <select
-                        name='Maternity'
-                        className='form-control w-full'
-                        value={formData.Maternity}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Maternity</option>
-                        <option value='No'>No</option>
-                        <option value='Yes'>Yes</option>
-                    </select>
-                </div>
-                {/* Dental */}
-                <div className='mb-2'>
-                    <label htmlFor='Dental'>Dental:</label>
-                    <select
-                        name='Dental'
-                        className='form-control w-full'
-                        value={formData.Dental}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Dental</option>
-                        <option value='No'>No</option>
-                        <option value='Yes'>Yes</option>
-                    </select>
-                </div>
-                {/* Optical */}
-                <div className='mb-2'>
-                    <label htmlFor='Optical'>Optical:</label>
-                    <select
-                        name='Optical'
-                        className='form-control w-full'
-                        value={formData.Optical}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Optical</option>
-                        <option value='No'>No</option>
-                        <option value='Yes'>Yes</option>
-                    </select>
-                </div>
-                <div className='flex justify-end'>
-                    <button
-                        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+<Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+    <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+        {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+        <Typography variant="h6" component="h1" gutterBottom>Add Insurance</Typography>
+        <FormControl fullWidth margin="normal">
+            <InputLabel id="patient-select-label">Patient</InputLabel>
+            <Select
+                labelId="patient-select-label"
+                id="Patient_ID"
+                name="Patient_ID"
+                value={formData.Patient_ID}
+                label="Patient"
+                onChange={handleChange}
+            >
+                <MenuItem value=""><em>Select Patient</em></MenuItem>
+                {patients.map((patient) => (
+                    <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                        {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+        <TextField
+            fullWidth
+            label="Insurance Code"
+            variant="outlined"
+            margin="normal"
+            name="Ins_Code"
+            value={formData.Ins_Code}
+            onChange={handleChange}
+        />
+        <TextField
+            fullWidth
+            type="date"
+            label="End Date"
+            variant="outlined"
+            margin="normal"
+            name="End_Date"
+            value={formData.End_Date}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+        />
+        {["Provider", "Plan", "Co_Pay", "Maternity", "Dental", "Optical"].map(field => (
+            <FormControl fullWidth margin="normal" key={field}>
+                <InputLabel id={`${field}-label`}>{field}</InputLabel>
+                <Select
+                    labelId={`${field}-label`}
+                    id={field}
+                    name={field}
+                    value={formData[field]}
+                    label={field}
+                    onChange={handleChange}
+                >
+                    <MenuItem value=""><em>None</em></MenuItem>
+                    <MenuItem value="Yes">Yes</MenuItem>
+                    <MenuItem value="No">No</MenuItem>
+                </Select>
+            </FormControl>
+        ))}
+        <FormControl fullWidth margin="normal">
+            <InputLabel id="coverage-label">Coverage</InputLabel>
+            <Select
+                labelId="coverage-label"
+                id="Coverage"
+                name="Coverage"
+                value={formData.Coverage}
+                label="Coverage"
+                onChange={handleChange}
+            >
+                <MenuItem value=""><em>Select Coverage</em></MenuItem>
+                <MenuItem value="25%">25%</MenuItem>
+                <MenuItem value="50%">50%</MenuItem>
+                <MenuItem value="75%">75%</MenuItem>
+                <MenuItem value="100%">100%</MenuItem>
+            </Select>
+        </FormControl>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+            <Button variant="outlined" onClick={onClose}>Cancel</Button>
+        </Box>
+    </Box>
+</Modal>
     );
 }
 
