@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
+
 
 function CreateStaff({ onClose }) {
     const [formData, setFormData] = useState({
@@ -20,6 +23,7 @@ function CreateStaff({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -35,7 +39,13 @@ function CreateStaff({ onClose }) {
 
     const fetchStaff = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/staff');
+            const response = await axios.get('http://localhost:9004/api/staff',
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
             setStaff(response.data);
         } catch (error) {
             console.error('Error fetching staff:', error);
@@ -44,7 +54,13 @@ function CreateStaff({ onClose }) {
 
     const handleAddStaff = async () => {
         try {
-            await axios.post("http://localhost:9004/api/staff/create", formData);
+            await axios.post("http://localhost:9004/api/staff/create", formData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
             navigate('/dashboard/staffs');
             window.location.reload();// Refresh after successful addition
         } catch (error) {
@@ -101,84 +117,129 @@ function CreateStaff({ onClose }) {
   
 
     return (
-        <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
-            <div className='bg-white p-8 mx-auto rounded-lg w-96'>
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className='text-lg font-bold mb-4'>Add Staff</h1>
-                <div className='mb-2'>
-                    <label htmlFor="Emp_Fname">Name: </label>
-                    <input type='text' name="Emp_Fname" placeholder='Enter Name' className='form-control w-full' value={formData.Emp_Fname} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Emp_Lname">Surname: </label>
-                    <input type='text' name="Emp_Lname" placeholder='Enter Lastname' className='form-control w-full' value={formData.Emp_Lname} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Joining_Date">Joining Date: </label>
-                    <input type='date' name="Joining_Date" placeholder='Enter Joining Date' className='form-control w-full' value={formData.Joining_Date} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Emp_type">Employee Type: </label>
-                    <select
-                        name="Emp_type"
-                        className="form-control w-full"
-                        value={formData.Emp_type}
-                        onChange={handleChange}
-                    >
-                        <option value="">Select Employee Type</option>
-                        <option value="Full-time">Full-time</option>
-                        <option value="Part-time">Part-time</option>
-                        <option value="Contractor">Contractor</option>
-                        <option value="Intern">Intern</option>
-                    </select>
-
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Email">Email: </label>
-                    <input type='email' name="Email" placeholder='Enter Email' className='form-control w-full' value={formData.Email} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Address">Address: </label>
-                    <input type='text' name="Address" placeholder='Enter Address' className='form-control w-full' value={formData.Address} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Dept_ID">
-                        Department: 
-                        </label>
-                    <input type='number' 
-                    name="Dept_ID" placeholder='Enter Department'
-                     className='form-control w-full'
-                      value={formData.Dept_ID} 
-                      onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="SSN">SSN: </label>
-                    <input type='text' name="SSN" placeholder='Enter SSN' className='form-control w-full' value={formData.SSN} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="DOB">DOB: </label>
-                    <input type='date' name="DOB" placeholder='Enter Date of Birth' className='form-control w-full' value={formData.DOB} onChange={handleChange} />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="Date_Separation">Date of Separation: </label>
-                    <input type='date' name="Date_Separation" placeholder='Enter Date of Separation' className='form-control w-full' value={formData.Date_Separation} onChange={handleChange} />
-                </div>
-                <div className='flex justify-end'>
-                    <button
-                        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-                        onClick={handleValidation}>
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}>
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Staff</Typography>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="First Name"
+                    variant="outlined"
+                    id="Emp_Fname"
+                    name="Emp_Fname"
+                    placeholder="Enter First Name"
+                    value={formData.Emp_Fname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Last Name"
+                    variant="outlined"
+                    id="Emp_Lname"
+                    name="Emp_Lname"
+                    placeholder="Enter Last Name"
+                    value={formData.Emp_Lname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Joining Date"
+                    variant="outlined"
+                    type="date"
+                    id="Joining_Date"
+                    name="Joining_Date"
+                    value={formData.Joining_Date}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Employee Type"
+                    variant="outlined"
+                    id="Emp_type"
+                    name="Emp_type"
+                    placeholder="Enter Employee Type"
+                    value={formData.Emp_type}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Email"
+                    variant="outlined"
+                    id="Email"
+                    name="Email"
+                    placeholder="Enter Email"
+                    value={formData.Email}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Address"
+                    variant="outlined"
+                    id="Address"
+                    name="Address"
+                    placeholder="Enter Address"
+                    value={formData.Address}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Department ID"
+                    variant="outlined"
+                    id="Dept_ID"
+                    name="Dept_ID"
+                    placeholder="Enter Department ID"
+                    value={formData.Dept_ID}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="SSN"
+                    variant="outlined"
+                    id="SSN"
+                    name="SSN"
+                    placeholder="Enter SSN"
+                    value={formData.SSN}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Date of Birth"
+                    variant="outlined"
+                    type="date"
+                    id="DOB"
+                    name="DOB"
+                    value={formData.DOB}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Date of Separation"
+                    variant="outlined"
+                    type="date"
+                    id="Date_Separation"
+                    name="Date_Separation"
+                    value={formData.Date_Separation}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
