@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { DataGrid } from '@mui/x-data-grid';
 import CreateStaff from './CreateStaff';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
+import Cookies from 'js-cookie';
+import { Add, Delete, Edit } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 function Staff({
     showCreateForm,
@@ -16,9 +21,16 @@ function Staff({
     const [filteredStaff, setFilteredStaff] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(7);
+    const token = Cookies.get('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/staff')
+      
+        axios.get('http://localhost:9004/api/staff', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
             .then(res => {
                 console.log("Staff data:", res.data);
                 setStaff(res.data);
@@ -26,16 +38,18 @@ function Staff({
             })
             .catch(err => console.error('Error fetching staff:', err));
 
-            
-        axios
-        .get('http://localhost:9004/api/department')
-        .then((res) => {
-            console.log("Patients data:", res.data);
-            setDepartments(res.data);
+        axios.get('http://localhost:9004/api/department', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         })
-        .catch((err) => console.error('Error fetching depatments:', err));
+            .then(res => {
+                console.log("Departments data:", res.data);
+                setDepartments(res.data);
+            })
+            .catch(err => console.error('Error fetching departments:', err));
 
-    }, []);
+    }, [token]);
 
     const handleUpdateButtonClick = (staffId) => {
         setSelectedStaffId(staffId);
@@ -51,7 +65,8 @@ function Staff({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/staff/delete/${deleteStaffId}`);
+           await axios.delete(`http://localhost:9004/api/staff/delete/${deleteStaffId}`);
+
             setStaff(staff.filter((data) => data.Emp_ID !== deleteStaffId));
             setFilteredStaff(filteredStaff.filter((data) => data.Emp_ID !== deleteStaffId));
             if (showCreateForm) {
@@ -72,189 +87,135 @@ function Staff({
     };
 
     const handleCloseCreateForm = () => {
-        setShowCreateForm(false); 
-    };
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-        setCurrentPage(1); 
+        setShowCreateForm(false);
     };
 
-    useEffect(() => {
-        const filtered = staff
-            .filter((item) =>
-                item.Email.toLowerCase().startsWith(searchQuery.toLowerCase())
+    
+
+    const getDepartmentName = (departmentId) => {
+        console.log("Department ID:", departmentId);
+        console.log("Departments:", departments);
+
+        const department = departments.find(dept => dept.Dept_ID === departmentId);
+        console.log("Found Department:", department);
+
+        if (department) {
+            return `${department.Dept_name}`;
+        } else {
+            return 'Unknown';
+        }
+    };
+
+    const columns = [
+        { field: 'Emp_ID', headerName: 'ID', width: 60 },
+        { field: 'Emp_Fname', headerName: 'First Name', width: 120 },
+        { field: 'Emp_Lname', headerName: 'Last Name', width: 120 },
+        {
+            field: 'Joining_Date',
+            headerName: 'Joining Date',
+            width: 150,
+        },
+        { field: 'Emp_type', headerName: 'Employee Type', width: 130 },
+        { field: 'Email', headerName: 'Email', width: 200 },
+        { field: 'Address', headerName: 'Address', width: 200 },
+        { field: 'Dept_ID', headerName: 'Department ID', width: 120 },
+        { field: 'SSN', headerName: 'SSN', width: 150 },
+        {
+            field: 'DOB',
+            headerName: 'Date of Birth',
+            width: 120,
+        },
+        {
+            field: 'Date_Separation',
+            headerName: 'Date of Separation',
+            width: 150,
+        },
+        {
+            field: 'update',
+            headerName: 'Update',
+            width: 100,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUpdateButtonClick(params.row.Emp_ID)}
+                    startIcon={<Edit />}
+                >
+                </Button>
             )
-            .sort((a, b) => b.Emp_ID - a.Emp_ID);
-    
-        setFilteredStaff(filtered);
-    
-    }, [searchQuery, staff, currentPage]);
-   
-    
+        },
+        {
+            field: 'delete',
+            headerName: 'Delete',
+            width: 100,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDelete(params.row.Emp_ID)}
+                    startIcon={<Delete />}
+                >
+                    Delete
+                </Button>
+            )
+        },
+        
 
-const indexOfLastRecord = currentPage * recordsPerPage; //1 * 10 = 10
-const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;//10-10 = 0
-const currentRecords = filteredStaff.slice(indexOfFirstRecord, indexOfLastRecord);
-
-// Change page
-const paginate = pageNumber => {
-    setCurrentPage(pageNumber);
-};
-
-const getDepartmentName = (departmentId) => { 
-    console.log("Department ID:", departmentId);
-    console.log("Departments:", departments);
-
-    const department = departments.find(dept => dept.Dept_ID === departmentId);
-    console.log("Found Department:", department);
-
-    if (department) {
-        return `${department.Dept_name}`;
-    } else {
-        return 'Unknown';
-    }
-};
+    ];
 
     return (
         <div className="container-fluid mt-4">
-            {/* Render staff deletion confirmation dialog */}
             {deleteStaffId && (
-                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-                    <div className="bg-white p-8 mx-auto rounded-lg">
-                        <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
-                        <p className="mb-4">Are you sure you want to delete this staff record?</p>
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
-                                onClick={handleDeleteConfirm}
-                            >
-                                Delete
-                            </button>
-                            <button
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-                                onClick={() => setDeleteStaffId(null)}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <Dialog
+                    open={!!deleteStaffId}
+                    onClose={() => setDeleteStaffId(null)}
+                >
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this staff record?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteStaffId(null)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteConfirm} color="secondary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             )}
 
-            {/* Conditionally render the "Add Insurance" button or "Close" button based on showCreateForm */}
-                {/* Add pagination controls */}
+            <Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Staff
+                </Typography>
                 {showCreateForm ? null : (
-                    <div>
-                        <button
-                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            style={{ borderRadius: '0.5rem' }}
-                            onClick={handleCreateFormToggle}
-                        >
-                            Add Staff
-                        </button>
-                    </div>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Staff
+                    </Button>
                 )}
+            </Box>
 
-                  {/* Pagination buttons and Add Insurance button */}
-                  <div className="mt-4">
-                    {/* Pagination buttons */}
-                    {filteredStaff.length > recordsPerPage && (
-                        <div className="flex justify-end">
-                        <div>
-                            {currentPage > 1 && (
-                                <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage - 1)}>Previous</button>
-                            )}
-                            {currentPage < Math.ceil(filteredStaff.length / recordsPerPage) && (
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage + 1)}>Next</button>
-                            )}
-                        </div>
-                        </div>
-                    )}
-                </div>
-    {/* Render CreateInsurance component only when showCreateForm is true */}
-    {showCreateForm && <CreateStaff onClose={() => setShowCreateForm(false)} />}
-        
-        {/* Search Input */}
-        <div className="mt-4">
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search by name..."
-            value={searchQuery}
-            onChange={handleSearchInputChange}
-            className="border border-gray-300 px-4 py-2 rounded-md"
-        />
+            {showCreateForm && <CreateStaff onClose={() => setShowCreateForm(false)} />}
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+                <DataGrid
+                    rows={staff}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Emp_ID}
+                />
+            </Box>
         </div>
-            
-
-            {/* Staff table */}
-           {/* Render Table */}
-<div className="table-responsive mt-4">
-    <div className="py-8">
-        <h2 className="text-2xl font-semibold leading-tight">Staff</h2>
-        <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-            <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full leading-normal">
-                    <thead>
-                        <tr>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Surname</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Joining Date</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Type</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Address</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Department</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">SSN</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DOB</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date of Separation</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentRecords.map((data, i) => (
-                            <tr key={i}>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_Fname}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_Lname}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Joining_Date}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_type}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Email}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Address}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{getDepartmentName(data.Dept_ID)}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.SSN}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.DOB}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Date_Separation}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                {showUpdateForm === data.Emp_ID ? (
-                                                    // If the update form is shown for this medicine, render nothing
-                                                    null
-                                                ) : (
-                                    <button
-                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                        onClick={() => handleUpdateButtonClick(data.Emp_ID)}
-                                    >
-                                        Update
-                                    </button>
-                                                )}
-                                </td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <button
-                                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                                        onClick={() => handleDelete(data.Emp_ID)}
-                                    >
-                                                     Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    
+    );
 }
+
 export default Staff;

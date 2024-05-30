@@ -1,6 +1,7 @@
-// backend/routes/StaffRoutes.js
-
 const express = require("express");
+const router = express.Router();
+const { authenticateToken } = require('../middleware/authMiddleware');
+
 const {
   
     FindAllStaff,
@@ -10,15 +11,15 @@ const {
     DeleteStaff,
     CheckStaffExistence
 } = require("../controllers/StaffController");
-const { authenticateToken } = require('../middleware/authMiddleware');
 
-const router = express.Router();
 
-router.get("/staff", FindAllStaff);
-router.get("/staff/:id", FindSingleStaff);
-router.post("/staff/create", AddStaff);
-router.put("/staff/update/:id", UpdateStaff);
+
+
+router.get("/staff", authenticateToken(['admin','doctor', 'receptionist']),FindAllStaff);
+router.get("/staff/:id",authenticateToken(['admin','doctor', 'receptionist']), FindSingleStaff);
+router.post("/staff/create",authenticateToken(['admin','doctor', 'receptionist']), AddStaff);
+router.put("/staff/update/:id",authenticateToken(['admin','doctor', 'receptionist']), UpdateStaff);
 router.delete("/staff/delete/:id", DeleteStaff);
-router.get('/staff/check/:id', CheckStaffExistence); 
+router.get('/staff/check/:id',authenticateToken(['admin','doctor', 'receptionist']), CheckStaffExistence); 
 
 module.exports = router;
