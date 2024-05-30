@@ -1,39 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import ErrorModal from '../../../components/ErrorModal'; 
-import Cookies from 'js-cookie'; // Import js-cookie
+import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
+
 function UpdateMedicalHistory({ id, onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
         Allergies: '',
         Pre_Conditions: '',
-    
     });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const token = Cookies.get('token'); // Retrieve the token from localStorage
-
+    const [originalData, setOriginalData] = useState({});
+    const [patients, setPatients] = useState([]);
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/medicalhistory/${id}`,
-                {
+                const response = await axios.get(`http://localhost:9004/api/medicalhistory/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                }
-                );
+                });
                 const data = response.data;
                 setFormData(data);
+                setOriginalData(data);
             } catch (error) {
-                console.error('Error fetching medicalhistory:', error);
-                showAlert('Error fetching medicalhistory details.');
+                console.error('Error fetching medical history:', error);
+                showAlert('Error fetching medical history details.');
             }
         };
 
         fetchData();
-    }, [id]);
+    }, [id, token]);
+
+    useEffect(() => {
+        fetchPatients();
+    }, []);
+
+    const fetchPatients = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/patient', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setPatients(response.data);
+        } catch (error) {
+            console.error('Error fetching patients:', error);
+        }
+    };
 
     const showAlert = (message) => {
         setAlertMessage(message);
@@ -50,42 +67,55 @@ function UpdateMedicalHistory({ id, onClose }) {
 
     const handleUpdateMedicalHistory = async () => {
         try {
-            await axios.put(`http://localhost:9004/api/medicalhistory/update/${id}`, formData,
-            {
+            const { Allergies, Pre_Conditions } = formData;
+
+            if (!Allergies.trim() || !Pre_Conditions.trim()) {
+                showAlert('All fields are required.');
+                return;
+            }
+
+            if (
+                Allergies === originalData.Allergies &&
+                Pre_Conditions === originalData.Pre_Conditions
+            ) {
+                showAlert("Data must be changed before updating.");
+                return;
+            }
+
+            await axios.put(`http://localhost:9004/api/medicalhistory/update/${id}`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            }
-            );
+            });
             onClose(); // Close the modal after updating
             window.location.reload(); // Reload the page
         } catch (error) {
-            console.error('Error updating medicalhistory:', error);
-            showAlert('Error updating medicalhistory.');
+            console.error('Error updating medical history:', error);
+            showAlert('Error updating medical history.');
         }
+    };
+
+    const closeErrorModal = () => {
+        setShowErrorModal(false);
     };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
             <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
                 <h1 className="text-lg font-bold mb-4">Update Medical History</h1>
-                {/* Patient ID */}
                 <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient ID:</label>
+                    <label htmlFor='Patient_ID'>Patient Name:</label>
                     <input
-                        type='number'
+                        type='text'
                         name='Patient_ID'
-                        placeholder='Enter Patient ID'
+                        placeholder='Enter Patient Name'
                         className='form-control w-full'
-                        value={formData.Patient_ID}
-                        onChange={handleChange}
+                        value={`${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Fname} ${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Lname}`}
+                        readOnly
                     />
                 </div>
-                 {/* Allergies */}
-                 <div className='mb-2'>
+                <div className='mb-2'>
                     <label htmlFor='Allergies'>Allergies:</label>
                     <input
                         type='text'
@@ -96,7 +126,6 @@ function UpdateMedicalHistory({ id, onClose }) {
                         onChange={handleChange}
                     />
                 </div>
-                {/* Pre Conditions */}
                 <div className='mb-2'>
                     <label htmlFor='Pre_Conditions'>Pre Conditions:</label>
                     <input
@@ -114,7 +143,7 @@ function UpdateMedicalHistory({ id, onClose }) {
                     </button>
                     <button
                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
+                        onClick={onClose}
                     >
                         Cancel
                     </button>
