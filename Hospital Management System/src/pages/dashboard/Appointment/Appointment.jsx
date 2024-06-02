@@ -2,18 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateAppointment from './CreateAppointment';
-import {
-    Button,
-    TextField,
-    Box,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
+
 
 function Appointment({
     showCreateForm,
@@ -114,8 +106,9 @@ function Appointment({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Appoint_ID)}
+                    startIcon={<Edit />}
                 >
-                    Update
+                
                 </Button>
             ),
         },
@@ -128,8 +121,9 @@ function Appointment({
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Appoint_ID)}
+                    startIcon={<Delete />}
                 >
-                    Delete
+                  
                 </Button>
             ),
         }
@@ -159,44 +153,41 @@ function Appointment({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                    Add Appointment
-                </Button>
-            )}
+
+
+<Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Appointments
+                </Typography>
+                {showCreateForm ? null : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Appointment
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateAppointment onClose={() => setShowCreateForm(false)} />}
-            
-            <Box mt={4}>
-                <TextField
-                    label="Search by Patient or Doctor Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+                <DataGrid
+                    rows={appointments}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Appoint_ID}
                 />
-            </Box>
-            
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
-                {isDataLoaded && (
-                    <DataGrid
-                        rows={filteredAppointments}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10]}
-                        getRowId={(row) => row.Appoint_ID}
-                        autoHeight
-                        hideFooterSelectedRowCount
-                    />
-                )}
             </Box>
         </div>
     );
 }
 
 export default Appointment;
+
+
+
+

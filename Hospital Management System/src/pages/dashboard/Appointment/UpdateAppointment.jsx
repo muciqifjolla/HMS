@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
+
 import Cookies from 'js-cookie';
 
 function UpdateAppointment({ id, onClose }) {
@@ -87,7 +89,7 @@ function UpdateAppointment({ id, onClose }) {
         }));
     };
 
-    const handleUpdateAppointment = async () => {
+    const handleValidation = async () => {
         const { Patient_ID, Doctor_ID, Date, Time, Scheduled_On } = formData;
 
         if (!Patient_ID || !Doctor_ID || !Date || !Time || !Scheduled_On) {
@@ -118,86 +120,99 @@ function UpdateAppointment({ id, onClose }) {
         setShowErrorModal(false);
     };
 
+   
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
-                <h1 className="text-lg font-bold mb-4">Update Appointment</h1>
-                
-                <div className='mb-2'>
-                <label htmlFor='Patient_ID'>Patient Name:</label>
-                    <input
-                        type='text'
-                        name='Patient_ID'
-                        placeholder='Enter Patient Name'
-                        className='form-control w-full'
-                        value={`${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Fname} ${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Lname}`}
-                        readOnly
-                    />
-                </div>
-
-                <div className='mb-2'>
-    <label htmlFor='Doctor_ID'>Doctor Name:</label>
-    <input
-        type='text'
-        name='Doctor_ID'
-        placeholder='Enter Doctor Name'
-        className='form-control w-full'
-        value={`${staff.find(staffMember => staffMember.Emp_ID === formData.Doctor_ID)?.Emp_Fname} ${staff.find(staffMember => staffMember.Emp_ID === formData.Doctor_ID)?.Emp_Lname}`}
-        readOnly
-    />
-</div>
-
-                <div className='mb-2'>
-                    <label htmlFor='Date'>Date:</label>
-                    <input
-                        type='date'
-                        id='Date'
-                        name='Date'
-                        className='form-control'
-                        value={formData.Date}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="patient-select-label">Patient</InputLabel>
+                    <Select
+                        labelId="patient-select-label"
+                        id="visitPatientID"
+                        name="Patient_ID"
+                        value={formData.Patient_ID}
                         onChange={handleChange}
-                    />
-                </div>
-
-                <div className='mb-2'>
-                    <label htmlFor='Time'>Time:</label>
-                    <input
-                        type='time'
-                        id='Time'
-                        name='Time'
-                        className='form-control'
-                        value={formData.Time}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div className='mb-2'>
-                    <label htmlFor='Scheduled_On'>Scheduled On:</label>
-                    <input
-                        type='datetime-local'
-                        id='Scheduled_On'
-                        name='Scheduled_On'
-                        className='form-control'
-                        value={formData.Scheduled_On}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div className="flex justify-end">
-                    <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateAppointment}>
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
+                        label="Patient"
+                        disabled
                     >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+                        <MenuItem value=""><em>Select Patient</em></MenuItem>
+                        {patients.map(patient => (
+                            <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                <InputLabel id="doctor-select-label">Doctor</InputLabel>
+                <Select
+                    labelId="doctor-select-label"
+                    id="visitDoctorID"
+                    name="Doctor_ID"
+                    value={formData.Doctor_ID}
+                    onChange={handleChange}
+                    label="Doctor"
+                    disabled
+                >
+                    <MenuItem value=""><em>Select Doctor</em></MenuItem>
+                    {doctors.map(doctor => (
+                        <MenuItem key={doctor.Doctor_ID} value={doctor.Doctor_ID}>
+                            {`${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}`}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+    
+            {/* Date */}
+            <TextField
+                fullWidth
+                margin="normal"
+                label="Date"
+                variant="outlined"
+                type="date"
+                id="Date"
+                name="Date"
+                value={formData.Date}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+            />
+            {/* Time */}
+            <TextField
+                fullWidth
+                margin="normal"
+                label="Time"
+                variant="outlined"
+                type="time"
+                id="Time"
+                name="Time"
+                value={formData.Time}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+            />
+             <TextField
+                fullWidth
+                margin="normal"
+                label="Scheduled_On"
+                variant="outlined"
+                type="datetime-local"
+                id="Scheduled_On"
+                name="Scheduled_On"
+                value={formData.Scheduled_On}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+            />
+
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                <Button variant="outlined" onClick={onClose}>Cancel</Button>
+            </Box>
+        </Box>
+    </Modal>
+);
 }
+
 
 export default UpdateAppointment;

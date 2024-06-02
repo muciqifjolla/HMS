@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
+
 import Cookies from 'js-cookie';
 
 function UpdateBill({ id, onClose }) {
@@ -67,7 +69,7 @@ function UpdateBill({ id, onClose }) {
         }));
     };
 
-    const handleUpdateBill = async () => {
+    const handleValidation = async () => {
         try {
             const { Amount, Payment_Status, Description, Date_Issued } = formData;
 
@@ -104,82 +106,92 @@ function UpdateBill({ id, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
-                <h1 className="text-lg font-bold mb-4">Update Bill</h1>
-                <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient Name:</label>
-                    <input
-                        type='text'
-                        name='Patient_ID'
-                        placeholder='Enter Patient Name'
-                        className='form-control w-full'
-                        value={`${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Fname} ${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Lname}`}
-                        readOnly
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Amount'>Amount:</label>
-                    <input
-                        type='text'
-                        name='Amount'
-                        placeholder='Enter Amount'
-                        className='form-control w-full'
-                        value={formData.Amount}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="patient-select-label">Patient</InputLabel>
+                    <Select
+                        labelId="patient-select-label"
+                        id="visitPatientID"
+                        name="Patient_ID"
+                        value={formData.Patient_ID}
                         onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Payment_Status'>Payment Status:</label>
-                    <select
-                        name='Payment_Status'
-                        className='form-control w-full'
-                        value={formData.Payment_Status}
-                        onChange={handleChange}
+                        label="Patient"
+                        disabled
                     >
-                        <option value=''>Select Payment Status</option>
-                        <option value='Paid'>Pending</option>
-                        <option value='Pending'>Paid</option>
-                        <option value='Overdue'>Failed</option>
-                        {/* Add more options if needed */}
-                    </select>
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Description'>Description:</label>
-                    <input
-                        type='text'
-                        name='Description'
-                        placeholder='Enter Description'
-                        className='form-control w-full'
-                        value={formData.Description}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Date_Issued'>Date Issued:</label>
-                    <input
-                        type='date'
-                        name='Date_Issued'
-                        className='form-control w-full'
-                        value={formData.Date_Issued}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateBill}>
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+                        <MenuItem value=""><em>Select Patient</em></MenuItem>
+                        {patients.map(patient => (
+                            <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+              {/* Date Issued */}
+               <TextField
+                fullWidth
+                margin="normal"
+                label="Date Issued"
+                variant="outlined"
+                type="date"
+                id="Date_Issued"
+                name="Date_Issued"
+                value={formData.Date_Issued}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+            />
+        {/* Description */}
+        <TextField
+                fullWidth
+                margin="normal"
+                label="Description"
+                variant="outlined"
+                id="Description"
+                name="Description"
+                placeholder="Enter Description"
+                value={formData.Description}
+                onChange={handleChange}
+            />
+           
+            {/* Amount */}
+            <TextField
+                fullWidth
+                margin="Amount"
+                label="Amount"
+                variant="outlined"
+                type="number"
+                id="Amount"
+                name="Amount"
+                value={formData.Amount}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+            />
+            
+            {/* Payment Status */}
+            <FormControl fullWidth variant="outlined" margin="normal">
+                <InputLabel id="blood-type-select-label">Payment Status</InputLabel>
+                <Select
+                    labelId="payment-status-select-label"
+                    id="Payment_Status"
+                    name="Payment_Status"
+                    value={formData.Payment_Status}
+                    onChange={handleChange}
+                    label="Payment Status"
+                >
+                    <MenuItem value=""><em>Select Payment Status</em></MenuItem>
+                    <MenuItem value="Pending+">Pending</MenuItem>
+                    <MenuItem value="Paid-">Paid</MenuItem>
+                    <MenuItem value="Failed+">Failed</MenuItem>
+                </Select>
+            </FormControl>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                <Button variant="outlined" onClick={onClose}>Cancel</Button>
+            </Box>
+        </Box>
+    </Modal>
+);
 }
-
 export default UpdateBill;

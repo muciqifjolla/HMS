@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import CreateBill from './CreateBill';
 
 
@@ -85,10 +85,10 @@ function Bill({
     const columns = [
         { field: 'Bill_ID', headerName: 'ID', width: 100 },
         { field: 'Patient_Name', headerName: 'Patient Name', width: 200 },
-        { field: 'Date_Issued', headerName: 'Date Issued', width: 200 },
-        { field: 'Description', headerName: 'Description', width: 200 },
-        { field: 'Amount', headerName: 'Amount', width: 200 },
-        { field: 'Payment_Status', headerName: 'Payment Status', width: 200 },
+        { field: 'Date_Issued', headerName: 'Date Issued', width: 150 },
+        { field: 'Description', headerName: 'Description', width: 150 },
+        { field: 'Amount', headerName: 'Amount', width: 150 },
+        { field: 'Payment_Status', headerName: 'Payment Status', width: 150 },
         {
             field: 'update',
             headerName: 'Update',
@@ -98,9 +98,10 @@ function Bill({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Bill_ID)}
-                    startIcon={<Update />}
+                    startIcon={<Edit />}
+
                 >
-                    Update
+                
                 </Button>
             )
         },
@@ -115,7 +116,7 @@ function Bill({
                     onClick={() => handleDelete(params.row.Bill_ID)}
                     startIcon={<Delete />}
                 >
-                    Delete
+                  
                 </Button>
             )
         }
@@ -145,44 +146,43 @@ function Bill({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                    Create Bill
-                </Button>
-            )}
+<Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Bills
+                </Typography>
+                {showCreateForm ? null : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Bill
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateBill onClose={() => setShowCreateForm(false)} />}
-            
-            <Box mt={4}>
-                <TextField
-                    label="Search by Patient Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+                <DataGrid
+                    rows={bills}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Bill_ID}
                 />
-            </Box>
-            
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
-                {isDataLoaded && (
-                    <DataGrid
-                        rows={filteredBills}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10]}
-                        getRowId={(row) => row.Bill_ID}
-                        autoHeight
-                        hideFooterSelectedRowCount
-                    />
-                )}
             </Box>
         </div>
     );
 }
 
 export default Bill;
+
+
+
+
+
+
+
+

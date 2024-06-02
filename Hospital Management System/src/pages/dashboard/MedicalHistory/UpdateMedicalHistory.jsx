@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import Cookies from 'js-cookie';
 
 function UpdateMedicalHistory({ id, onClose }) {
@@ -65,7 +66,7 @@ function UpdateMedicalHistory({ id, onClose }) {
         }));
     };
 
-    const handleUpdateMedicalHistory = async () => {
+    const handleValidation= async () => {
         try {
             const { Allergies, Pre_Conditions } = formData;
 
@@ -99,58 +100,62 @@ function UpdateMedicalHistory({ id, onClose }) {
         setShowErrorModal(false);
     };
 
-    return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
-                <h1 className="text-lg font-bold mb-4">Update Medical History</h1>
-                <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient Name:</label>
-                    <input
-                        type='text'
-                        name='Patient_ID'
-                        placeholder='Enter Patient Name'
-                        className='form-control w-full'
-                        value={`${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Fname} ${patients.find(patient => patient.Patient_ID === formData.Patient_ID)?.Patient_Lname}`}
-                        readOnly
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Allergies'>Allergies:</label>
-                    <input
-                        type='text'
-                        name='Allergies'
-                        placeholder='Enter Allergies'
-                        className='form-control w-full'
-                        value={formData.Allergies}
+    return(
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="patient-select-label">Patient</InputLabel>
+                    <Select
+                        labelId="patient-select-label"
+                        id="visitPatientID"
+                        name="Patient_ID"
+                        value={formData.Patient_ID}
                         onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Pre_Conditions'>Pre Conditions:</label>
-                    <input
-                        type='text'
-                        name='Pre_Conditions'
-                        placeholder='Enter Pre Conditions'
-                        className='form-control w-full'
-                        value={formData.Pre_Conditions}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateMedicalHistory}>
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
+                        label="Patient"
+                        disabled
                     >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+                        <MenuItem value=""><em>Select Patient</em></MenuItem>
+                        {patients.map(patient => (
+                            <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+         {/* Allergies */}
+         <TextField
+                fullWidth
+                margin="normal"
+                label="Allergies"
+                variant="outlined"
+                id="allergies"
+                name="Allergies"
+                placeholder="Enter Allergies"
+                value={formData.Allergies}
+                onChange={handleChange}
+            />
+            
+            {/* Pre Conditions */}
+            <TextField
+                fullWidth
+                margin="normal"
+                label="Pre_Conditions"
+                variant="outlined"
+                id="Pre_Conditions"
+                name="Pre_Conditions"
+                placeholder="Enter Diagnosis"
+                value={formData.Pre_Conditions}
+                onChange={handleChange}
+            />
+           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                <Button variant="outlined" onClick={onClose}>Cancel</Button>
+            </Box>
+        </Box>
+    </Modal>
+);
 }
 
 export default UpdateMedicalHistory;
