@@ -18,7 +18,6 @@ function Bill({
     const [deleteBillId, setDeleteBillId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [patients, setPatients] = useState([]);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -29,25 +28,15 @@ function Bill({
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                const patientsRes = await axios.get('http://localhost:9004/api/patient', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const patientsData = patientsRes.data;
-
-                const billsDataWithNames = billRes.data.map(bill => {
-                    const patient = patientsData.find(pat => pat.Patient_ID === bill.Patient_ID);
+                const billsDataWithNames = billRes.data.map(res => {
+                    const patient = res.Patient;                    
                     return {
-                        ...bill,
+                        ...res,
                         Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
                     };
                 });
 
                 setBills(billsDataWithNames);
-                setPatients(patientsData);
                 setIsDataLoaded(true);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -88,8 +77,8 @@ function Bill({
         setSearchQuery(event.target.value);
     };
 
-    const filteredBills = bills.filter((bill) => {
-        const patientName = bill.Patient_Name.toLowerCase();
+    const filteredBills = bills.filter((res) => {
+        const patientName = res.Patient_Name.toLowerCase();
         return patientName.startsWith(searchQuery.toLowerCase());
     });
 

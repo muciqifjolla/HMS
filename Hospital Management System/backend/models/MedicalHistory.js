@@ -1,5 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Patient = require('./Patient');
+
 
 const MedicalHistory = sequelize.define('MedicalHistory', {
    Record_ID: {
@@ -7,12 +9,13 @@ const MedicalHistory = sequelize.define('MedicalHistory', {
         primaryKey: true,
         autoIncrement: true,
       },
-    
-
     Patient_ID: {
         type: DataTypes.INTEGER,
-        primaryKey: true,
         allowNull: false,
+        references: {
+            model: Patient,
+            key: 'Patient_ID'
+        }
     },
     Allergies: {
         type: DataTypes.STRING,
@@ -26,5 +29,8 @@ const MedicalHistory = sequelize.define('MedicalHistory', {
     tableName: 'medical_history',
     timestamps: false,
 });
+
+MedicalHistory.belongsTo(Patient, { foreignKey: 'Patient_ID' });
+
 
 module.exports = MedicalHistory;

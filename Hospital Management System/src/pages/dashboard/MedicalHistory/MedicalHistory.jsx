@@ -17,7 +17,6 @@ function MedicalHistory({
     const [deleteMedicalHistoryId, setDeleteMedicalHistoryId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [patients, setPatients] = useState([]);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -28,25 +27,15 @@ function MedicalHistory({
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                const patientsRes = await axios.get('http://localhost:9004/api/patient', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const patientsData = patientsRes.data;
-
-                const medicalHistorysDataWithNames = medicalHistoryRes.data.map(contact => {
-                    const patient = patientsData.find(pat => pat.Patient_ID === contact.Patient_ID);
+                const medicalHistorysDataWithNames = medicalHistoryRes.data.map(res => {
+                    const patient = res.Patient;
                     return {
-                        ...contact,
+                        ...res,
                         Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
                     };
                 });
 
                 setMedicalHistorys(medicalHistorysDataWithNames);
-                setPatients(patientsData);
                 setIsDataLoaded(true);
             } catch (err) {
                 console.error('Error fetching data:', err);
@@ -87,8 +76,8 @@ function MedicalHistory({
         setSearchQuery(event.target.value);
     };
 
-    const filteredMedicalHistorys = medicalHistorys.filter((contact) => {
-        const patientName = contact.Patient_Name.toLowerCase();
+    const filteredMedicalHistorys = medicalHistorys.filter((res) => {
+        const patientName = res.Patient_Name.toLowerCase();
         return patientName.startsWith(searchQuery.toLowerCase());
     });
 
