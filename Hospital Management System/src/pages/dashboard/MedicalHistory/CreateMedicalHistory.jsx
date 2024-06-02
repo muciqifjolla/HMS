@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
@@ -87,71 +88,60 @@ function CreateMedicalHistory({ onClose }) {
         setShowErrorModal(true);
     };
 
-    return (
-        <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
-            <div className='bg-white p-8 mx-auto rounded-lg w-96'>
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className='text-lg font-bold mb-4'>Add Medical History</h1>
-                {/* Patient ID */}
-                <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient:</label>
-                    <select
-                        id='Patient_ID'
-                        name='Patient_ID'
-                        className='form-control'
-                        value={formData.Patient_ID}
-                        onChange={handleChange}
-                    >
-                        <option value=''>Select Patient</option>
-                        {patients.map(patient => (
-                            <option key={patient.Patient_ID} value={patient.Patient_ID}>
-                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                {/* Allergies */}
-                <div className='mb-2'>
-                    <label htmlFor='Allergies'>Allergies:</label>
-                    <input
-                        type='text'
-                        name='Allergies'
-                        placeholder='Enter Allergies'
-                        className='form-control w-full'
-                        value={formData.Allergies}
-                        onChange={handleChange}
-                    />
-                </div>
+    return(
+            <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+                <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                    {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                    <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                    <FormControl fullWidth variant="outlined" margin="normal">
+                        <InputLabel id="patient-select-label">Patient</InputLabel>
+                        <Select
+                            labelId="patient-select-label"
+                            id="visitPatientID"
+                            name="Patient_ID"
+                            value={formData.Patient_ID}
+                            onChange={handleChange}
+                            label="Patient"
+                        >
+                            <MenuItem value=""><em>Select Patient</em></MenuItem>
+                            {patients.map(patient => (
+                                <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                    {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+             {/* Allergies */}
+             <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Allergies"
+                    variant="outlined"
+                    id="allergies"
+                    name="Allergies"
+                    placeholder="Enter Allergies"
+                    value={formData.Allergies}
+                    onChange={handleChange}
+                />
+                
                 {/* Pre Conditions */}
-                <div className='mb-2'>
-                    <label htmlFor='Pre_Conditions'>Pre Conditions:</label>
-                    <input
-                        type='text'
-                        name='Pre_Conditions'
-                        placeholder='Enter Pre Conditions'
-                        className='form-control w-full'
-                        value={formData.Pre_Conditions}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='flex justify-end'>
-                    <button
-                        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className='bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded'
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Pre_Conditions"
+                    variant="outlined"
+                    id="Pre_Conditions"
+                    name="Pre_Conditions"
+                    placeholder="Enter Diagnosis"
+                    value={formData.Pre_Conditions}
+                    onChange={handleChange}
+                />
+               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

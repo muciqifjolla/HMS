@@ -2,38 +2,37 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../../../components/ErrorModal';
-import Cookies from 'js-cookie'; // Import js-cookie
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
+import Cookies from 'js-cookie';
+
 function CreateBill({ onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
-        Room_ID: '',
-        Medicine_ID: '',
-        DATE: '',
-        Other_charges: '',
+        Date_Issued: '',
+        Description: '',
+        Amount: '',
+        Payment_Status: '',
     });
-
-    const [bills, setBills] = useState([]);
+    const [patients, setPatients] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const token = Cookies.get('token');
     const navigate = useNavigate();
-    const token = Cookies.get('token');  // Retrieve the token from localStorage
-
 
     useEffect(() => {
-        // Fetch existing medicines when component mounts
-        fetchBills();
+        fetchPatients();
     }, []);
 
-    const fetchBills = async () => {
+    const fetchPatients = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/bills',{
+            const response = await axios.get('http://localhost:9004/api/patient', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setBills(response.data);
+            setPatients(response.data);
         } catch (error) {
-            console.error('Error fetching medicines:', error);
+            console.error('Error fetching patients:', error);
         }
     };
 
@@ -45,134 +44,138 @@ function CreateBill({ onClose }) {
         }));
     };
 
-    const handleAddBills = async () => {
+    const handleAddBill = async () => {
         try {
-            await axios.post('http://localhost:9004/api/bills/create', formData,{
+            await axios.post('http://localhost:9004/api/bills/create', formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
             navigate('/dashboard/bills');
-            window.location.reload(); // Refresh the page after successful submission
+            window.location.reload(); // Refresh after successful addition
         } catch (error) {
-            console.error('Error adding medicine:', error);
+            console.error('Error adding Bill:', error);
+            showAlert(error.response?.data?.message || 'Error adding bill. Please try again.');
         }
     };
 
-    const handleValidation = () => {
-        const {
-            Patient_ID,
-            Room_ID,
-            Medicine_ID,
-            DATE,
-            Other_charges,
-        } = formData;
+    const handleValidation = async () => {
+        const { Patient_ID, Date_Issued, Description, Amount, Payment_Status } = formData;
 
-        if (Patient_ID === '' || Room_ID === '' || Medicine_ID === '' || DATE === '' || Other_charges === '') {
-            showAlert('All fields are required!');
+        if (Patient_ID === '' || Date_Issued === '' || Description === '' || Amount === '' || Payment_Status === '') {
+            showAlert('All fields are required');
             return;
         }
-       
-        // Proceed with form submission after successful validation
-        handleAddBills();
+
+        if (parseInt(Patient_ID) < 1) {
+            showAlert('Patient ID cannot be less than 1');
+            return;
+        }
+
+        try {
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            handleAddBill();
+        } catch (error) {
+            console.error('Error checking patient ID:', error);
+            showAlert('Patient ID does not exist');
+        }
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        // Automatically hide the error modal after 3 seconds
-        // setTimeout(() => {
-        //     setAlertMessage('');
-        //     setShowErrorModal(false);
-        // }, 3000);
     };
 
     return (
-        <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
-            <div className='bg-white p-8 mx-auto rounded-lg w-96'>
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className='text-lg font-bold mb-4'>Add Bill</h1>
-                {/* Patient ID */}
-                <div className='mb-2'>
-                    <label htmlFor='Patient_ID'>Patient ID:</label>
-                    <input
-                        type='number'
-                        name='Patient_ID'
-                        placeholder='Enter Patient ID'
-                        className='form-control w-full'
-                        value={formData.Patient_ID}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Room_ID */}
-                <div className='mb-2'>
-                    <label htmlFor='Room_ID'>Room ID:</label>
-                    <input
-                        type='text'
-                        name='Room_ID'
-                        placeholder='Enter Room ID'
-                        className='form-control w-full'
-                        value={formData.Room_ID}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* Medicine_ID */}
-                <div className='mb-2'>
-                    <label htmlFor='Medicine_ID'>Medicine ID:</label>
-                    <input
-                        type='text'
-                        name='Medicine_ID'
-                        placeholder='Enter Medicine ID'
-                        className='form-control w-full'
-                        value={formData.Medicine_ID}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Date */}
-                <div className='mb-2'>
-                    <label htmlFor='Date'>Date:</label>
-                    <input
-                        type='date'
-                        name='DATE'
-                        placeholder='Enter Date'
-                        className='form-control w-full'
-                        value={formData.DATE}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Other_charges */}
-                <div className='mb-2'>
-                    <label htmlFor='Other_charges'>Other Charges:</label>
-                    <input
-                        type='number'
-                        name='Other_charges'
-                        placeholder='Enter Other Charges'
-                        className='form-control w-full'
-                        value={formData.Other_charges}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='flex justify-end'>
-                    <button
-                        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
+            <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+                <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                    {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                    <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                    <FormControl fullWidth variant="outlined" margin="normal">
+                        <InputLabel id="patient-select-label">Patient</InputLabel>
+                        <Select
+                            labelId="patient-select-label"
+                            id="visitPatientID"
+                            name="Patient_ID"
+                            value={formData.Patient_ID}
+                            onChange={handleChange}
+                            label="Patient"
                         >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                            <MenuItem value=""><em>Select Patient</em></MenuItem>
+                            {patients.map(patient => (
+                                <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                    {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+      {/* Date Issued */}
+      <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Date Issued"
+                    variant="outlined"
+                    type="date"
+                    id="Date_Issued"
+                    name="Date_Issued"
+                    value={formData.Date_Issued}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+            {/* Description */}
+            <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Description"
+                    variant="outlined"
+                    id="Description"
+                    name="Description"
+                    placeholder="Enter Description"
+                    value={formData.Description}
+                    onChange={handleChange}
+                />
+               
+                {/* Amount */}
+                <TextField
+                    fullWidth
+                    margin="Amount"
+                    label="Amount"
+                    variant="outlined"
+                    type="number"
+                    id="Amount"
+                    name="Amount"
+                    value={formData.Amount}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
+                
+                {/* Payment Status */}
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="blood-type-select-label">Payment Status</InputLabel>
+                    <Select
+                        labelId="payment-status-select-label"
+                        id="Payment_Status"
+                        name="Payment_Status"
+                        value={formData.Payment_Status}
+                        onChange={handleChange}
+                        label="Payment Status"
+                    >
+                        <MenuItem value=""><em>Select Payment Status</em></MenuItem>
+                        <MenuItem value="Pending">Pending</MenuItem>
+                        <MenuItem value="Paid">Paid</MenuItem>
+                        <MenuItem value="Failed">Failed</MenuItem>
+                    </Select>
+                </FormControl>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
-
 export default CreateBill;

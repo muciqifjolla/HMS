@@ -2,6 +2,8 @@ require('dotenv').config(); // Load environment variables from .env file
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Role = require('../models/Role');
+const UserRole = require('../models/UserRole');
 const nodemailer = require('nodemailer');
 const generateRandomToken = require('../tokenUtils'); // Import the utility function
 const generateDynamicJwtToken = require('../JWTUtils');  // Import the utility function
@@ -136,7 +138,7 @@ const getExpirationTimeJWT = () => {
 const loginUser = async (req, res) => {
     try {
         const { username, password } = req.body;
-        const user = await User.findOne({ where: { username } });
+        const user = await User.findOne({ where: { username }, include: UserRole});
 
         if (!user) {
             return res.status(401).json({ message: 'User does not exist' });
@@ -147,9 +149,17 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Incorrect password' });
         }
+        
+        
+        let roleName = null;
+        if (user.UserRoles.length > 0) {
+            const roleId = user.UserRoles[0].role_id;
+            const role = await Role.findByPk(roleId);
+            roleName = role ? role.role_name : null;
+        }
 
         const token = jwt.sign(
-            { userId: user.user_id, username: user.username, email: user.email, role: user.role },
+            { userId: user.user_id, username: user.username, email: user.email, role: roleName },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -216,7 +226,16 @@ const registerUser = async (req, res) => {
             email,
             username,
             password: hashedPassword,
-            role, // Default role for new users
+        });
+
+        const defaultRole = await Role.findOne({ where: { role_name: 'patient' } });
+        if (!defaultRole) {
+            return res.status(500).json({ message: 'Default role not found' });
+        }
+
+        await UserRole.create({
+            user_id: newUser.user_id,
+            role_id: defaultRole.role_id,
         });
 
         // Generate JWT token
@@ -256,4 +275,6 @@ LIFELINE Hospital Team`
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+
 module.exports = { loginUser, registerUser, setExpirationTimer, getExpirationTime, setJwtExpirationTimer, getExpirationTimeJWT};

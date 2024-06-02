@@ -1,8 +1,13 @@
 const MedicalHistory = require('../models/MedicalHistory');
+const Patient = require('../models/Patient');
 
 const FindAllMedicalHistorys = async (req, res) => {
     try {
-        const medicalHistories = await MedicalHistory.findAll();
+        const medicalHistories = await MedicalHistory.findAll({
+            include: {
+                model: Patient
+            },
+        });
         res.json(medicalHistories);
     } catch (error) {
         console.error('Error fetching all medical histories:', error);

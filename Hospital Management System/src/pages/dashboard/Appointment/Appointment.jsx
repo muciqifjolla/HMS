@@ -2,18 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateAppointment from './CreateAppointment';
-import {
-    Button,
-    TextField,
-    Box,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import Cookies from 'js-cookie';
-import { Add } from '@mui/icons-material';
+
 
 function Appointment({
     showCreateForm,
@@ -26,9 +18,6 @@ function Appointment({
     const [deleteAppointmentId, setDeleteAppointmentId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [patients, setPatients] = useState([]);
-    const [doctors, setDoctors] = useState([]);
-    const [staff, setStaff] = useState([]);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -39,52 +28,25 @@ function Appointment({
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                const patientsRes = await axios.get('http://localhost:9004/api/patient', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const doctorsRes = await axios.get('http://localhost:9004/api/doctor', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const staffRes = await axios.get('http://localhost:9004/api/staff', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const patientsData = patientsRes.data;
-                const doctorsData = doctorsRes.data;
-                const staffData = staffRes.data;
-
                 const appointmentsDataWithNames = appointmentsRes.data.map(appointment => {
-                    const patient = patientsData.find(pat => pat.Patient_ID === appointment.Patient_ID);
-                    const doctor = doctorsData.find(doc => doc.Doctor_ID === appointment.Doctor_ID);
-                    const doctorStaff = doctor ? staffData.find(st => st.Emp_ID === doctor.Emp_ID) : null;
+                    const patient = appointment.Patient;
+                    const doctor = appointment.Doctor.Staff;
                     return {
                         ...appointment,
                         Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown',
-                        Doctor_Name: doctorStaff ? `${doctorStaff.Emp_Fname} ${doctorStaff.Emp_Lname}` : 'Unknown'
+                        Doctor_Name: doctor ? `${doctor.Emp_Fname} ${doctor.Emp_Lname}` : 'Unknown'
                     };
                 });
-
                 setAppointments(appointmentsDataWithNames);
-                setPatients(patientsData);
-                setDoctors(doctorsData);
-                setStaff(staffData);
                 setIsDataLoaded(true);
             } catch (err) {
                 console.error('Error fetching data:', err);
             }
         };
-
+    
         fetchData();
     }, [token]);
+    
 
     const handleUpdateButtonClick = (appointmentId) => {
         setSelectedAppointmentId(appointmentId);
@@ -118,11 +80,13 @@ function Appointment({
     };
 
     const filteredAppointments = appointments.filter((appointment) => {
-        const patientName = appointment.Patient_Name.toLowerCase();
-        const doctorName = appointment.Doctor_Name.toLowerCase();
+        const patientFullName = `${appointment.Patient.Patient_Fname} ${appointment.Patient.Patient_Lname}`.toLowerCase();
+        const doctorFullName = `${appointment.Doctor.Staff.Emp_Fname} ${appointment.Doctor.Staff.Emp_Lname}`.toLowerCase();
+        const searchQueryLower = searchQuery.toLowerCase();
+    
         return (
-            patientName.includes(searchQuery.toLowerCase()) ||
-            doctorName.includes(searchQuery.toLowerCase())
+            patientFullName.includes(searchQueryLower) ||
+            doctorFullName.includes(searchQueryLower)
         );
     });
 
@@ -142,8 +106,9 @@ function Appointment({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Appoint_ID)}
+                    startIcon={<Edit />}
                 >
-                    Update
+                
                 </Button>
             ),
         },
@@ -156,8 +121,9 @@ function Appointment({
                     variant="contained"
                     color="secondary"
                     onClick={() => handleDelete(params.row.Appoint_ID)}
+                    startIcon={<Delete />}
                 >
-                    Delete
+                  
                 </Button>
             ),
         }
@@ -187,44 +153,41 @@ function Appointment({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                    Add Appointment
-                </Button>
-            )}
+
+
+<Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Appointments
+                </Typography>
+                {showCreateForm ? null : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Appointment
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateAppointment onClose={() => setShowCreateForm(false)} />}
-            
-            <Box mt={4}>
-                <TextField
-                    label="Search by Patient or Doctor Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+                <DataGrid
+                    rows={appointments}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Appoint_ID}
                 />
-            </Box>
-            
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
-                {isDataLoaded && (
-                    <DataGrid
-                        rows={filteredAppointments}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10]}
-                        getRowId={(row) => row.Appoint_ID}
-                        autoHeight
-                        hideFooterSelectedRowCount
-                    />
-                )}
             </Box>
         </div>
     );
 }
 
 export default Appointment;
+
+
+
+

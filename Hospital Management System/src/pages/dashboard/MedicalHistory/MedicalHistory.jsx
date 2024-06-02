@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateMedicalHistory from './CreateMedicalHistory';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Update } from '@mui/icons-material';
+import { Add, Delete, Edit, Update } from '@mui/icons-material';
 
 function MedicalHistory({
     showCreateForm,
@@ -17,7 +17,6 @@ function MedicalHistory({
     const [deleteMedicalHistoryId, setDeleteMedicalHistoryId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [patients, setPatients] = useState([]);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -28,25 +27,15 @@ function MedicalHistory({
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                const patientsRes = await axios.get('http://localhost:9004/api/patient', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const patientsData = patientsRes.data;
-
-                const medicalHistorysDataWithNames = medicalHistoryRes.data.map(contact => {
-                    const patient = patientsData.find(pat => pat.Patient_ID === contact.Patient_ID);
+                const medicalHistorysDataWithNames = medicalHistoryRes.data.map(res => {
+                    const patient = res.Patient;
                     return {
-                        ...contact,
+                        ...res,
                         Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
                     };
                 });
 
                 setMedicalHistorys(medicalHistorysDataWithNames);
-                setPatients(patientsData);
                 setIsDataLoaded(true);
             } catch (err) {
                 console.error('Error fetching data:', err);
@@ -87,8 +76,8 @@ function MedicalHistory({
         setSearchQuery(event.target.value);
     };
 
-    const filteredMedicalHistorys = medicalHistorys.filter((contact) => {
-        const patientName = contact.Patient_Name.toLowerCase();
+    const filteredMedicalHistorys = medicalHistorys.filter((res) => {
+        const patientName = res.Patient_Name.toLowerCase();
         return patientName.startsWith(searchQuery.toLowerCase());
     });
 
@@ -106,9 +95,10 @@ function MedicalHistory({
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Record_ID)}
-                    startIcon={<Update />}
+                    startIcon={<Edit />}
+
                 >
-                    Update
+                   
                 </Button>
             )
         },
@@ -123,7 +113,7 @@ function MedicalHistory({
                     onClick={() => handleDelete(params.row.Record_ID)}
                     startIcon={<Delete />}
                 >
-                    Delete
+                  
                 </Button>
             )
         }
@@ -153,44 +143,40 @@ function MedicalHistory({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                  
-                </Button>
-            )}
+           <Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Medical Historys
+                </Typography>
+                {showCreateForm ? null : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Medical History
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateMedicalHistory onClose={() => setShowCreateForm(false)} />}
-            
-            <Box mt={4}>
-                <TextField
-                    label="Search by Patient Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+                <DataGrid
+                    rows={medicalHistorys}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Record_ID}
                 />
-            </Box>
-            
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
-                {isDataLoaded && (
-                    <DataGrid
-                        rows={filteredMedicalHistorys}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10]}
-                        getRowId={(row) => row.Record_ID}
-                        autoHeight
-                        hideFooterSelectedRowCount
-                    />
-                )}
             </Box>
         </div>
     );
 }
 
 export default MedicalHistory;
+
+
+
+
+

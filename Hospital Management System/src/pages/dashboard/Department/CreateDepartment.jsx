@@ -1,7 +1,9 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useNavigate } from 'react-router-dom';
+import { Modal, Box, TextField, Button, Typography, InputAdornment } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie'; // Import js-cookie
 
 function CreateDepartment({ onClose }) {
     const [formData, setFormData] = useState({
@@ -14,6 +16,7 @@ function CreateDepartment({ onClose }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
     useEffect(() => {
         fetchDepartments();
@@ -21,7 +24,11 @@ function CreateDepartment({ onClose }) {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/department');
+            const response = await axios.get('http://localhost:9004/api/medicine',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             setDepartments(response.data);
         } catch (error) {
             console.error('Error fetching departments:', error);
@@ -38,7 +45,12 @@ function CreateDepartment({ onClose }) {
 
     const handleAddDepartment = async () => {
         try {
-            await axios.post('http://localhost:9004/api/department/create', formData);
+            await axios.post('http://localhost:9004/api/department/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            )
             navigate('/dashboard/department');
             window.location.reload();
         } catch (error) {
@@ -67,12 +79,14 @@ function CreateDepartment({ onClose }) {
             return;
         }
 
-        const existingDepartment = departments.find(department => department.Dept_head === Dept_head);
+       // Check if department with the same name already exists
+        const existingDepartment = departments.find(department => department.Dept_name === Dept_name);
         if (existingDepartment) {
-            showAlert('Department with the same head already exists');
+            showAlert('Department with the same name already exists');
             return;
         }
 
+    // Proceed with form submission after successful validation
         handleAddDepartment();
     };
 
@@ -82,67 +96,57 @@ function CreateDepartment({ onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Add Department</h1>
-                
-                    <div className='mb-4'>
-                        <label htmlFor="dept_head">Department Head:  </label>
-                        <input
-                            type='text'
-                            id='dept_head'
-                            name='Dept_head'
-                            placeholder='Enter Department Head'
-                            className='form-control w-full'
-                            value={formData.Dept_head}
-                            onChange={handleChange}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+            {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+            <Typography variant="h6" component="h1" gutterBottom>Add Department</Typography>
+            <Box mb={2}>
+                <TextField                    
+                    fullWidth
+                    label="Department Head"
+                    variant="outlined"
+                    id="dept_head"
+                    name="Dept_head"
+                    type="text"
+                    value={formData.Dept_head}
+                    onChange={handleChange}
                         />
-                    </div>
-                    <div className='mb-4'>
-                        <label htmlFor="dept_name">Department Name:  </label>
-                        <input
-                            type='text'
-                            id='dept_name'
-                            name='Dept_name'
-                            placeholder='Enter Department Name'
-                            className='form-control w-full'
-                            value={formData.Dept_name}
-                            onChange={handleChange}
+                </Box>
+                <Box mb={2}>
+                    <TextField
+                        fullWidth 
+                        label="Department Name" 
+                        variant="outlined"                          
+                        id='dept_name'
+                        name='Dept_name'
+                        type="text"
+                        value={formData.Dept_name}
+                        onChange={handleChange}
                         />
-                    </div>
-                    <div className='mb-4'>
-                        <label htmlFor="emp_Count">Employee Count: </label>
-                        <input
-                            type='number'
-                            id='emp_Count'
-                            name='Emp_Count'
-                            placeholder='Enter Employee Count;'
-                            className='form-control w-full'
-                            value={formData.Emp_Count}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="flex justify-end">
-                        <button
-                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            onClick={handleValidation}
-                        >
-                            Submit
-                        </button>
-                        <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                
-            </div>
-        </div>
+                </Box>
+                <Box mb={2}>
+                    <TextField
+                    fullWidth
+                    label="Employee Count" 
+                    variant="outlined"                          
+                    id='emp_Count'
+                    name='Emp_Count'
+                    type="number"
+                    value={formData.Emp_Count}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">Employees:</InputAdornment>,
+                    }}
+                />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
+
 
 export default CreateDepartment;

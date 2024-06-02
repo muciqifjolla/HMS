@@ -1,18 +1,39 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Modal, Box, TextField, Button, Typography } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
 
-function CreateNurse() {
+function CreateNurse({ onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
         Emp_ID: '',
     });
 
+    const [nurses, setNurses] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
+    useEffect(() => {
+        // Fetch existing nurses when component mounts
+        fetchNurses();
+    }, []);
+
+    const fetchNurses = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/nurse',{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            setNurses(response.data);
+        } catch (error) {
+            console.error('Error fetching nurses:', error);
+        }
+    };
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -23,13 +44,16 @@ function CreateNurse() {
 
     const handleAddNurse = async () => {
         try {
-            await axios.post('http://localhost:9004/api/nurse/create', formData);
+            await axios.post('http://localhost:9004/api/nurse/create', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             navigate('/dashboard/nurse');
-            window.location.reload();
+            window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
             console.error('Error adding nurse:', error);
-            setAlertMessage('Error adding nurse. Please try again.');
-            setShowErrorModal(true);
+            showAlert('Error adding nurse. Please try again.');
         }
     };
 
@@ -48,22 +72,33 @@ function CreateNurse() {
             showAlert('Emp ID can not be less than 1');
             return;
         }
+        // Check if patient exists
         try {
-            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`);
+            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
         } catch (error) {
             console.error('Error checking patient ID:', error);
             showAlert('Patient ID does not exist');
             return;
         }
 
+        // Check if employee exists
         try {
-            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
+            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
         } catch (error) {
-            console.error('Error checking staff ID:', error);
-            showAlert('Staff ID does not exist');
+            console.error('Error checking employee ID:', error);
+            showAlert('Employee ID does not exist');
             return;
         }
-       // Proceed with form submission after successful validation
+        
+        // Proceed with form submission after successful validation
         handleAddNurse();
     };
 
@@ -72,47 +107,43 @@ function CreateNurse() {
         setShowErrorModal(true);
     };
 
-
     return (
-        <div className='container mt-4'>
-            {showErrorModal && (
-                <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-            )}
-            <div className='bg-white rounded p-3'>
-                <div className='mb-2'>
-                    <label htmlFor='patient_ID'>Patient ID:</label>
-                    <input
-                        type='number'
-                        id='patient_ID'
-                        name='Patient_ID'
-                        placeholder='Enter Patient ID'
-                        className='form-control'
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                <Typography variant="h6" component="h1" gutterBottom>Add Nurse</Typography>
+                <Box mb={2}>
+                    <TextField
+                        fullWidth
+                        label="Patient ID"
+                        variant="outlined"
+                        id="Patient_ID"
+                        name="Patient_ID"
+                        type="number"
                         value={formData.Patient_ID}
                         onChange={handleChange}
                     />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='emp_ID'>Employee ID:</label>
-                    <input
-                        type='number'
-                        id='emp_ID'
-                        name='Emp_ID'
-                        placeholder='Enter Employee ID'
-                        className='form-control'
+                </Box>
+                <Box mb={2}>
+                    <TextField
+                        fullWidth
+                        label="Employee ID"
+                        variant="outlined"
+                        id="Emp_ID"
+                        name="Emp_ID"
+                        type="number"
                         value={formData.Emp_ID}
                         onChange={handleChange}
                     />
-                </div>
-                <button
-                    type='button'
-                    className='btn btn-success'
-                    onClick={handleValidation}
-                >
-                    Submit
-                </button>
-            </div>
-        </div>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
 export default CreateNurse;
+

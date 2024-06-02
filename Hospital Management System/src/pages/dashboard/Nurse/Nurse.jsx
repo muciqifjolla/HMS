@@ -1,28 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { DataGrid } from '@mui/x-data-grid';
+import CreateNurse from './CreateNurse';
+import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import Cookies from 'js-cookie';
+import { Add, Delete, Edit } from '@mui/icons-material';
 
 function Nurse({
     showCreateForm,
     setShowCreateForm,
-    showUpdateForm,
     setShowUpdateForm,
-    setSelectedNurseIdId
+    setSelectedNurseId,
 }) {
     const [nurse, setNurse] = useState([]);
     const [deleteNurseId, setDeleteNurseId] = useState(null);
-
-    const handleUpdateButtonClick = (nurseId) => {
-        setSelectedNurseIdId(nurseId);
-        setShowUpdateForm(!showUpdateForm);
-    };
+    const [searchQuery, setSearchQuery] = useState('');
+    const token = Cookies.get('token');
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/nurse')
-            .then((res) => setNurse(res.data))
-            .catch((err) => console.log(err)
-        
-        );
-    }, []);
+        axios.get('http://localhost:9004/api/nurse', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then((res) => {
+            setNurse(res.data);
+        })
+        .catch((err) => console.log(err));
+    }, [token]);
+
+    const handleUpdateButtonClick = (nurseId) => {
+        setSelectedNurseId(nurseId);
+        setShowUpdateForm(true);
+        if (showCreateForm) {
+            setShowCreateForm(false);
+        }
+    };
 
     const handleDelete = (id) => {
         setDeleteNurseId(id);
@@ -31,94 +44,128 @@ function Nurse({
     const handleDeleteConfirm = async () => {
         try {
             await axios.delete(`http://localhost:9004/api/nurse/delete/${deleteNurseId}`);
-            setNurse(nurse.filter((item) => item.Nurse_ID  !== deleteNurseId));
-
-            // Close the update form if open
-            if (showUpdateForm) {
-                setShowUpdateForm(false);
-            }
-            // Close the create form if open
-            if (showCreateForm) {
-                setShowCreateForm(false);
-            }
-            
+            setNurse(nurse.filter((item) => item.Nurse_ID !== deleteNurseId));
+            setShowUpdateForm(false);
+            setShowCreateForm(false);
         } catch (err) {
             console.log(err);
         }
         setDeleteNurseId(null);
     };
 
+    const handleCreateFormToggle = () => {
+        setShowCreateForm(!showCreateForm);
+        setShowUpdateForm(false);
+    };
+
+    const handleSearchInputChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+
+    const filteredNurse = nurse.filter((nurse) => {
+        const Patient_ID = nurse.Patient_ID.toString();
+        for (let i = 0; i < searchQuery.length; i++) {
+            if (isNaN(parseInt(searchQuery[i]))) {
+                return false; // Nëse një karakter nuk është një numër, kthejë false
+            }
+        }
+        return Patient_ID.startsWith(searchQuery);
+    });
+
+    const columns = [
+        { field: 'Nurse_ID', headerName: 'ID', width: 310 },
+        { field: 'Patient_ID', headerName: 'Patient ID', width: 310 },
+        { field: 'Emp_ID', headerName: 'Employee Id', width: 310 },
+        {
+            field: 'update',
+            headerName: 'Update',
+            width: 130,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUpdateButtonClick(params.row.Nurse_ID)}
+                    startIcon={<Edit />}
+                >
+                </Button>
+            ),
+        },
+        {
+            field: 'delete',
+            headerName: 'Delete',
+            width: 130,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDelete(params.row.Nurse_ID)}
+                    startIcon={<Delete />}
+                >
+                </Button>
+            ),
+        }
+    ];
+
     return (
-        <div className="container-fluid mt-4">
+        <div className='container-fluid mt-4'>
             {deleteNurseId && (
-                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-                    <div className="bg-white p-8 mx-auto rounded-lg">
-                        <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
-                        <p className="mb-4">Are you sure you want to delete this nurse record?</p>
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
-                                onClick={handleDeleteConfirm}> Delete</button>
-                            <button
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-                                onClick={() => setDeleteNurseId(null)}> Cancel</button>
-                        </div>
-                    </div>
-                </div>
+                <Dialog
+                    open={!!deleteNurseId}
+                    onClose={() => setDeleteNurseId(null)}
+                >
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this Nurse record?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteNurseId(null)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteConfirm} color="secondary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             )}
 
-            <button
-                className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                style={{ borderRadius: '0.5rem' }}
-                onClick={() => setShowCreateForm(!showCreateForm)}
-            >
-                {showCreateForm ? 'Close Add Form' : 'Add Nurse'}
-            </button>
+            {!showCreateForm && (
+                <Box mt={4}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                    </Button>
+                </Box>
+            )}
 
-            <div className="table-responsive">
-                <div className="py-8">
-                    <h2 className="text-2xl font-semibold leading-tight">Nurses</h2>
-                    <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                        <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
-                            <table className="min-w-full leading-normal">
-                                <thead>
-                                    <tr>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Patient ID</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Employee ID </th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {nurse.map((data, i) => (
-                                        <tr key={i}>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Patient_ID }</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_ID}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button
-                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleUpdateButtonClick(data.Nurse_ID)}>
-                                                    {showUpdateForm ? 'Close Update Form' : 'Update'}
-                                                </button>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button
-                                                    className="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleDelete(data.Nurse_ID)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {showCreateForm && <CreateNurse onClose={() => setShowCreateForm(false)} />}
+
+            <Box mt={4}>
+                <TextField
+                    label="Search by name"
+                    variant="outlined"
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    fullWidth
+                />
+            </Box>
+
+            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
+                <DataGrid
+                    rows={filteredNurse}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Nurse_ID}
+                    autoHeight
+                    hideFooterSelectedRowCount
+                />
+            </Box>
         </div>
     );
 }
-
 export default Nurse;
