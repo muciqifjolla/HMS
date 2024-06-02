@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
+import { Box, TextField, Button, Typography, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
@@ -16,18 +16,23 @@ function UpdateVisit({ id, onClose }) {
     });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [originalData, setOriginalData] = useState({});
+    const [patientName, setPatientName] = useState('');
+    const [doctorName, setDoctorName] = useState('');
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/visit/${id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const visitData = response.data;
-                setOriginalData(visitData);
+                const [visitRes, patientRes, doctorRes] = await Promise.all([
+                    axios.get(`http://localhost:9004/api/visit/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/doctor', { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+                const visitData = visitRes.data;
+                const patient = patientRes.data.find(p => p.Patient_ID === visitData.Patient_ID);
+                const doctor = doctorRes.data.find(d => d.Doctor_ID === visitData.Doctor_ID);
+                
                 setFormData({
                     Patient_ID: visitData.Patient_ID,
                     Doctor_ID: visitData.Doctor_ID,
@@ -36,6 +41,8 @@ function UpdateVisit({ id, onClose }) {
                     diagnosis: visitData.diagnosis,
                     therapy: visitData.therapy,
                 });
+                setPatientName(patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown');
+                setDoctorName(doctor ? `${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}` : 'Unknown');
             } catch (error) {
                 const message = error.response?.status === 401
                     ? 'Invalid or expired authentication token. Please log in again.'
@@ -58,23 +65,6 @@ function UpdateVisit({ id, onClose }) {
 
         if (Patient_ID === '' || Doctor_ID === '' || date_of_visit === '' || condition === '' || diagnosis === '' || therapy === '') {
             showAlert('All fields are required');
-            return;
-        }
-
-        if (
-            parseInt(Patient_ID) === parseInt(originalData.Patient_ID) &&
-            parseInt(Doctor_ID) === parseInt(originalData.Doctor_ID) &&
-            date_of_visit === originalData.date_of_visit &&
-            condition === originalData.condition &&
-            diagnosis === originalData.diagnosis &&
-            therapy === originalData.therapy
-        ) {
-            showAlert("Data must be changed before updating.");
-            return;
-        }
-
-        if (parseInt(Patient_ID) < 1 || parseInt(Doctor_ID) < 1) {
-            showAlert("Patient ID and Doctor ID must be at least 1.");
             return;
         }
 
@@ -105,23 +95,17 @@ function UpdateVisit({ id, onClose }) {
                 <TextField
                     fullWidth
                     margin="normal"
-                    label="Patient ID"
+                    label="Patient Name"
                     variant="outlined"
-                    id="Patient_ID"
-                    name="Patient_ID"
-                    value={formData.Patient_ID}
-                    onChange={handleChange}
+                    value={patientName}
                     disabled
                 />
                 <TextField
                     fullWidth
                     margin="normal"
-                    label="Doctor ID"
+                    label="Doctor Name"
                     variant="outlined"
-                    id="Doctor_ID"
-                    name="Doctor_ID"
-                    value={formData.Doctor_ID}
-                    onChange={handleChange}
+                    value={doctorName}
                     disabled
                 />
                 <TextField

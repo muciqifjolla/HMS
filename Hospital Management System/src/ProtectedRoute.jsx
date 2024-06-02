@@ -6,7 +6,7 @@ const ProtectedRoute = ({ element, allowedRoles = [], userRole }) => {
   if (allowedRoles.includes(userRole)) {
     return element;
   } else {
-    return <Navigate to="/unauthorized" />;
+    return <Navigate to="/dashboard/home" />;
   }
 };
 

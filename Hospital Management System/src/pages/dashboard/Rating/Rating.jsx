@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateRating from './CreateRating';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Edit, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 
 function Rating({
     showCreateForm,
@@ -16,7 +16,6 @@ function Rating({
     const [rating, setRating] = useState([]);
     const [deleteRatingId, setDeleteRatingId] = useState(null);
     const [employees, setEmployees] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const token = Cookies.get('token');
 
@@ -49,7 +48,7 @@ function Rating({
                 setRating(ratingDataWithNames);
                 setEmployees(employeesData);
                 setIsDataLoaded(true);
-                console.log('Fetched rating data with names:', ratingDataWithNames);
+                // console.log('Fetched rating data with names:', ratingDataWithNames);
             } catch (err) {
                 console.error('Error fetching data:', err);
             }
@@ -85,20 +84,12 @@ function Rating({
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const filteredRating = rating.filter((item) => {
-        const employeeName = item.Employee_Name.toLowerCase();
-        return employeeName.startsWith(searchQuery.toLowerCase());
-    });
     const columns = [
-        { field: 'Rating_ID', headerName: 'ID', width: 250 },
-        { field: 'Employee_Name', headerName: 'Employee', width: 250 },
-        { field: 'Rating', headerName: 'Rating (1-5)', width: 250 },
-        { field: 'Comments', headerName: 'Comments', width: 250 },
-        { field: 'Date', headerName: 'Date', width: 250 },
+        { field: 'Rating_ID', headerName: 'ID', flex: 1 },
+        { field: 'Employee_Name', headerName: 'Employee', flex: 1 },
+        { field: 'Rating', headerName: 'Rating (1-5)', flex: 1 },
+        { field: 'Comments', headerName: 'Comments', flex: 1 },
+        { field: 'Date', headerName: 'Date', flex: 1 },
         {
             field: 'update',
             headerName: 'Update',
@@ -159,32 +150,28 @@ function Rating({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                </Button>
-            )}
+            <Box mt={4} display="flex" alignItems="center" justifyContent="space-between">
+                <Typography variant="h6">
+                    Ratings
+                </Typography>
+                {showCreateForm ? null : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Rating
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateRating onClose={() => setShowCreateForm(false)} />}
-
-            <Box mt={4}>
-                <TextField
-                    label="Search by Employee Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
-                />
-            </Box>
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 {isDataLoaded && (
                     <DataGrid
-                        rows={filteredRating}
+                        rows={rating}
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10]}

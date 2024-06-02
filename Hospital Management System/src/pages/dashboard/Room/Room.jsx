@@ -20,23 +20,35 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
     };
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/room', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const fetchData = async () => {
+            try {
+                const [roomRes, patientRes] = await Promise.all([
+                    axios.get('http://localhost:9004/api/room', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+
+                const patients = patientRes.data;
+                const roomsDataWithNames = roomRes.data.map(room => {
+                    const patient = patients.find(p => p.Patient_ID === room.Patient_ID);
+                    return {
+                        ...room,
+                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown',
+                    };
+                });
+
+                setRooms(roomsDataWithNames);
+            } catch (err) {
+                console.error(err);
             }
-        })
-        .then((res) => {
-            setRooms(res.data);
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+        };
+
+        fetchData();
 
         // Check if navigation state contains patientId to show the CreateRoom form
         if (location.state?.patientId && location.state?.showCreateForm) {
             setShowCreateForm(true);
         }
-    }, [token, location.state]);
+    }, [token, location.state, setShowCreateForm]);
 
     const handleDelete = (id) => {
         setDeleteRoomId(id);
@@ -60,14 +72,14 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
     };
 
     const columns = [
-        { field: 'Room_ID', headerName: 'ID', width: 100 },
-        { field: 'Room_type', headerName: 'Room Type', width: 280 },
-        { field: 'Patient_ID', headerName: 'Patient ID', width: 280 },
-        { field: 'Room_cost', headerName: 'Cost (€)', width: 280 },
+        { field: 'Room_ID', headerName: 'ID', flex: 1 },
+        { field: 'Room_type', headerName: 'Room Type', flex: 2 },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
+        { field: 'Room_cost', headerName: 'Cost (€)', flex: 2 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -81,7 +93,7 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"

@@ -1,5 +1,3 @@
-// routes/UserRoutes.js
-
 const express = require("express");
 const router = express.Router();
 const { authenticateToken } = require('../middleware/authMiddleware');
@@ -15,10 +13,10 @@ const {
 
 
 // Route definitions
-router.get("/users", FindAllUsers); // Only admins can view all users
-router.get("/users/:id",  FindSingleUser); // Users can view their own profile
-router.post("/users/create", authenticateToken(['admin', 'user']), AddUser); // Only admins can create users
-router.put("/users/update/:id",  UpdateUser); // Only admins can update users
+router.get("/users", authenticateToken(['admin', 'doctor', 'patient']), FindAllUsers); // Only admins can view all users
+router.get("/users/:id", authenticateToken(['admin', 'doctor', 'patient']), FindSingleUser); // Users can view their own profile
+router.post("/users/create", authenticateToken(['admin', 'doctor', 'patient']), AddUser); // Only admins can create users
+router.put("/users/update/:id", authenticateToken(['admin', 'doctor', 'patient']), UpdateUser); // Only admins can update users
 router.delete("/users/delete/:id", DeleteUser); // Only admins can delete users
 
 // Route for user login

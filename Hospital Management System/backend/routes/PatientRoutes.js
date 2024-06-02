@@ -14,13 +14,13 @@ const{
      
 
 
-router.get("/patient", authenticateToken(['admin','doctor', 'receptionist']), FindAllPatients);
-router.get("/patient/:id", authenticateToken(['admin','doctor', 'receptionist']), FindSinglepatientPatient);
-router.post("/patient/create", authenticateToken(['admin','doctor', 'receptionist']), AddPatient);
-router.put("/patient/update/:id", authenticateToken(['admin','doctor', 'receptionist']), UpdatePatient);
+router.get("/patient", authenticateToken(['admin', 'doctor', 'patient']), FindAllPatients);
+router.get("/patient/:id", authenticateToken(['admin', 'doctor', 'patient']), FindSinglepatientPatient);
+router.post("/patient/create", authenticateToken(['admin', 'doctor', 'patient']), AddPatient);
+router.put("/patient/update/:id", authenticateToken(['admin', 'doctor', 'patient']), UpdatePatient);
 router.delete("/patient/delete/:id", DeletePatient);
-router.get('/patient/check/:id', authenticateToken(['admin','doctor', 'receptionist']), CheckPatientExistence); 
-router.get(`/patient/personalNumber/:personalNumber`, authenticateToken(['admin','doctor', 'receptionist']), FindPatientByPersonalNumber);
+router.get('/patient/check/:id', authenticateToken(['admin', 'doctor', 'patient']), CheckPatientExistence); 
+router.get(`/patient/personalNumber/:personalNumber`, authenticateToken(['admin', 'doctor', 'patient']), FindPatientByPersonalNumber);
 
 
 

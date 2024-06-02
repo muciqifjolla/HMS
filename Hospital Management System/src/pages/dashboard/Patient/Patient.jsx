@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreatePatient from './CreatePatient';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+
+// Lazy load components
+const CreatePatient = lazy(() => import('./CreatePatient'));
 
 function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSelectedPatientId }) {
     const [patients, setPatients] = useState([]);
@@ -59,23 +61,23 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
     };
 
     const columns = [
-        { field: 'Patient_ID', headerName: 'ID', width: 60 },
-        { field: 'Personal_Number', headerName: 'Personal Number', width: 150 },
-        { field: 'Patient_Fname', headerName: 'Firstname', width: 120 },
-        { field: 'Patient_Lname', headerName: 'Lastname', width: 120 },
+        { field: 'Patient_ID', headerName: 'ID', flex: 1 },
+        { field: 'Personal_Number', headerName: 'Personal Number', flex: 2 },
+        { field: 'Patient_Fname', headerName: 'Firstname', flex: 2 },
+        { field: 'Patient_Lname', headerName: 'Lastname', flex: 2 },
         { 
             field: 'Birth_Date', 
             headerName: 'Birth Date', 
-            width: 120, 
+            flex: 2, 
         },
-        { field: 'Gender', headerName: 'Gender', width: 100 },
-        { field: 'Blood_type', headerName: 'Blood Type', width: 110 },
-        { field: 'Email', headerName: 'Email', width: 200 },
-        { field: 'Phone', headerName: 'Phone', width: 120 },
+        { field: 'Gender', headerName: 'Gender', flex: 1 },
+        { field: 'Blood_type', headerName: 'Blood Type', flex: 1 },
+        { field: 'Email', headerName: 'Email', flex: 2 },
+        { field: 'Phone', headerName: 'Phone', flex: 2 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 100,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -89,7 +91,7 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 100,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -103,7 +105,7 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
         {
             field: 'createRoom',
             headerName: 'Create Room',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -156,7 +158,9 @@ function Patient({ showCreateForm, setShowCreateForm, setShowUpdateForm, setSele
                 )}
             </Box>
 
-            {showCreateForm && <CreatePatient onClose={() => setShowCreateForm(false)} />}
+            <Suspense fallback={<div>Loading...</div>}>
+                {showCreateForm && <CreatePatient onClose={() => setShowCreateForm(false)} />}
+            </Suspense>
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid

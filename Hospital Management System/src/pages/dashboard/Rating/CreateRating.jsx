@@ -69,11 +69,7 @@ function CreateRating({ onClose }) {
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
             console.error('Error adding rating:', error);
-            if (error.response && error.response.status === 400 && error.response.data.error.includes('Employee')) {
-                showAlert('Employee already rated');
-            } else {
-                showAlert('Error adding rating. Please try again.');
-            }
+            showAlert('Error adding emergency contact. Please try again.');
         }
     };
 
@@ -101,7 +97,11 @@ function CreateRating({ onClose }) {
         }
 
         try {
-            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
+            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`,{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             handleAddRating();
         } catch (error) {
             console.error('Error checking employee ID:', error);

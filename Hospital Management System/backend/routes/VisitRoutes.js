@@ -10,11 +10,11 @@ const {
     FindVisitsByPatientId
 } = require("../controllers/VisitController");
 
-router.get("/visit", authenticateToken(['admin', 'doctor', 'receptionist']), FindAllVisits);
-router.get("/visit/:id", authenticateToken(['admin', 'doctor', 'receptionist']), FindSingleVisit);
-router.post("/visit/create", authenticateToken(['admin', 'doctor', 'receptionist']), createVisit);
-router.put("/visit/update/:id", authenticateToken(['admin', 'doctor', 'receptionist']), UpdateVisit);
-router.get("/visit/patient/:patientId", authenticateToken(['admin', 'doctor', 'receptionist']), FindVisitsByPatientId);
+router.get("/visit", authenticateToken(['admin', 'doctor', 'patient']), FindAllVisits);
+router.get("/visit/:id", authenticateToken(['admin', 'doctor', 'patient']), FindSingleVisit);
+router.post("/visit/create", authenticateToken(['admin', 'doctor', 'patient']), createVisit);
+router.put("/visit/update/:id", authenticateToken(['admin', 'doctor', 'patient']), UpdateVisit);
+router.get("/visit/patient/:patientId", authenticateToken(['admin', 'doctor', 'patient']), FindVisitsByPatientId);
 router.delete("/visit/delete/:id", DeleteVisit);
 
 module.exports = router;

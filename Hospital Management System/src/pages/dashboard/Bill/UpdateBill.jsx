@@ -109,7 +109,7 @@ function UpdateBill({ id, onClose }) {
         <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
             <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
                 {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
-                <Typography variant="h6" component="h1" gutterBottom>Add Visit</Typography>
+                <Typography variant="h6" component="h1" gutterBottom>Update BIll</Typography>
                 <FormControl fullWidth variant="outlined" margin="normal">
                     <InputLabel id="patient-select-label">Patient</InputLabel>
                     <Select

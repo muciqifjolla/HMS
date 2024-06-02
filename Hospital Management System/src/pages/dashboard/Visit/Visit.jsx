@@ -18,17 +18,33 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
     };
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/visit', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const fetchData = async () => {
+            try {
+                const [visitRes, patientRes, doctorRes] = await Promise.all([
+                    axios.get('http://localhost:9004/api/visit', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/doctor', { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+                
+                const patients = patientRes.data;
+                const doctors = doctorRes.data;
+                
+                const visitsDataWithNames = visitRes.data.map(visit => {
+                    const patient = patients.find(p => p.Patient_ID === visit.Patient_ID);
+                    const doctor = doctors.find(d => d.Doctor_ID === visit.Doctor_ID);
+                    return {
+                        ...visit,
+                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown',
+                        Doctor_Name: doctor ? `${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}` : 'Unknown'
+                    };
+                });
+
+                setVisits(visitsDataWithNames);
+            } catch (err) {
+                console.error(err);
             }
-        })
-        .then((res) => {
-            setVisits(res.data);
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+        };
+        fetchData();
     }, [token]);
 
     const handleDelete = (id) => {
@@ -53,17 +69,17 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
     };
 
     const columns = [
-        { field: 'Visit_ID', headerName: 'ID', width: 50 },
-        { field: 'Patient_ID', headerName: 'Patient ID', width: 100 },
-        { field: 'Doctor_ID', headerName: 'Doctor ID', width: 100 },
-        { field: 'date_of_visit', headerName: 'Date of Visit', width: 150 },
-        { field: 'condition', headerName: 'Condition', width: 200 },
-        { field: 'diagnosis', headerName: 'Diagnosis', width: 200 },
-        { field: 'therapy', headerName: 'Therapy', width: 200 },
+        { field: 'Visit_ID', headerName: 'ID', flex: 1 },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
+        { field: 'Doctor_Name', headerName: 'Doctor Name', flex: 2 },
+        { field: 'date_of_visit', headerName: 'Date of Visit', flex: 2 },
+        { field: 'condition', headerName: 'Condition', flex: 2 },
+        { field: 'diagnosis', headerName: 'Diagnosis', flex: 2 },
+        { field: 'therapy', headerName: 'Therapy', flex: 2 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 100,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -77,7 +93,7 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 100,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"

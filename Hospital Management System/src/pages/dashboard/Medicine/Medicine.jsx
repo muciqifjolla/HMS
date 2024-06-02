@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateMedicine from './CreateMedicine';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Edit, Update } from '@mui/icons-material';
 
 function Medicine({
     showCreateForm,
@@ -14,7 +14,6 @@ function Medicine({
 }) {
     const [medicine, setMedicine] = useState([]);
     const [deleteMedicineId, setDeleteMedicineId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -58,20 +57,11 @@ function Medicine({
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const filteredMedicine = medicine.filter((med) =>
-        med.M_name.toString().startsWith(searchQuery)
-    // med.M_name.toLowerCase().startsWith(searchQuery.toLowerCase())
-    );
-
     const columns = [
-        { field: 'Medicine_ID', headerName: 'ID', width: 310 },
-        { field: 'M_name', headerName: 'Name', width: 310 },
-        { field: 'M_Quantity', headerName: 'Quantity', width: 310 },
-        { field: 'M_Cost', headerName: 'Cost', width: 310 },
+        { field: 'Medicine_ID', headerName: 'ID', flex: 1 },
+        { field: 'M_name', headerName: 'Name', flex: 1  },
+        { field: 'M_Quantity', headerName: 'Quantity', flex: 1  },
+        { field: 'M_Cost', headerName: 'Cost', flex: 1  },
         {
             field: 'update',
             headerName: 'Update',
@@ -83,7 +73,6 @@ function Medicine({
                     onClick={() => handleUpdateButtonClick(params.row.Medicine_ID)}
                     startIcon={<Edit />}
                 >
-                    
                 </Button>
             ),
         },
@@ -98,7 +87,6 @@ function Medicine({
                     onClick={() => handleDelete(params.row.Medicine_ID)}
                     startIcon={<Delete />}
                 >
-
                 </Button>
             ),
         }
@@ -128,39 +116,31 @@ function Medicine({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Box mt={4}>
+            <Box mt={4} display="flex" alignItems="center" justifyContent="space-between">
+                <Typography variant="h6">
+                    Medicines
+                </Typography>
+                {showCreateForm ? null : (
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={handleCreateFormToggle}
                         startIcon={<Add />}
                     >
+                        Add Medicine
                     </Button>
-                </Box>
-            )}
+                )}
+            </Box>
 
             {showCreateForm && <CreateMedicine onClose={() => setShowCreateForm(false)} />}
 
-            <Box mt={4}>
-                <TextField
-                    label="Search by name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
-                />
-            </Box>
-
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={filteredMedicine}
+                    rows={medicine}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Medicine_ID}
-                    autoHeight
-                    hideFooterSelectedRowCount
                 />
             </Box>
         </div>

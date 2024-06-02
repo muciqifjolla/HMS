@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateInsurance from './CreateInsurance';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Edit, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
+
 function Insurance({
     showCreateForm,
     setShowCreateForm,
@@ -14,9 +15,8 @@ function Insurance({
 }) {
     const [insurance, setInsurance] = useState([]);
     const [deleteInsuranceId, setDeleteInsuranceId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [patients, setPatients] = useState([]);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [patients, setPatients] = useState([]);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -55,13 +55,6 @@ function Insurance({
         fetchData();
     }, [token]);
 
-    // const getPatientName = (patientId) => {
-    //     console.log('Fetching name for patient ID:', patientId);
-    //     const patient = patients.find(pat => pat.Patient_ID === patientId);
-    //     console.log('Patient found:', patient);
-    //     return patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown';
-    // };
-
     const handleUpdateButtonClick = (insuranceId) => {
         setSelectedInsuranceId(insuranceId);
         setShowUpdateForm(true);
@@ -89,26 +82,18 @@ function Insurance({
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const filteredInsurance = insurance.filter((ins) => {
-        const patientName = ins.Patient_Name.toLowerCase();
-        return patientName.startsWith(searchQuery.toLowerCase());
-    });
     const columns = [
-        { field: 'Policy_Number', headerName: 'Policy Number', width: 150 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 150 },
-        { field: 'Ins_Code', headerName: 'Ins. Code', width: 150 },
-        { field: 'End_Date', headerName: 'End Date', width: 150 },
-        { field: 'Provider', headerName: 'Provider', width: 100 },
-        { field: 'Plan', headerName: 'Plan', width: 100 },
-        { field: 'Co_Pay', headerName: 'Co-Pay', width: 100 },
-        { field: 'Coverage', headerName: 'Coverage', width: 100 },
-        { field: 'Maternity', headerName: 'Maternity', width: 100 },
-        { field: 'Dental', headerName: 'Dental', width: 100 },
-        { field: 'Optical', headerName: 'Optical', width: 100 },
+        { field: 'Policy_Number', headerName: 'Policy Number', flex: 1  },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 1  },
+        { field: 'Ins_Code', headerName: 'Ins. Code', flex: 1  },
+        { field: 'End_Date', headerName: 'End Date', flex: 1  },
+        { field: 'Provider', headerName: 'Provider', flex: 1  },
+        { field: 'Plan', headerName: 'Plan', flex: 1  },
+        { field: 'Co_Pay', headerName: 'Co-Pay', flex: 1  },
+        { field: 'Coverage', headerName: 'Coverage', flex: 1  },
+        { field: 'Maternity', headerName: 'Maternity', flex: 1  },
+        { field: 'Dental', headerName: 'Dental', flex: 1  },
+        { field: 'Optical', headerName: 'Optical', flex: 1  },
         {
             field: 'update',
             headerName: 'Update',
@@ -120,7 +105,6 @@ function Insurance({
                     onClick={() => handleUpdateButtonClick(params.row.Policy_Number)}
                     startIcon={<Edit />}
                 >
-                    
                 </Button>
             ),
         },
@@ -135,7 +119,6 @@ function Insurance({
                     onClick={() => handleDelete(params.row.Policy_Number)}
                     startIcon={<Delete />}
                 >
-                   
                 </Button>
             ),
         }
@@ -165,32 +148,28 @@ function Insurance({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                </Button>
-            )}
+            <Box mt={4} display="flex" alignItems="center" justifyContent="space-between">
+                <Typography variant="h6">
+                    Insurance Records
+                </Typography>
+                {showCreateForm ? null : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Insurance
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateInsurance onClose={() => setShowCreateForm(false)} />}
-            
-            <Box mt={4}>
-                <TextField
-                    label="Search by Patient Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
-                />
-            </Box>
-            
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 {isDataLoaded && (
                     <DataGrid
-                        rows={filteredInsurance}
+                        rows={insurance}
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10]}

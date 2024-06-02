@@ -1,7 +1,4 @@
-
-
-
-  import { Home, Profile, Medicines, Appointments,MedicalHistorys,Bills,Staffs, Patients, Departments, Emergency_Contacts, Insurances, Rooms, Nurses, Users, Ratings,Doctors, Reports, Visits} from "@/pages/dashboard";
+import { Home, Profile, Medicines, Appointments,MedicalHistorys,Bills,Staffs, Patients, Departments, Emergency_Contacts, Insurances, Rooms, Nurses, Users, Ratings,Doctors, Reports, Visits} from "@/pages/dashboard";
   import RoleBasedRoute from './ProtectedRoute';
 
 
@@ -23,7 +20,7 @@
           name: "profile",
           path: "/profile",
           element: <Profile />,
-          allowedRoles: ['user', 'recepsionist', 'doctor']
+          allowedRoles: ['admin', 'patient', 'doctor']
         },
         {
           icon: (
@@ -59,7 +56,7 @@
           name: "Emergency Contact",
           path: "/emergency_contact",
           element: <Emergency_Contacts />,
-          allowedRoles: ['admin']
+          allowedRoles: ['admin','patient']
         },
         {
           icon: (
@@ -82,7 +79,7 @@
           name: "Ratings",
           path: "/rating",
           element: <Ratings/>,
-          allowedRoles: ['admin']
+          allowedRoles: ['admin', 'patient']
         },
         {
           icon: (
@@ -94,7 +91,7 @@
           name: "appointments",
           path: "/appointments",
           element: <Appointments />,
-          allowedRoles: ['admin', 'recepsionist']
+          allowedRoles: ['admin', 'patient', 'doctor']
         },
         {
           
@@ -106,7 +103,7 @@
             name: "medical history",
             path: "/medicalhistorys",
             element: <MedicalHistorys />,
-            allowedRoles: ['admin', 'recepsionist', 'doctor']
+            allowedRoles: ['admin', 'patient', 'doctor']
           },
         {
           
@@ -119,7 +116,7 @@
           name: "bill",
           path: "/bills",
           element: <Bills/>,
-          allowedRoles: ['admin', 'recepsionist']
+          allowedRoles: ['admin', 'patient']
         },
       {
           icon: (
@@ -145,7 +142,7 @@
           name: "Patient",
           path: "/patient",
           element: <Patients />,
-          allowedRoles: ['admin']
+          allowedRoles: ['admin', 'doctor']
         },
         {
           icon: (
@@ -156,7 +153,7 @@
           name: "Visit",
           path: "/visit",
           element: <Visits />,
-          allowedRoles: ['admin']
+          allowedRoles: ['admin', 'doctor']
         },
         {
         icon: (
@@ -204,7 +201,7 @@
         name: "User",
         path: "/user",
         element: <Users/>,
-        allowedRoles: ['admin', 'user']
+        allowedRoles: ['admin', 'patient']
       },
       {
         icon: (
@@ -227,7 +224,7 @@
         name: "Report",
         path: "/report",
         element: <Reports/>,
-        allowedRoles: ['admin']
+        allowedRoles: ['admin', 'doctor']
       }
       ],
     },

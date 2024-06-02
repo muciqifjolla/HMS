@@ -10,10 +10,10 @@ const {
 const { authenticateToken } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-router.get("/nurse",authenticateToken(['admin','doctor', 'receptionist']), FindAllNurses);
-router.get("/nurse/:id",authenticateToken(['admin','doctor', 'receptionist']), FindSingleNurse);
-router.post("/nurse/create",authenticateToken(['admin','doctor', 'receptionist']), AddNurse);
-router.put("/nurse/update/:id", authenticateToken(['admin','doctor', 'receptionist']),UpdateNurse);
+router.get("/nurse", authenticateToken(['admin', 'doctor', 'patient']), FindAllNurses);
+router.get("/nurse/:id", authenticateToken(['admin', 'doctor', 'patient']), FindSingleNurse);
+router.post("/nurse/create", authenticateToken(['admin', 'doctor', 'patient']), AddNurse);
+router.put("/nurse/update/:id",  authenticateToken(['admin', 'doctor', 'patient']), UpdateNurse);
 router.delete("/nurse/delete/:id", DeleteNurse);
 
 module.exports = router;
