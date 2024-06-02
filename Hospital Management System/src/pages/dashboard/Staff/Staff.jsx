@@ -23,6 +23,7 @@ function Staff({
     const [recordsPerPage] = useState(7);
     const token = Cookies.get('token');
     const navigate = useNavigate();
+    console.log(staff);
 
     useEffect(() => {
       
@@ -108,8 +109,8 @@ function Staff({
 
     const columns = [
         { field: 'Emp_ID', headerName: 'ID', width: 60 },
-        { field: 'Emp_Fname', headerName: 'First Name', width: 120 },
-        { field: 'Emp_Lname', headerName: 'Last Name', width: 120 },
+        { field: 'Emp_Fname', headerName: 'Name', width: 120 },
+        { field: 'Emp_Lname', headerName: 'Surname', width: 120 },
         {
             field: 'Joining_Date',
             headerName: 'Joining Date',
@@ -155,7 +156,7 @@ function Staff({
                     onClick={() => handleDelete(params.row.Emp_ID)}
                     startIcon={<Delete />}
                 >
-                    Delete
+                    
                 </Button>
             )
         },

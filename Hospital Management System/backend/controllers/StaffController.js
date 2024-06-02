@@ -10,7 +10,12 @@ const validateEmail = (email) => {
 
 const FindAllStaff = async (req, res) => {
     try {
-        const staff = await Staff.findAll();
+        const staff = await Staff.findAll({
+            include: [{
+                model: Department,
+                attributes: ['Dept_name'] 
+            }]
+        });
         res.json(staff);
     } catch (error) {
         console.error('Error fetching all staff:', error);

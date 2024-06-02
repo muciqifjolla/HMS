@@ -78,133 +78,125 @@ function UpdateStaff({ id, onClose }) {
         }
     };
 
-    const closeErrorModal = () => {
-        setShowErrorModal(false);
-    };
+ 
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
+        <Modal open onClose={onClose}>
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
                 {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
-                <h1 className="text-lg font-bold mb-4">Update Staff</h1>
-                <div className='mb-2'>
-                    <label htmlFor='Emp_ID'>Employee ID:</label>
-                    <input
-                        type='text'
-                        name='Emp_ID'
-                        className='form-control w-full'
-                        value={formData.Emp_ID}
-                        readOnly
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Emp_Fname'>First Name:</label>
-                    <input
-                        type='text'
-                        name='Emp_Fname'
-                        className='form-control w-full'
-                        value={formData.Emp_Fname}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Emp_Lname'>Last Name:</label>
-                    <input
-                        type='text'
-                        name='Emp_Lname'
-                        className='form-control w-full'
-                        value={formData.Emp_Lname}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Joining_Date'>Joining Date:</label>
-                    <input
-                        type='date'
-                        name='Joining_Date'
-                        className='form-control w-full'
-                        value={formData.Joining_Date}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Emp_type'>Employee Type:</label>
-                    <input
-                        type='text'
-                        name='Emp_type'
-                        className='form-control w-full'
-                        value={formData.Emp_type}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Email'>Email:</label>
-                    <input
-                        type='email'
-                        name='Email'
-                        className='form-control w-full'
-                        value={formData.Email}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Address'>Address:</label>
-                    <input
-                        type='text'
-                        name='Address'
-                        className='form-control w-full'
-                        value={formData.Address}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='Dept_ID'>Department:</label>
-                    <select
-                        name='Dept_ID'
-                        className='form-control w-full'
-                        value={formData.Dept_ID}
-                        onChange={handleChange}
-                    >
-                        {departments.map(department => (
-                            <option key={department.Dept_ID} value={department.Dept_ID}>
-                                {department.Dept_Name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='SSN'>SSN:</label>
-                    <input
-                        type='text'
-                        name='SSN'
-                        className='form-control w-full'
-                        value={formData.SSN}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor='DOB'>Date of Birth:</label>
-                    <input
-                        type='date'
-                        name='DOB'
-                        className='form-control w-full'
-                        value={formData.DOB}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button type="button" className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleUpdateStaff}>
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                <Typography variant="h6" component="h1" gutterBottom>Update Staff</Typography>
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Employee ID"
+                    variant="outlined"
+                    id="Emp_ID"
+                    name="Emp_ID"
+                    value={formData.Emp_ID}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="First Name"
+                    variant="outlined"
+                    id="Emp_Fname"
+                    name="Emp_Fname"
+                    value={formData.Emp_Fname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Last Name"
+                    variant="outlined"
+                    id="Emp_Lname"
+                    name="Emp_Lname"
+                    value={formData.Emp_Lname}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Joining Date"
+                    variant="outlined"
+                    type="date"
+                    id="Joining_Date"
+                    name="Joining_Date"
+                    value={formData.Joining_Date}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Employee Type"
+                    variant="outlined"
+                    id="Emp_type"
+                    name="Emp_type"
+                    value={formData.Emp_type}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Email"
+                    variant="outlined"
+                    id="Email"
+                    name="Email"
+                    value={formData.Email}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Address"
+                    variant="outlined"
+                    id="Address"
+                    name="Address"
+                    value={formData.Address}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Department"
+                    variant="outlined"
+                    id="Dept_ID"
+                    name="Dept_ID"
+                    value={formData.Dept_ID}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="SSN"
+                    variant="outlined"
+                    id="SSN"
+                    name="SSN"
+                    value={formData.SSN}
+                    onChange={handleChange}
+                />
+                <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Date of Birth"
+                    variant="outlined"
+                    type="date"
+                    id="DOB"
+                    name="DOB"
+                    value={formData.DOB}
+                    onChange={handleChange}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateStaff} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
