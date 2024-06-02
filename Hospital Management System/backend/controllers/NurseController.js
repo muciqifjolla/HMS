@@ -27,7 +27,19 @@ const FindSingleNurse = async (req, res) => {
 const AddNurse = async (req, res) => {
     try {
         const {Patient_ID, Emp_ID } = req.body;
-        
+         
+        // Validate input fields
+         if (!Patient_ID || !Emp_ID ) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        if (parseInt(Patient_ID) < 1 || isNaN(parseInt(Patient_ID))) {
+            return res.status(400).json({ error: 'Patient ID  must be at least 1' });
+        }
+        if (parseInt(Emp_ID) < 1 || isNaN(parseInt(Emp_ID))) {
+            return res.status(400).json({ error: 'Emp_ID  must be at least 1' });
+        }
+
         const newNurse = await Nurse.create({
             Patient_ID,
             Emp_ID,
@@ -42,6 +54,18 @@ const AddNurse = async (req, res) => {
 const UpdateNurse = async (req, res) => {
     try {
         const { Patient_ID, Emp_ID } = req.body;
+        // Validate input fields
+        if (!Patient_ID || !Emp_ID) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        if (parseInt(Patient_ID) < 1 || isNaN(parseInt(Patient_ID))) {
+            return res.status(400).json({ error: 'Patient_ID  must be at least 1' });
+        }
+
+        if (parseFloat(Emp_ID) < 1 || isNaN(parseFloat(Emp_ID))) {
+            return res.status(400).json({ error: 'Emp_ID  must be at least 1' });
+        }
+        
         const updated = await Nurse.update(
             { Patient_ID, Emp_ID },
             { where: { Nurse_ID : req.params.id } }

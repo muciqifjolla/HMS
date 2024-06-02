@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import Nurse from "./Nurse/Nurse";
 import CreateNurse from "./Nurse/CreateNurse";
 import UpdateNurse from "./Nurse/UpdateNurse";
@@ -7,35 +8,42 @@ export function Nurses() {
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [selectedNurseId, setSelectedNurseIdId] = useState(null); 
+    const [selectedNurseId, setSelectedNurseId] = useState(null); 
    
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
+    const handleUpdateButtonClick = (nurseId) => {
+        setSelectedMedicineId(nurseId);
+        setShowUpdateForm((prevState) => prevState === nurseId ? null : nurseId);
+        setShowCreateForm(false); // Close create form if open
+    };
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/nurse/delete/${id}`);
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+            // Fetch and update nurse list here if needed
+        } catch (error) {
+            console.error('Error deleting nursse:', error);
         }
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
-        }
-    };
+
+
 
     return (
         <>
             <div> 
                 <Nurse
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm}
+                    setSelectedNurseId={setSelectedNurseId} 
                     showUpdateForm={showUpdateForm}
-                    setShowUpdateForm={handleUpdateFormToggle}
-                    setSelectedNurseIdId={setSelectedNurseIdId} 
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete}
                 />
                 {showCreateForm && <CreateNurse />}
                 
-                {showUpdateForm && <UpdateNurse id={selectedNurseId} />} 
+                {showUpdateForm && <UpdateNurse id={selectedNurseId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>} 
             </div>
         </>
     );
