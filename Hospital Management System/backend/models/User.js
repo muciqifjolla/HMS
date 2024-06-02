@@ -1,6 +1,8 @@
 // backend/models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Role = require('./Role');
+
 
 const User = sequelize.define('User', {
   user_id: {
@@ -22,14 +24,10 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  role: {
-    type: DataTypes.ENUM('user', 'admin', 'receptionist'),
-    allowNull: true,
-    defaultValue: 'user',
-  }
 }, {
   tableName: 'users', 
   timestamps: false, 
 });
+
 
 module.exports = User;
