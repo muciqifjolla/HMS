@@ -91,8 +91,6 @@ function Staff({
         setShowCreateForm(false);
     };
 
-    
-
     const getDepartmentName = (departmentId) => {
         console.log("Department ID:", departmentId);
         console.log("Departments:", departments);
@@ -108,33 +106,33 @@ function Staff({
     };
 
     const columns = [
-        { field: 'Emp_ID', headerName: 'ID', width: 60 },
-        { field: 'Emp_Fname', headerName: 'Name', width: 120 },
-        { field: 'Emp_Lname', headerName: 'Surname', width: 120 },
+        { field: 'Emp_ID', headerName: 'ID', flex: 1 },
+        { field: 'Emp_Fname', headerName: 'Name', flex: 1 },
+        { field: 'Emp_Lname', headerName: 'Surname', flex: 1 },
         {
             field: 'Joining_Date',
             headerName: 'Joining Date',
-            width: 150,
+            flex: 1,
         },
-        { field: 'Emp_type', headerName: 'Employee Type', width: 130 },
-        { field: 'Email', headerName: 'Email', width: 200 },
-        { field: 'Address', headerName: 'Address', width: 200 },
-        { field: 'Dept_ID', headerName: 'Department ID', width: 120 },
-        { field: 'SSN', headerName: 'SSN', width: 150 },
+        { field: 'Emp_type', headerName: 'Employee Type', flex: 1 },
+        { field: 'Email', headerName: 'Email', flex: 2 },
+        { field: 'Address', headerName: 'Address', flex: 2 },
+        { field: 'Dept_ID', headerName: 'Department ID', flex: 1 },
+        { field: 'SSN', headerName: 'SSN', flex: 1 },
         {
             field: 'DOB',
             headerName: 'Date of Birth',
-            width: 120,
+            flex: 1,
         },
         {
             field: 'Date_Separation',
             headerName: 'Date of Separation',
-            width: 150,
+            flex: 1,
         },
         {
             field: 'update',
             headerName: 'Update',
-            width: 100,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -148,7 +146,7 @@ function Staff({
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 100,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -160,8 +158,6 @@ function Staff({
                 </Button>
             )
         },
-        
-
     ];
 
     return (
@@ -213,6 +209,7 @@ function Staff({
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Emp_ID}
+                    autoHeight
                 />
             </Box>
         </div>

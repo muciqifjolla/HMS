@@ -6,7 +6,6 @@ import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, D
 import { Add, Delete, Edit } from '@mui/icons-material';
 import Cookies from 'js-cookie';
 
-
 function Appointment({
     showCreateForm,
     setShowCreateForm,
@@ -43,10 +42,9 @@ function Appointment({
                 console.error('Error fetching data:', err);
             }
         };
-    
+
         fetchData();
     }, [token]);
-    
 
     const handleUpdateButtonClick = (appointmentId) => {
         setSelectedAppointmentId(appointmentId);
@@ -83,7 +81,7 @@ function Appointment({
         const patientFullName = `${appointment.Patient.Patient_Fname} ${appointment.Patient.Patient_Lname}`.toLowerCase();
         const doctorFullName = `${appointment.Doctor.Staff.Emp_Fname} ${appointment.Doctor.Staff.Emp_Lname}`.toLowerCase();
         const searchQueryLower = searchQuery.toLowerCase();
-    
+
         return (
             patientFullName.includes(searchQueryLower) ||
             doctorFullName.includes(searchQueryLower)
@@ -91,16 +89,16 @@ function Appointment({
     });
 
     const columns = [
-        { field: 'Appoint_ID', headerName: 'Appointment ID', width: 130 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 180 },
-        { field: 'Doctor_Name', headerName: 'Doctor Name', width: 180 },
-        { field: 'Scheduled_On', headerName: 'Scheduled On', width: 180 },
-        { field: 'Date', headerName: 'Date', width: 130 },
-        { field: 'Time', headerName: 'Time', width: 130 },
+        { field: 'Appoint_ID', headerName: 'Appointment ID', flex: 1 },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
+        { field: 'Doctor_Name', headerName: 'Doctor Name', flex: 2 },
+        { field: 'Scheduled_On', headerName: 'Scheduled On', flex: 2 },
+        { field: 'Date', headerName: 'Date', flex: 1 },
+        { field: 'Time', headerName: 'Time', flex: 1 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 130,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -108,14 +106,13 @@ function Appointment({
                     onClick={() => handleUpdateButtonClick(params.row.Appoint_ID)}
                     startIcon={<Edit />}
                 >
-                
                 </Button>
             ),
         },
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 130,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -123,7 +120,6 @@ function Appointment({
                     onClick={() => handleDelete(params.row.Appoint_ID)}
                     startIcon={<Delete />}
                 >
-                  
                 </Button>
             ),
         }
@@ -153,9 +149,7 @@ function Appointment({
                 </Dialog>
             )}
 
-
-
-<Box mt={4} display="flex" alignItems="center">
+            <Box mt={4} display="flex" alignItems="center">
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Appointments
                 </Typography>
@@ -180,6 +174,7 @@ function Appointment({
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Appoint_ID}
+                    autoHeight
                 />
             </Box>
         </div>
@@ -187,7 +182,3 @@ function Appointment({
 }
 
 export default Appointment;
-
-
-
-

@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import CreateBill from './CreateBill';
 
-
 function Bill({
     showCreateForm,
     setShowCreateForm,
@@ -83,32 +82,30 @@ function Bill({
     });
 
     const columns = [
-        { field: 'Bill_ID', headerName: 'ID', width: 100 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 200 },
-        { field: 'Date_Issued', headerName: 'Date Issued', width: 150 },
-        { field: 'Description', headerName: 'Description', width: 150 },
-        { field: 'Amount', headerName: 'Amount', width: 150 },
-        { field: 'Payment_Status', headerName: 'Payment Status', width: 150 },
+        { field: 'Bill_ID', headerName: 'ID', flex: 1 },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
+        { field: 'Date_Issued', headerName: 'Date Issued', flex: 2 },
+        { field: 'Description', headerName: 'Description', flex: 2 },
+        { field: 'Amount', headerName: 'Amount', flex: 2 },
+        { field: 'Payment_Status', headerName: 'Payment Status', flex: 2 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Bill_ID)}
                     startIcon={<Edit />}
-
                 >
-                
                 </Button>
             )
         },
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -116,7 +113,6 @@ function Bill({
                     onClick={() => handleDelete(params.row.Bill_ID)}
                     startIcon={<Delete />}
                 >
-                  
                 </Button>
             )
         }
@@ -146,7 +142,7 @@ function Bill({
                 </Dialog>
             )}
 
-<Box mt={4} display="flex" alignItems="center">
+            <Box mt={4} display="flex" alignItems="center">
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Bills
                 </Typography>
@@ -171,6 +167,7 @@ function Bill({
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Bill_ID}
+                    autoHeight
                 />
             </Box>
         </div>
@@ -178,11 +175,3 @@ function Bill({
 }
 
 export default Bill;
-
-
-
-
-
-
-
-

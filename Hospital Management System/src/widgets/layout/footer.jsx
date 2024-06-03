@@ -47,8 +47,8 @@ Footer.defaultProps = {
   brandName: "Hospital Management System",
   brandLink: "http://localhost:5173/dashboard/home",
   routes: [
-    { name: "About Us", path: "" },
-    { name: "License", path: "" },
+    { name: "", path: "" },
+
   ],
 };
 

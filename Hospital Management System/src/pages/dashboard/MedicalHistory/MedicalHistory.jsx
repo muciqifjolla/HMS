@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import CreateMedicalHistory from './CreateMedicalHistory';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Edit, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 
 function MedicalHistory({
     showCreateForm,
@@ -82,30 +82,28 @@ function MedicalHistory({
     });
 
     const columns = [
-        { field: 'Record_ID', headerName: 'ID', width: 100 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 200 },
-        { field: 'Allergies', headerName: 'Allergies', width: 200 },
-        { field: 'Pre_Conditions', headerName: 'Pre Conditions', width: 200 },
+        { field: 'Record_ID', headerName: 'ID', flex: 1 },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
+        { field: 'Allergies', headerName: 'Allergies', flex: 2 },
+        { field: 'Pre_Conditions', headerName: 'Pre Conditions', flex: 2 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={() => handleUpdateButtonClick(params.row.Record_ID)}
                     startIcon={<Edit />}
-
                 >
-                   
                 </Button>
             )
         },
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 150,
+            flex: 1,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -113,7 +111,6 @@ function MedicalHistory({
                     onClick={() => handleDelete(params.row.Record_ID)}
                     startIcon={<Delete />}
                 >
-                  
                 </Button>
             )
         }
@@ -143,9 +140,9 @@ function MedicalHistory({
                 </Dialog>
             )}
 
-           <Box mt={4} display="flex" alignItems="center">
+            <Box mt={4} display="flex" alignItems="center">
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
-                    Medical Historys
+                    Medical Histories
                 </Typography>
                 {showCreateForm ? null : (
                     <Button
@@ -168,6 +165,7 @@ function MedicalHistory({
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Record_ID}
+                    autoHeight
                 />
             </Box>
         </div>
@@ -175,8 +173,3 @@ function MedicalHistory({
 }
 
 export default MedicalHistory;
-
-
-
-
-

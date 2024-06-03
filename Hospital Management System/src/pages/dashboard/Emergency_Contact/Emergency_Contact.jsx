@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateEmergencyContact from './CreateEmergency_Contact';
-import { Button, TextField, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Add, Delete, Edit, Update } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 
 function EmergencyContact({
     showCreateForm,
@@ -15,7 +15,6 @@ function EmergencyContact({
 }) {
     const [emergencyContacts, setEmergencyContacts] = useState([]);
     const [deleteContactId, setDeleteContactId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [patients, setPatients] = useState([]);
     const token = Cookies.get('token');
@@ -83,15 +82,6 @@ function EmergencyContact({
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const filteredContacts = emergencyContacts.filter((contact) => {
-        const patientName = contact.Patient_Name.toLowerCase();
-        return patientName.startsWith(searchQuery.toLowerCase());
-    });
-
     const columns = [
         { field: 'Contact_ID', headerName: 'Contact ID', width: 250 },
         { field: 'Patient_Name', headerName: 'Patient Name', width: 250 },
@@ -152,32 +142,28 @@ function EmergencyContact({
                 </Dialog>
             )}
 
-            {!showCreateForm && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateFormToggle}
-                    startIcon={<Add />}
-                >
-                </Button>
-            )}
+            <Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Emergency Contacts
+                </Typography>
+                {!showCreateForm && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
+                    >
+                        Add Emergency Contact
+                    </Button>
+                )}
+            </Box>
 
             {showCreateForm && <CreateEmergencyContact onClose={() => setShowCreateForm(false)} />}
-            
-            <Box mt={4}>
-                <TextField
-                    label="Search by Patient Name"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    fullWidth
-                />
-            </Box>
-            
-            <Box mt={4} style={{ height: '100%' , width: '100%' }}>
+
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 {isDataLoaded && (
                     <DataGrid
-                        rows={filteredContacts}
+                        rows={emergencyContacts}
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10]}
