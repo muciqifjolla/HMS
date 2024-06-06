@@ -5,7 +5,6 @@ import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormC
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
-
 function CreateStaff({ onClose }) {
     const [formData, setFormData] = useState({
         Emp_Fname: '',
@@ -39,13 +38,11 @@ function CreateStaff({ onClose }) {
 
     const fetchStaff = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/staff',
-            {
+            const response = await axios.get('http://localhost:9004/api/staff', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            }
-        );
+            });
             setStaff(response.data);
         } catch (error) {
             console.error('Error fetching staff:', error);
@@ -54,15 +51,13 @@ function CreateStaff({ onClose }) {
 
     const handleAddStaff = async () => {
         try {
-            await axios.post("http://localhost:9004/api/staff/create", formData,
-            {
+            await axios.post("http://localhost:9004/api/staff/create", formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            }
-        );
+            });
             navigate('/dashboard/staffs');
-            window.location.reload();// Refresh after successful addition
+            window.location.reload(); // Refresh after successful addition
         } catch (error) {
             console.error('Error adding Staff:', error);
             showAlert(error.response.data.error);
@@ -88,22 +83,20 @@ function CreateStaff({ onClose }) {
             Date_Separation,
         } = formData;
 
-        
-
         if (!Emp_Fname || !Emp_Lname || !Joining_Date || !Emp_type || !Email || !Address || !Dept_ID || !SSN || !DOB || !Date_Separation) {
             showAlert('All fields are required!');
             return;
         }
-        // const validateEmail = (Email) => {
-        //     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        //     return re.test(String(email).toLowerCase());
-        // };
 
         function validateEmail(Email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(String(Email).toLowerCase());
         }
-        
+
+        if (!validateEmail(Email)) {
+            showAlert('Invalid email format');
+            return;
+        }
 
         const existingStaff = staff.find(staff => staff.SSN === SSN);
         if (existingStaff) {
@@ -113,8 +106,6 @@ function CreateStaff({ onClose }) {
 
         handleAddStaff();
     };
-
-  
 
     return (
         <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
@@ -155,17 +146,21 @@ function CreateStaff({ onClose }) {
                     onChange={handleChange}
                     InputLabelProps={{ shrink: true }}
                 />
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Employee Type"
-                    variant="outlined"
-                    id="Emp_type"
-                    name="Emp_type"
-                    placeholder="Enter Employee Type"
-                    value={formData.Emp_type}
-                    onChange={handleChange}
-                />
+                <FormControl fullWidth margin="normal" variant="outlined">
+                    <InputLabel id="emp-type-select-label">Employee Type</InputLabel>
+                    <Select
+                        labelId="emp-type-select-label"
+                        id="Emp_type"
+                        name="Emp_type"
+                        value={formData.Emp_type}
+                        onChange={handleChange}
+                        label="Employee Type"
+                    >
+                        <MenuItem value=""><em>Select Employee Type</em></MenuItem>
+                        <MenuItem value="Doctor">Doctor</MenuItem>
+                        <MenuItem value="Nurse">Nurse</MenuItem>
+                    </Select>
+                </FormControl>
                 <TextField
                     fullWidth
                     margin="normal"

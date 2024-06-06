@@ -41,7 +41,7 @@ export function Nurses() {
                     handleUpdateButtonClick={handleUpdateButtonClick}
                     handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateNurse />}
+                {showCreateForm && <CreateNurse onClose={() => setShowCreateForm(false)}/>}
                 
                 {showUpdateForm && <UpdateNurse id={selectedNurseId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)}/>} 
             </div>

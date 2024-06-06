@@ -1,49 +1,41 @@
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, Typography } from '@mui/material';
+import axios from 'axios';
+import { Modal, Box, Button, Typography, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
+import Cookies from 'js-cookie';
 
 function UpdateNurse({ id, onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
         Emp_ID: '',
     });
-    const [initialData, setInitialData] = useState(null);
+    const [patients, setPatients] = useState([]);
+    const [nurses, setNurses] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [patients, setPatients] = useState([]);
-    const [staffs, setStaffs] = useState([]);
-    const navigate = useNavigate();
+    const [originalData, setOriginalData] = useState({});
     const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [nurseRes, patientRes, staffRes] = await Promise.all([
+                const [nurseRes, patientsRes, nursesRes] = await Promise.all([
                     axios.get(`http://localhost:9004/api/nurse/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                     axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } }),
-                    axios.get('http://localhost:9004/api/staff', { headers: { 'Authorization': `Bearer ${token}` } })
+                    axios.get('http://localhost:9004/api/staff/nurses', { headers: { 'Authorization': `Bearer ${token}` } }),
                 ]);
 
                 const nurseData = nurseRes.data;
-                setPatients(patientRes.data);
-                setStaffs(staffRes.data);
-
+                setOriginalData(nurseData);
                 setFormData({
                     Patient_ID: nurseData.Patient_ID,
                     Emp_ID: nurseData.Emp_ID,
                 });
-                setInitialData({
-                    Patient_ID: nurseData.Patient_ID,
-                    Emp_ID: nurseData.Emp_ID,
-                });
+                setPatients(patientsRes.data);
+                setNurses(nursesRes.data);
             } catch (error) {
-                const message = error.response?.status === 401
-                    ? 'Invalid or expired authentication token. Please log in again.'
-                    : 'Error fetching nurse details.';
-                setAlertMessage(message);
+                console.error('Error fetching data:', error);
+                setAlertMessage('Error fetching nurse details.');
                 setShowErrorModal(true);
             }
         };
@@ -53,19 +45,53 @@ function UpdateNurse({ id, onClose }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevState) => ({ ...prevState, [name]: value }));
+        setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
     const handleUpdateNurse = async () => {
-        const { Patient_ID, Emp_ID } = formData;
-
-        if (Patient_ID === '' || Emp_ID === '') {
+        if (formData.Patient_ID === '' || formData.Emp_ID === '') {
             showAlert('All fields are required');
             return;
         }
 
-        if (JSON.stringify(formData) === JSON.stringify(initialData)) {
-            showAlert('Data must be changed before updating');
+        if (formData.Patient_ID < 1) {
+            showAlert('Patient ID cannot be less than 1');
+            return;
+        }
+        if (formData.Emp_ID < 1) {
+            showAlert('Employee ID cannot be less than 1');
+            return;
+        }
+
+        if (
+            formData.Patient_ID === originalData.Patient_ID &&
+            formData.Emp_ID === originalData.Emp_ID
+        ) {
+            showAlert('No changes detected');
+            return;
+        }
+
+        try {
+            await axios.get(`http://localhost:9004/api/patient/check/${formData.Patient_ID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error checking patient ID:', error);
+            showAlert('Patient ID does not exist');
+            return;
+        }
+
+        try {
+            await axios.get(`http://localhost:9004/api/staff/check/${formData.Emp_ID}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error checking Employee ID:', error);
+            showAlert('Employee ID does not exist');
             return;
         }
 
@@ -73,13 +99,10 @@ function UpdateNurse({ id, onClose }) {
             await axios.put(`http://localhost:9004/api/nurse/update/${id}`, formData, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-
-            navigate('/dashboard/nurse');
-            window.location.reload();
+            window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating nurse:', error);
-            setAlertMessage('Error updating nurse.');
-            setShowErrorModal(true);
+            showAlert('Error updating nurse. Please try again.');
         }
     };
 
@@ -97,7 +120,7 @@ function UpdateNurse({ id, onClose }) {
                     <InputLabel id="patient-select-label">Patient</InputLabel>
                     <Select
                         labelId="patient-select-label"
-                        id="visitPatientID"
+                        id="Patient_ID"
                         name="Patient_ID"
                         value={formData.Patient_ID}
                         onChange={handleChange}
@@ -112,19 +135,19 @@ function UpdateNurse({ id, onClose }) {
                     </Select>
                 </FormControl>
                 <FormControl fullWidth variant="outlined" margin="normal">
-                    <InputLabel id="staff-select-label">Employee</InputLabel>
+                    <InputLabel id="emp-select-label">Employee</InputLabel>
                     <Select
-                        labelId="staff-select-label"
-                        id="nurseEmpID"
+                        labelId="emp-select-label"
+                        id="Emp_ID"
                         name="Emp_ID"
                         value={formData.Emp_ID}
                         onChange={handleChange}
                         label="Employee"
                     >
                         <MenuItem value=""><em>Select Employee</em></MenuItem>
-                        {staffs.map(staff => (
-                            <MenuItem key={staff.Emp_ID} value={staff.Emp_ID}>
-                                {`${staff.Emp_Fname} ${staff.Emp_Lname}`}
+                        {nurses.map(nurse => (
+                            <MenuItem key={nurse.Emp_ID} value={nurse.Emp_ID}>
+                                {`${nurse.Emp_Fname} ${nurse.Emp_Lname}`}
                             </MenuItem>
                         ))}
                     </Select>

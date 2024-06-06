@@ -7,63 +7,43 @@ import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, D
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 
-function Nurse() {
-    const [nurseData, setNurseData] = useState([]);
+function Nurse({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedNurseId }) {
+    const [nurses, setNurses] = useState([]);
     const [deleteNurseId, setDeleteNurseId] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [selectedNurseId, setSelectedNurseId] = useState(null);
     const token = Cookies.get('token');
 
     const handleUpdateButtonClick = (nurseId) => {
         setSelectedNurseId(nurseId);
         setShowUpdateForm(true);
-        setShowCreateForm(false);
     };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
-                const nurseResponse = await axios.get('http://localhost:9004/api/nurse', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const patientResponse = await axios.get('http://localhost:9004/api/patient', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const staffResponse = await axios.get('http://localhost:9004/api/staff', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const [nurseRes, patientRes, staffRes] = await Promise.all([
+                    axios.get('http://localhost:9004/api/nurse', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/staff', { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+
+                const patients = patientRes.data;
+                const staff = staffRes.data;
+
+                const nursesDataWithNames = nurseRes.data.map(nurse => {
+                    const patient = patients.find(p => p.Patient_ID === nurse.Patient_ID);
+                    const employee = staff.find(s => s.Emp_ID === nurse.Emp_ID);
+                    return {
+                        ...nurse,
+                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown',
+                        Employee_Name: employee ? `${employee.Emp_Fname} ${employee.Emp_Lname}` : 'Unknown'
+                    };
                 });
 
-                if (nurseResponse.status === 200 && patientResponse.status === 200 && staffResponse.status === 200) {
-                    const nursesData = nurseResponse.data;
-                    const patientsData = patientResponse.data;
-                    const staffsData = staffResponse.data;
-
-                    const nursesWithNames = nursesData.map(nurse => {
-                        const patient = patientsData.find(p => nurse.Patient_ID === p.Patient_ID);
-                        const staff = staffsData.find(s => nurse.Emp_ID === s.Emp_ID);
-                        return {
-                            ...nurse,
-                            Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown',
-                            Staff_Name: staff ? `${staff.Emp_Fname} ${staff.Emp_Lname}` : 'Unknown'
-                        };
-                    });
-                    setNurseData(nursesWithNames);
-                    setLoading(false);
-                } else {
-                    setError('Failed to fetch all necessary data.');
-                    setLoading(false);
-                }
-            } catch (error) {
-                console.error('Error fetching nurse details:', error);
-                setError('Error fetching nurse details.');
-                setLoading(false);
+                setNurses(nursesDataWithNames);
+            } catch (err) {
+                console.error(err);
             }
         };
-
         fetchData();
     }, [token]);
 
@@ -73,18 +53,14 @@ function Nurse() {
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/nurse/delete/${deleteNurseId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            setNurseData(prevNurses => prevNurses.filter(nurse => nurse.Nurse_ID !== deleteNurseId));
+            await axios.delete(`http://localhost:9004/api/nurse/delete/${deleteNurseId}`, { headers: { 'Authorization': `Bearer ${token}`} });
+            setNurses(nurses.filter(item => item.Nurse_ID !== deleteNurseId));
             setShowUpdateForm(false);
             setShowCreateForm(false);
-        } catch (error) {
-            console.error('Error deleting nurse:', error);
-            alert('Error deleting nurse.');
-        } finally {
-            setDeleteNurseId(null);
+        } catch (err) {
+            console.error(err);
         }
+        setDeleteNurseId(null);
     };
 
     const handleCreateFormToggle = () => {
@@ -92,15 +68,10 @@ function Nurse() {
         setShowUpdateForm(false);
     };
 
-    const handleCloseUpdateForm = () => {
-        setShowUpdateForm(false);
-        setSelectedNurseId(null);
-    };
-
     const columns = [
         { field: 'Nurse_ID', headerName: 'ID', flex: 1 },
         { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
-        { field: 'Staff_Name', headerName: 'Staff Name', flex: 2 },
+        { field: 'Employee_Name', headerName: 'Employee Name', flex: 2 },
         {
             field: 'update',
             headerName: 'Update',
@@ -131,14 +102,6 @@ function Nurse() {
         }
     ];
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>{error}</div>;
-    }
-
     return (
         <div className='container-fluid mt-4'>
             {deleteNurseId && (
@@ -167,7 +130,7 @@ function Nurse() {
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Nurses
                 </Typography>
-                {!showCreateForm && (
+                {showCreateForm ? null : (
                     <Button
                         variant="contained"
                         color="primary"
@@ -180,11 +143,11 @@ function Nurse() {
             </Box>
 
             {showCreateForm && <CreateNurse onClose={() => setShowCreateForm(false)} />}
-            {showUpdateForm && <UpdateNurse id={selectedNurseId} onClose={handleCloseUpdateForm} />}
+            {showUpdateForm && <UpdateNurse onClose={() => setShowUpdateForm(false)} />}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={nurseData}
+                    rows={nurses}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}

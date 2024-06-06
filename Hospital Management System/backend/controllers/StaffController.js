@@ -37,6 +37,22 @@ const FindSingleStaff = async (req, res) => {
     }
 };
 
+const FindNurses = async (req, res) => {
+    try {
+        const nurses = await Staff.findAll({
+            where: { Emp_type: 'nurse' },
+            include: [{
+                model: Department,
+                attributes: ['Dept_name'] 
+            }]
+        });
+        res.json(nurses);
+    } catch (error) {
+        console.error('Error fetching nurses:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 const AddStaff = async (req, res) => {
     try {
         const { Emp_Fname, Emp_Lname, Joining_Date, Emp_type, Email, Address, Dept_ID, SSN, DOB, Date_Separation } = req.body;
@@ -59,10 +75,8 @@ const AddStaff = async (req, res) => {
 
         const department = await Department.findOne({ where: { Dept_ID } });
         if (!department) {
-         return res.status(400).json({ error: 'Department not found' });
-}
-
-
+            return res.status(400).json({ error: 'Department not found' });
+        }
 
         const newStaff = await Staff.create({
             Emp_Fname,
@@ -83,7 +97,6 @@ const AddStaff = async (req, res) => {
     }
 };
 
-
 const UpdateStaff = async (req, res) => {
     try {
         const { Emp_Fname, Emp_Lname, Joining_Date, Emp_type, Email, Address, Dept_ID, SSN, DOB, Date_Separation } = req.body;
@@ -97,8 +110,6 @@ const UpdateStaff = async (req, res) => {
         if (!validateEmail(Email)) {
             return res.status(400).json({ error: 'Invalid email format' });
         }
-
-       
 
         const updated = await Staff.update(
             { Emp_Fname, Emp_Lname, Joining_Date, Emp_type, Email, Address, Dept_ID, SSN, DOB, Date_Separation },
@@ -131,7 +142,6 @@ const DeleteStaff = async (req, res) => {
     }
 };
 
-
 const CheckStaffExistence = async (req, res) => {
     try {
         const { id } = req.params;
@@ -150,6 +160,7 @@ const CheckStaffExistence = async (req, res) => {
 module.exports = {
     FindAllStaff,
     FindSingleStaff,
+    FindNurses, // New function
     AddStaff,
     UpdateStaff,
     DeleteStaff,
