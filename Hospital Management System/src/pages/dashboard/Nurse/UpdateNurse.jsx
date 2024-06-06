@@ -1,90 +1,71 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Modal, Box, TextField, Button, Typography } from '@mui/material';
-import ErrorModal from '../../../components/ErrorModal';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, Typography } from '@mui/material';
+import ErrorModal from '../../../components/ErrorModal';
 
 function UpdateNurse({ id, onClose }) {
     const [formData, setFormData] = useState({
         Patient_ID: '',
         Emp_ID: '',
     });
+    const [initialData, setInitialData] = useState(null);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [originalData, setOriginalData] = useState({});
+    const [patients, setPatients] = useState([]);
+    const [staffs, setStaffs] = useState([]);
+    const navigate = useNavigate();
     const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/nurse/${id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = response.data;
-                setOriginalData(data);
+                const [nurseRes, patientRes, staffRes] = await Promise.all([
+                    axios.get(`http://localhost:9004/api/nurse/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    axios.get('http://localhost:9004/api/staff', { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+
+                const nurseData = nurseRes.data;
+                setPatients(patientRes.data);
+                setStaffs(staffRes.data);
+
                 setFormData({
-                    Patient_ID: data.Patient_ID,
-                    Emp_ID: data.Emp_ID,
+                    Patient_ID: nurseData.Patient_ID,
+                    Emp_ID: nurseData.Emp_ID,
+                });
+                setInitialData({
+                    Patient_ID: nurseData.Patient_ID,
+                    Emp_ID: nurseData.Emp_ID,
                 });
             } catch (error) {
-                console.error('Error fetching nurse:', error);
-                setAlertMessage('Error fetching nurse details.');
+                const message = error.response?.status === 401
+                    ? 'Invalid or expired authentication token. Please log in again.'
+                    : 'Error fetching nurse details.';
+                setAlertMessage(message);
+                setShowErrorModal(true);
             }
         };
 
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevState => ({ ...prevState, [name]: value }));
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
     };
 
     const handleUpdateNurse = async () => {
-        // Basic validation
-        if (formData.Patient_ID === '' || formData.Emp_ID === '') {
+        const { Patient_ID, Emp_ID } = formData;
+
+        if (Patient_ID === '' || Emp_ID === '') {
             showAlert('All fields are required');
             return;
         }
 
-        if (parseInt(formData.Patient_ID) < 1 || parseFloat(formData.Patient_ID) < 1) {
-            showAlert('Patient_ID and cost must be at least 1.');
-            return;
-        }
-        if (parseInt(formData.Emp_ID) < 1 || parseFloat(formData.Emp_ID) < 1) {
-            showAlert('Emp_ID and cost must be at least 1.');
-            return;
-        }
-        // Check if any data has been changed
-        if (
-            formData.Patient_ID === originalData.Patient_ID.toString() &&
-            formData.Emp_ID === originalData.Emp_ID.toString()
-        ) {
-            showAlert('Data must be changed before updating.');
-            return;
-        }
-
-        try {
-            await axios.get(`http://localhost:9004/api/patient/check/${formData.Patient_ID}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-        } catch (error) {
-            console.error('Error checking patient ID:', error);
-            showAlert('Patient ID does not exist');
-            return;
-        }
-
-        try {
-            await axios.get(`http://localhost:9004/api/staff/check/${formData.Emp_ID}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-        } catch (error) {
-            console.error('Error checking Employee ID:', error);
-            showAlert('Employee ID does not exist');
+        if (JSON.stringify(formData) === JSON.stringify(initialData)) {
+            showAlert('Data must be changed before updating');
             return;
         }
 
@@ -92,10 +73,13 @@ function UpdateNurse({ id, onClose }) {
             await axios.put(`http://localhost:9004/api/nurse/update/${id}`, formData, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            window.location.reload(); // Refresh the page to show the updated data
+
+            navigate('/dashboard/nurse');
+            window.location.reload();
         } catch (error) {
             console.error('Error updating nurse:', error);
-            showAlert('Error updating nurse. Please try again.');
+            setAlertMessage('Error updating nurse.');
+            setShowErrorModal(true);
         }
     };
 
@@ -109,29 +93,42 @@ function UpdateNurse({ id, onClose }) {
             <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
                 {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
                 <Typography variant="h6" component="h1" gutterBottom>Update Nurse</Typography>
-                <TextField
-                    margin="normal"
-                    fullWidth
-                    label="Patient ID"
-                    variant="outlined"
-                    id="Patient_ID"
-                    name="Patient_ID"
-                    type="number"
-                    value={formData.Patient_ID}
-                    onChange={handleChange}
-                />
-                <TextField
-                    margin="normal"
-                    fullWidth
-                    label="Employee ID"
-                    variant="outlined"
-                    id="Emp_ID"
-                    name="Emp_ID"
-                    type="number"
-                    value={formData.Emp_ID}
-                    onChange={handleChange}
-                    
-                />
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="patient-select-label">Patient</InputLabel>
+                    <Select
+                        labelId="patient-select-label"
+                        id="visitPatientID"
+                        name="Patient_ID"
+                        value={formData.Patient_ID}
+                        onChange={handleChange}
+                        label="Patient"
+                    >
+                        <MenuItem value=""><em>Select Patient</em></MenuItem>
+                        {patients.map(patient => (
+                            <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="staff-select-label">Employee</InputLabel>
+                    <Select
+                        labelId="staff-select-label"
+                        id="nurseEmpID"
+                        name="Emp_ID"
+                        value={formData.Emp_ID}
+                        onChange={handleChange}
+                        label="Employee"
+                    >
+                        <MenuItem value=""><em>Select Employee</em></MenuItem>
+                        {staffs.map(staff => (
+                            <MenuItem key={staff.Emp_ID} value={staff.Emp_ID}>
+                                {`${staff.Emp_Fname} ${staff.Emp_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleUpdateNurse} sx={{ mr: 1 }}>Submit</Button>
                     <Button variant="outlined" onClick={onClose}>Cancel</Button>

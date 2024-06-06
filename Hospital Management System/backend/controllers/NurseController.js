@@ -1,4 +1,6 @@
 const Nurse = require('../models/Nurse');
+const Patient = require('../models/Patient');
+const Staff = require('../models/Staff');
 
 const FindAllNurses = async (req, res) => {
     try {
@@ -11,42 +13,48 @@ const FindAllNurses = async (req, res) => {
 };
 
 const FindSingleNurse = async (req, res) => {
+    const { id } = req.params;
     try {
-        const nurse = await Nurse.findByPk(req.params.id);
+        const nurse = await Nurse.findByPk(id, {
+            include: [
+                { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                { model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }
+            ]
+        });
+
         if (!nurse) {
-            res.status(404).json({ error: 'Nurse not found' });
-            return;
+            return res.status(404).json({ error: 'Nurse not found' });
         }
+
         res.json(nurse);
     } catch (error) {
-        console.error('Error fetching single nurse:', error);
+        console.error('Error fetching nurse:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
 const AddNurse = async (req, res) => {
+    const { Patient_ID, Emp_ID } = req.body;
     try {
-        const {Patient_ID, Emp_ID } = req.body;
-         
-        // Validate input fields
-         if (!Patient_ID || !Emp_ID ) {
-            return res.status(400).json({ error: 'All fields are required' });
+        const patient = await Patient.findByPk(Patient_ID);
+        const staff = await Staff.findByPk(Emp_ID);
+
+        if (!patient) {
+            return res.status(404).json({ error: 'Patient not found' });
         }
 
-        if (parseInt(Patient_ID) < 1 || isNaN(parseInt(Patient_ID))) {
-            return res.status(400).json({ error: 'Patient ID  must be at least 1' });
-        }
-        if (parseInt(Emp_ID) < 1 || isNaN(parseInt(Emp_ID))) {
-            return res.status(400).json({ error: 'Emp_ID  must be at least 1' });
+        if (!staff) {
+            return res.status(404).json({ error: 'Staff not found' });
         }
 
-        const newNurse = await Nurse.create({
+        const nurse = await Nurse.create({
             Patient_ID,
             Emp_ID,
         });
-        res.json({ success: true, message: 'Nurse added successfully', data: newNurse });
+
+        res.status(201).json(nurse);
     } catch (error) {
-        console.error('Error adding nurse:', error);
+        console.error('Error creating nurse:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
@@ -54,21 +62,9 @@ const AddNurse = async (req, res) => {
 const UpdateNurse = async (req, res) => {
     try {
         const { Patient_ID, Emp_ID } = req.body;
-        // Validate input fields
-        if (!Patient_ID || !Emp_ID) {
-            return res.status(400).json({ error: 'All fields are required' });
-        }
-        if (parseInt(Patient_ID) < 1 || isNaN(parseInt(Patient_ID))) {
-            return res.status(400).json({ error: 'Patient_ID  must be at least 1' });
-        }
-
-        if (parseFloat(Emp_ID) < 1 || isNaN(parseFloat(Emp_ID))) {
-            return res.status(400).json({ error: 'Emp_ID  must be at least 1' });
-        }
-        
         const updated = await Nurse.update(
             { Patient_ID, Emp_ID },
-            { where: { Nurse_ID : req.params.id } }
+            { where: { Nurse_ID: req.params.id } }
         );
         if (updated[0] === 0) {
             res.status(404).json({ error: 'Nurse not found or not updated' });
@@ -76,7 +72,7 @@ const UpdateNurse = async (req, res) => {
         }
         res.json({ success: true, message: 'Nurse updated successfully' });
     } catch (error) {
-        console.error('Error updating nurse:', error);
+        console.error('Error updating Nurse:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
@@ -97,10 +93,34 @@ const DeleteNurse = async (req, res) => {
     }
 };
 
+const FindNursesByPatientId = async (req, res) => {
+    const { patientId } = req.params;
+    try {
+        const nurses = await Nurse.findAll({
+            where: { Patient_ID: patientId },
+            include: [
+                { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                { model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }
+            ]
+        });
+
+        if (!nurses.length) {
+            return res.status(404).json({ error: 'Nurses not found' });
+        }
+
+        res.json(nurses);
+    } catch (error) {
+        console.error('Error fetching Nurses by patient ID:', error.message);
+        console.error(error.stack);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     FindAllNurses,
     FindSingleNurse,
     AddNurse,
     UpdateNurse,
     DeleteNurse,
+    FindNursesByPatientId
 };

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Box, TextField, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
 
@@ -11,29 +11,44 @@ function CreateNurse({ onClose }) {
         Emp_ID: '',
     });
 
-    const [nurses, setNurses] = useState([]);
+    const [patients, setPatients] = useState([]);
+    const [staffs, setStaffs] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
     useEffect(() => {
-        // Fetch existing nurses when component mounts
-        fetchNurses();
+        fetchPatients();
+        fetchStaffs();
     }, []);
 
-    const fetchNurses = async () => {
+    const fetchPatients = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/nurse',{
+            const response = await axios.get('http://localhost:9004/api/patient', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            })
-            setNurses(response.data);
+            });
+            setPatients(response.data);
         } catch (error) {
-            console.error('Error fetching nurses:', error);
+            console.error('Error fetching patients:', error);
         }
     };
+
+    const fetchStaffs = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/staff', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setStaffs(response.data);
+        } catch (error) {
+            console.error('Error fetching staffs:', error);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -50,55 +65,28 @@ function CreateNurse({ onClose }) {
                 }
             });
             navigate('/dashboard/nurse');
-            window.location.reload(); // Refresh the page after successful submission
+            window.location.reload();
         } catch (error) {
             console.error('Error adding nurse:', error);
-            showAlert('Error adding nurse. Please try again.');
+            showAlert(error.response?.data?.message || 'Error adding nurse. Please try again.');
         }
     };
 
     const handleValidation = async () => {
         const { Patient_ID, Emp_ID } = formData;
-        // Ensure all required fields are filled
-        if ( Patient_ID === '' || Emp_ID === '') {
+
+        if (Patient_ID === '' || Emp_ID === '') {
             showAlert('All fields are required');
             return;
         }
-        if (Patient_ID < 1) {
-            showAlert('Patient ID can not be less than 1');
-            return;
-        }
-        if (Emp_ID < 1) {
-            showAlert('Emp ID can not be less than 1');
-            return;
-        }
-        // Check if patient exists
-        try {
-            await axios.get(`http://localhost:9004/api/patient/check/${Patient_ID}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-        } catch (error) {
-            console.error('Error checking patient ID:', error);
-            showAlert('Patient ID does not exist');
+
+        if (Patient_ID < 1 || Emp_ID < 1) {
+            showAlert('ID cannot be less than 1');
             return;
         }
 
-        // Check if employee exists
-        try {
-            await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-        } catch (error) {
-            console.error('Error checking employee ID:', error);
-            showAlert('Employee ID does not exist');
-            return;
-        }
         
-        // Proceed with form submission after successful validation
+
         handleAddNurse();
     };
 
@@ -112,30 +100,42 @@ function CreateNurse({ onClose }) {
             <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
                 {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
                 <Typography variant="h6" component="h1" gutterBottom>Add Nurse</Typography>
-                <Box mb={2}>
-                    <TextField
-                        fullWidth
-                        label="Patient ID"
-                        variant="outlined"
-                        id="Patient_ID"
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="patient-select-label">Patient</InputLabel>
+                    <Select
+                        labelId="patient-select-label"
+                        id="nursePatientID"
                         name="Patient_ID"
-                        type="number"
                         value={formData.Patient_ID}
                         onChange={handleChange}
-                    />
-                </Box>
-                <Box mb={2}>
-                    <TextField
-                        fullWidth
-                        label="Employee ID"
-                        variant="outlined"
-                        id="Emp_ID"
+                        label="Patient"
+                    >
+                        <MenuItem value=""><em>Select Patient</em></MenuItem>
+                        {patients.map(patient => (
+                            <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
+                                {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="staff-select-label">Employee</InputLabel>
+                    <Select
+                        labelId="staff-select-label"
+                        id="nurseStaffID"
                         name="Emp_ID"
-                        type="number"
                         value={formData.Emp_ID}
                         onChange={handleChange}
-                    />
-                </Box>
+                        label="Employee"
+                    >
+                        <MenuItem value=""><em>Select Employee</em></MenuItem>
+                        {staffs.map(staff => (
+                            <MenuItem key={staff.Emp_ID} value={staff.Emp_ID}>
+                                {`${staff.Emp_Fname} ${staff.Emp_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
                     <Button variant="outlined" onClick={onClose}>Cancel</Button>
@@ -146,4 +146,3 @@ function CreateNurse({ onClose }) {
 }
 
 export default CreateNurse;
-
