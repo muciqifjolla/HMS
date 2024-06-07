@@ -13,7 +13,7 @@ export function Doctors() {
     const handleUpdateButtonClick = (doctorId) => {
         setSelectedDoctorId(doctorId);
         setShowUpdateForm((prevState) => prevState === doctorId ? null : doctorId);
-        setShowCreateForm(false); // Close create form if open
+        setShowCreateForm(false); 
     };
 
     const handleDelete = async (id) => {
@@ -21,7 +21,7 @@ export function Doctors() {
             await axios.delete(`http://localhost:9004/api/doctor/delete/${id}`);
             setShowCreateForm(false);
             setShowUpdateForm(false);
-            // Fetch and update doctor list here if needed
+            
         } catch (error) {
             console.error('Error deleting doctor:', error);
         }

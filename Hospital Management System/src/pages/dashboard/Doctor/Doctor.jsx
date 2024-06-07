@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import axios from 'axios';
-import CreateDoctor from './CreateDoctor';
-import Cookies from 'js-cookie'; // Import js-cookie
+import { DataGrid } from '@mui/x-data-grid';
+import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
+import Cookies from 'js-cookie';
+import { Add, Delete, Edit } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+
+// Lazy load components
+const CreateDoctor = lazy(() => import('./CreateDoctor'));
+
 function Doctor({
     showCreateForm,
     setShowCreateForm,
@@ -12,40 +19,33 @@ function Doctor({
     const [doctors, setDoctors] = useState([]);
     const [deleteDoctorId, setDeleteDoctorId] = useState(null);
     const [staff, setStaff] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filteredDoctors, setFilteredDoctors] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(7);
     const token = Cookies.get('token'); 
+    const navigate = useNavigate();
 
     useEffect(() => {
-        axios
-            .get('http://localhost:9004/api/doctors',
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+        axios.get('http://localhost:9004/api/doctors', {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        )
-            .then((res) => {
-                console.log("Doctors data:", res.data);
-                setDoctors(res.data);
-                setFilteredDoctors(res.data);
-            })
-            .catch((err) => console.error('Error fetching doctors:', err));
-            // axios
-            // .get('http://localhost:9004/api/staff')
-            // .then((res) => {
-            //     console.log("Staff data:", res.data);
-            //     setStaff(res.data);
-            // })
-            // .catch((err) => console.error('Error fetching staff:', err));
-    
-    }, []);
+        })
+        .then((res) => {
+            console.log("Doctors data:", res.data);
+            setDoctors(res.data);
+        })
+        .catch((err) => console.error('Error fetching doctors:', err));
+
+        // Uncomment if staff data is needed
+        // axios.get('http://localhost:9004/api/staff')
+        // .then((res) => {
+        //     console.log("Staff data:", res.data);
+        //     setStaff(res.data);
+        // })
+        // .catch((err) => console.error('Error fetching staff:', err));
+    }, [token]);
 
     const handleUpdateButtonClick = (doctorId) => {
         setSelectedDoctorId(doctorId);
-        setShowUpdateForm((prevState) => prevState === doctorId ? null : doctorId);
+        setShowUpdateForm((prevState) => (prevState === doctorId ? null : doctorId));
         if (showCreateForm) {
             setShowCreateForm(false); 
         }
@@ -58,8 +58,7 @@ function Doctor({
     const handleDeleteConfirm = async () => {
         try {
             console.log('Attempting to delete doctor with ID:', deleteDoctorId);
-            const response = await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`, 
-            {
+            const response = await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -68,8 +67,7 @@ function Doctor({
             console.log('Delete response:', response);
             
             setDoctors(doctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
-            setFilteredDoctors(filteredDoctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
-    
+
             if (showCreateForm) {
                 setShowCreateForm(false);
             }
@@ -81,7 +79,6 @@ function Doctor({
         }
         setDeleteDoctorId(null);
     };
-    
 
     const handleCreateFormToggle = () => {
         setShowCreateForm(!showCreateForm);
@@ -92,173 +89,95 @@ function Doctor({
         setShowCreateForm(false); 
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-        setCurrentPage(1); // Reset currentPage to 1 when the search query changes
-    };
-
-    useEffect(() => {
-        if (doctors && Array.isArray(doctors)) {
-            const filtered = doctors
-                .filter((item) =>
-                    getDoctorName(item.Doctor_ID, doctors).toLowerCase().startsWith(searchQuery.toLowerCase())
-                );
-    
-            setFilteredDoctors(filtered);
+    const columns = [
+        { field: 'Doctor_ID', headerName: 'ID', flex: 1 },
+        { field: 'Qualifications', headerName: 'Qualifications', flex: 2 },
+        { field: 'Emp_ID', headerName: 'Employee ID', flex: 2 },
+        { field: 'Specialization', headerName: 'Specialization', flex: 2 },
+        { field: 'user_id', headerName: 'User ID', flex: 2 },
+        {
+            field: 'update',
+            headerName: 'Update',
+            flex: 1,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUpdateButtonClick(params.row.Doctor_ID)}
+                    startIcon={<Edit />}
+                >
+                </Button>
+            )
+        },
+        {
+            field: 'delete',
+            headerName: 'Delete',
+            flex: 1,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDelete(params.row.Doctor_ID)}
+                    startIcon={<Delete />}
+                >
+                </Button>
+            )
         }
-    }, [searchQuery, doctors, currentPage]);
-    
-
-    // Logic to calculate current records for pagination
-    const indexOfLastRecord = currentPage * recordsPerPage;
-    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = filteredDoctors.slice(indexOfFirstRecord, indexOfLastRecord);
-
-    // Change page
-    const paginate = pageNumber => {
-        setCurrentPage(pageNumber);
-    };
-
-    const getDoctorName = (empid, staff) => { 
-        console.log("Employee ID:", empid);
-        console.log("Doctors:", staff);
-    
-        const doctor = staff.find(doc => doc.Emp_ID === empid);
-        console.log("Found Doctor:", doctor);
-    
-        if (doctor) {
-            return `${doctor.Emp_Fname} ${doctor.Emp_Lname}`;
-        } else {
-            return 'Unknown';
-        }
-    };
-    
+    ];
 
     return (
-        <div className="container-fluid mt-4">
-            {/* Render Delete Confirmation Dialog */}
+        <div className='container-fluid mt-4'>
             {deleteDoctorId && (
-                <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-                    <div className="bg-white p-8 mx-auto rounded-lg">
-                        <h1 className="text-lg font-bold mb-4">Confirm Deletion</h1>
-                        <p className="mb-4">Are you sure you want to delete this doctor record?</p>
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-2 rounded"
-                                onClick={handleDeleteConfirm}
-                            >
-                                Delete
-                            </button>
-                            <button
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-                                onClick={() => setDeleteDoctorId(null)}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <Dialog
+                    open={!!deleteDoctorId}
+                    onClose={() => setDeleteDoctorId(null)}
+                >
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this doctor record?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteDoctorId(null)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteConfirm} color="secondary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             )}
 
-            {/* Conditionally render the "Add Doctor" button or "Close" button based on showCreateForm */}
-            {showCreateForm ? null : (
-                <div>
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        style={{ borderRadius: '0.5rem' }}
+            <Box mt={4} display="flex" alignItems="center">
+                <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                    Doctors
+                </Typography>
+                {!showCreateForm && (
+                    <Button
+                        variant="contained"
+                        color="primary"
                         onClick={handleCreateFormToggle}
+                        startIcon={<Add />}
                     >
                         Add Doctor
-                    </button>
-                </div>
-            )}
-
-            {/* Pagination buttons and Add Doctor button */}
-            <div className="mt-4">
-                {/* Pagination buttons */}
-                {filteredDoctors.length > recordsPerPage && (
-                    <div className="flex justify-end">
-                        <div>
-                            {currentPage > 1 && (
-                                <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage - 1)}>Previous</button>
-                            )}
-                            {currentPage < Math.ceil(filteredDoctors.length / recordsPerPage) && (
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => paginate(currentPage + 1)}>Next</button>
-                            )}
-                        </div>
-                    </div>
+                    </Button>
                 )}
-            </div>
+            </Box>
 
-            {/* Render CreateDoctor component only when showCreateForm is true */}
-            {showCreateForm && <CreateDoctor onClose={() => setShowCreateForm(false)} />}
+            <Suspense fallback={<div>Loading...</div>}>
+                {showCreateForm && <CreateDoctor onClose={handleCloseCreateForm} />}
+            </Suspense>
 
-            {/* Search Input */}
-            <div className="mt-4">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search by qualifications or specialization..."
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    className="border border-gray-300 px-4 py-2 rounded-md"
+            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+                <DataGrid
+                    rows={doctors}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Doctor_ID}
                 />
-            </div>
-            
-            {/* Render Table */}
-            <div className="table-responsive mt-4">
-                <div className="py-8">
-                    <h2 className="text-2xl font-semibold leading-tight">Doctors</h2>
-                    <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                        <div className="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
-                            <table className="min-w-full leading-normal">
-                                <thead>
-                                    <tr>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Qualifications</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Employee ID</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Specialization</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">(ID)</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Update</th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {currentRecords.map((data, i) => (
-                                        <tr key={i}>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Qualifications}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_ID}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Specialization}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{data.Emp_ID}</td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                {showUpdateForm === data.Emp_ID ? (
-                                                    // If the update form is shown for this doctor, render nothing
-                                                    null
-                                                ) : (
-                                                    // If the update form is not shown, render the "Update" button
-                                                    <button
-                                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                        onClick={() => handleUpdateButtonClick(data.Emp_ID)}
-                                                    >
-                                                        Update
-                                                    </button>
-                                                )}
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button
-                                                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => handleDelete(data.Emp_ID)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </Box>
         </div>
     );
 }

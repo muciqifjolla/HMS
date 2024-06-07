@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import ErrorModal from '../../../components/ErrorModal';
+import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
 import Cookies from 'js-cookie'; // Import js-cookie
-function CreateDoctor({ onClose }) {
+
+
+// Lazy load the ErrorModal component
+const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
+
+function CreateDoctor({ onClose })  {
     const [formData, setFormData] = useState({
         Qualifications: '',
         Emp_ID: '',
@@ -94,76 +99,62 @@ function CreateDoctor({ onClose }) {
     };
 
     return (
-        <div className='fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50'>
-            <div className='bg-white p-8 mx-auto rounded-lg w-96'>
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className='text-lg font-bold mb-4'>Add Doctor</h1>
-                {/* Qualifications */}
-                <div className='mb-2'>
-                    <label htmlFor='Qualifications'>Qualifications:</label>
-                    <input
-                        type='text'
-                        name='Qualifications'
-                        placeholder='Enter Qualifications'
-                        className='form-control w-full'
-                        value={formData.Qualifications}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Emp_ID */}
-                <div className='mb-2'>
-                    <label htmlFor='Emp_ID'>Employee ID:</label>
-                    <input
-                        type='number'
-                        name='Emp_ID'
-                        placeholder='Enter Employee ID'
-                        className='form-control w-full'
-                        value={formData.Emp_ID}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Specialization */}
-                <div className='mb-2'>
-                    <label htmlFor='Specialization'>Specialization:</label>
-                    <input
-                        type='text'
-                        name='Specialization'
-                        placeholder='Enter Specialization'
-                        className='form-control w-full'
-                        value={formData.Specialization}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* user_id */}
-                <div className='mb-2'>
-                    <label htmlFor='user_id'>User ID:</label>
-                    <input
-                        type='number'
-                        name='user_id'
-                        placeholder='Enter User ID'
-                        className='form-control w-full'
-                        value={formData.user_id}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='flex justify-end'>
-                    <button
-                        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-                        onClick={handleValidation}
-                    >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                <Suspense fallback={<div>Loading...</div>}>
+                    {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                </Suspense>
+                <Typography variant="h6" component="h1" gutterBottom>Add Doctor</Typography>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Qualifications"
+                    variant="outlined"
+                    id="Qualifications"
+                    name="Qualifications"
+                    placeholder="Enter Qualifications"
+                    value={formData.Qualifications}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Employee ID"
+                    variant="outlined"
+                    id="Emp_ID"
+                    name="Emp_ID"
+                    placeholder="Enter Employee ID"
+                    value={formData.Emp_ID}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Specialization"
+                    variant="outlined"
+                    id="Specialization"
+                    name="Specialization"
+                    placeholder="Enter Specialization"
+                    value={formData.Specialization}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="User ID"
+                    variant="outlined"
+                    id="user_id"
+                    name="user_id"
+                    placeholder="Enter User ID"
+                    value={formData.user_id}
+                    onChange={handleChange}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
