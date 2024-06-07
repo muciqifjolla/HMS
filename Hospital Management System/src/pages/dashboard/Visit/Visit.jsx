@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreateVisit from './CreateVisit';
-import UpdateVisit from './UpdateVisit';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
+import Datetime from 'react-datetime';
+import "react-datetime/css/react-datetime.css";
+
+const CreateVisit = lazy(() => import('./CreateVisit'));
+const UpdateVisit = lazy(() => import('./UpdateVisit'));
 
 function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedVisitId }) {
     const [visits, setVisits] = useState([]);
@@ -68,11 +71,25 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
         setShowUpdateForm(false);
     };
 
+    const formatDate = (date) => {
+        if (!date) return 'N/A';
+        return new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(new Date(date));
+    };
+
     const columns = [
         { field: 'Visit_ID', headerName: 'ID', flex: 1 },
         { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
         { field: 'Doctor_Name', headerName: 'Doctor Name', flex: 2 },
-        { field: 'date_of_visit', headerName: 'Date of Visit', flex: 2 },
+        { 
+            field: 'date_of_visit', 
+            headerName: 'Date of Visit', 
+            flex: 2,
+            renderCell: (params) => formatDate(params.row.date_of_visit)
+        },
         { field: 'condition', headerName: 'Condition', flex: 2 },
         { field: 'diagnosis', headerName: 'Diagnosis', flex: 2 },
         { field: 'therapy', headerName: 'Therapy', flex: 2 },
@@ -146,7 +163,11 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
                 )}
             </Box>
 
-            {showCreateForm && <CreateVisit onClose={() => setShowCreateForm(false)} />}
+            {showCreateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <CreateVisit onClose={() => setShowCreateForm(false)} />
+                </Suspense>
+            )}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
@@ -157,6 +178,12 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
                     getRowId={(row) => row.Visit_ID}
                 />
             </Box>
+
+            {showUpdateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <UpdateVisit onClose={() => setShowUpdateForm(false)}/>
+                </Suspense>
+            )}
         </div>
     );
 }

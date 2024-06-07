@@ -1,9 +1,10 @@
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Modal, InputAdornment } from '@mui/material';
-import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
+
+const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
 
 function UpdateRoom({ id, onClose }) {
     const [formData, setFormData] = useState({
@@ -103,7 +104,11 @@ function UpdateRoom({ id, onClose }) {
     return (
         <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
             <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                {showErrorModal && (
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
+                    </Suspense>
+                )}
                 <Typography variant="h6" component="h1" gutterBottom>Update Room</Typography>
                 <TextField
                     margin="normal"
