@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { Box, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
+
+const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
 
 const CreateReport = ({ onClose, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
@@ -321,7 +322,11 @@ const CreateReport = ({ onClose, onSaveSuccess }) => {
           Send Email
         </Button>
       </Box>
-      {showModal && <ErrorModal message={modalMessage} onClose={closeModal} />}
+      {showModal && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <ErrorModal message={modalMessage} onClose={closeModal} />
+        </Suspense>
+      )}
     </Box>
   );
 };

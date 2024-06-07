@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreateReport from './CreateReport';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add } from '@mui/icons-material';
+import Datetime from 'react-datetime';
+import "react-datetime/css/react-datetime.css";
+
+const CreateReport = lazy(() => import('./CreateReport'));
 
 function Report({ showCreateForm, setShowCreateForm }) {
   const [reports, setReports] = useState([]);
@@ -19,14 +22,16 @@ function Report({ showCreateForm, setShowCreateForm }) {
     try {
       const res = await axios.get('http://localhost:9004/api/report/fetch-reports', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
       });
       const reportsWithUrls = res.data.map(report => {
         const uint8Array = new Uint8Array(report.report.data);
         const blob = new Blob([uint8Array], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
-        return { ...report, pdfUrl: url };
+        const createdAt = report.created_at ? new Date(report.created_at) : null;
+        console.log(`Report ID: ${report.Report_ID}, Created At: ${createdAt}`); // Debug log
+        return { ...report, pdfUrl: url, created_at: createdAt };
       });
       setReports(reportsWithUrls);
     } catch (err) {
@@ -60,6 +65,20 @@ function Report({ showCreateForm, setShowCreateForm }) {
     window.open(reportData.pdfUrl, '_blank');
   };
 
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return (
+      <Datetime
+        value={date}
+        timeFormat="HH:mm:ss"
+        dateFormat="DD-MM-YYYY"
+        renderInput={(props,) => (
+          <input {...props} disabled />
+        )}
+      />
+    );
+  };
+
   const columns = [
     { field: 'Report_ID', headerName: 'ID', flex: 1 },
     { field: 'personal_number', headerName: 'Personal Number', flex: 2 },
@@ -81,6 +100,10 @@ function Report({ showCreateForm, setShowCreateForm }) {
       field: 'created_at',
       headerName: 'Time created',
       flex: 2,
+      renderCell: (params) => {
+        const date = params.row?.created_at;
+        return date ? formatDate(date) : 'N/A';
+      },
     },
     {
       field: 'delete',
@@ -139,7 +162,9 @@ function Report({ showCreateForm, setShowCreateForm }) {
       </Box>
 
       {showCreateForm && (
-        <CreateReport onClose={() => setShowCreateForm(false)} onSaveSuccess={refreshReports} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <CreateReport onClose={() => setShowCreateForm(false)} onSaveSuccess={refreshReports} />
+        </Suspense>
       )}
 
       <Box mt={4} style={{ height: '100%', width: '100%' }}>

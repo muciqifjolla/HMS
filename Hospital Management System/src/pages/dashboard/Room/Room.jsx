@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreateRoom from './CreateRoom';
-import UpdateRoom from './UpdateRoom';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { useLocation } from 'react-router-dom';
+
+const CreateRoom = lazy(() => import('./CreateRoom'));
+const UpdateRoom = lazy(() => import('./UpdateRoom'));
 
 function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedRoomId }) {
     const [rooms, setRooms] = useState([]);
@@ -146,7 +147,11 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                 )}
             </Box>
 
-            {showCreateForm && <CreateRoom onClose={() => setShowCreateForm(false)} />}
+            {showCreateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <CreateRoom onClose={() => setShowCreateForm(false)} />
+                </Suspense>
+            )}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
@@ -157,6 +162,12 @@ function Room({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdate
                     getRowId={(row) => row.Room_ID}
                 />
             </Box>
+
+            {showUpdateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <UpdateRoom onClose={() => setShowUpdateForm(false)}/>
+                </Suspense>
+            )}
         </div>
     );
 }
