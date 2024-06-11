@@ -20,28 +20,36 @@ function Doctor({
     const [deleteDoctorId, setDeleteDoctorId] = useState(null);
     const [staff, setStaff] = useState(null);
     const token = Cookies.get('token'); 
+    const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+    const [isDataLoaded, setIsDataLoaded] = useState(false); 
 
     useEffect(() => {
-        axios.get('http://localhost:9004/api/doctors', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const fetchData = async () => {
+            try {
+                const doctorsRes = await axios.get('http://localhost:9004/api/doctors', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const doctorsDataWithNames = doctorsRes.data.map(doctor => {
+                    const staff = doctor.Staff;
+                    return {
+                        ...doctor,
+                        Emp_Name: staff ? `${staff.Emp_Fname} ${staff.Emp_Lname}` : 'Unknown'
+                    };
+                });
+                setDoctors(doctorsDataWithNames);
+                setIsDataLoaded(true);
+            } catch (err) {
+                console.error('Error fetching data:', err);
             }
-        })
-        .then((res) => {
-            console.log("Doctors data:", res.data);
-            setDoctors(res.data);
-        })
-        .catch((err) => console.error('Error fetching doctors:', err));
+        };
 
-        // Uncomment if staff data is needed
-        // axios.get('http://localhost:9004/api/staff')
-        // .then((res) => {
-        //     console.log("Staff data:", res.data);
-        //     setStaff(res.data);
-        // })
-        // .catch((err) => console.error('Error fetching staff:', err));
+        fetchData();
     }, [token]);
+    
+
 
     const handleUpdateButtonClick = (doctorId) => {
         setSelectedDoctorId(doctorId);
@@ -57,23 +65,8 @@ function Doctor({
 
     const handleDeleteConfirm = async () => {
         try {
-            console.log('Attempting to delete doctor with ID:', deleteDoctorId);
-            const response = await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            console.log('Delete response:', response);
-            
+            await axios.delete(`http://localhost:9004/api/doctros/delete/${deleteDoctorId}`);
             setDoctors(doctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
-
-            if (showCreateForm) {
-                setShowCreateForm(false);
-            }
-            if (showUpdateForm) {
-                setShowUpdateForm(false);
-            }
         } catch (err) {
             console.error('Error deleting doctor:', err);
         }
@@ -88,13 +81,21 @@ function Doctor({
     const handleCloseCreateForm = () => {
         setShowCreateForm(false); 
     };
+    const filteredDoctors = doctors.filter((doctor) => {
+        const doctorFullName = `${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}`.toLowerCase();
+        const searchQueryLower = searchQuery.toLowerCase();
+
+        return (
+            doctorFullName.includes(searchQueryLower)
+        );
+    });
+
 
     const columns = [
         { field: 'Doctor_ID', headerName: 'ID', flex: 1 },
         { field: 'Qualifications', headerName: 'Qualifications', flex: 2 },
-        { field: 'Emp_ID', headerName: 'Employee ID', flex: 2 },
+        { field: 'Emp_Name', headerName: 'Doctor Name', flex: 2 },
         { field: 'Specialization', headerName: 'Specialization', flex: 2 },
-        
         {
             field: 'update',
             headerName: 'Update',

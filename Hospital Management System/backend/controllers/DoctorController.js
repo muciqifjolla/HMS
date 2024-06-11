@@ -1,17 +1,16 @@
 const Doctor = require('../models/Doctor');
-const User = require('../models/User');
 const Staff = require('../models/Staff');
 
 const FindAllDoctors = async (req, res) => {
     try {
         const doctors = await Doctor.findAll({
-            include: [{
-                model: User,
-            }, {
-                model: Staff
-            }
-        ]
-    });
+            include: [
+                {
+                    model: Staff,
+                    attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the first name and last name attributes
+                }
+            ]
+        });
         res.json(doctors);
     } catch (error) {
         console.error('Error fetching all doctors:', error);

@@ -22,23 +22,28 @@ function CreateDoctor({ onClose })  {
     const token = Cookies.get('token'); 
 
  
-    useEffect(() => {
-        // Fetch existing medicines when component mounts
-        fetchDoctor();
-    }, []);
+    // useEffect(() => {
+        
+    //     fetchStaff();
+        
+    // }, []);
 
-    const fetchDoctor = async () => {
+    const fetchDoctors = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/doctors',{
+            const response = await axios.get('http://localhost:9004/api/doctors', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-                });
-            setDoctor(response.data);
+            });
+            setDoctors(response.data);
         } catch (error) {
-            console.error('Error fetching doctor:', error);
+            console.error('Error fetching doctors:', error);
         }
     };
+    useEffect(() => {
+        fetchDoctors();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
