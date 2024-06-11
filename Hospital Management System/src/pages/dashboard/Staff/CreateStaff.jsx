@@ -21,17 +21,26 @@ function CreateStaff({ onClose }) {
     const [staff, setStaff] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [department, setDepartments] = useState([]);
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
+    useEffect(() => {
+        fetchDepartments();
+    }, []);
 
+    const fetchDepartments = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/department', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setDepartments(response.data);
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    };
     useEffect(() => {
         fetchStaff();
     }, []);
@@ -48,6 +57,15 @@ function CreateStaff({ onClose }) {
             console.error('Error fetching staff:', error);
         }
     };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
 
     const handleAddStaff = async () => {
         try {
@@ -106,6 +124,7 @@ function CreateStaff({ onClose }) {
 
         handleAddStaff();
     };
+    
 
     return (
         <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
@@ -183,17 +202,24 @@ function CreateStaff({ onClose }) {
                     value={formData.Address}
                     onChange={handleChange}
                 />
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Department ID"
-                    variant="outlined"
-                    id="Dept_ID"
-                    name="Dept_ID"
-                    placeholder="Enter Department ID"
-                    value={formData.Dept_ID}
-                    onChange={handleChange}
-                />
+                <FormControl fullWidth variant="outlined" margin="normal">
+                        <InputLabel id="department-select-label">Department</InputLabel>
+                        <Select
+                            labelId="patient-department-select-label-label"
+                            id="visitDepartmentID"
+                            name="Dept_ID"
+                            value={formData.Dept_ID}
+                            onChange={handleChange}
+                            label="Department"
+                        >
+                            <MenuItem value=""><em>Select Department</em></MenuItem>
+                            {department.map(departmenttype => (
+                                <MenuItem key={departmenttype.Dept_ID} value={departmenttype.Dept_ID}>
+                                    {`${departmenttype.Dept_name}`}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 <TextField
                     fullWidth
                     margin="normal"

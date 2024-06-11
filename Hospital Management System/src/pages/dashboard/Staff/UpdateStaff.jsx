@@ -18,41 +18,43 @@ function UpdateStaff({ id, onClose }) {
         SSN: '',
         DOB: '',
     });
-    const [departments, setDepartments] = useState([]);
+    const [department, setDepartments] = useState([]); // Change 'department' to 'departments'
+
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const staffResponse = await axios.get(`http://localhost:9004/api/staff/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const data = staffResponse.data;
-                setFormData(data);
+        fetchStaffDetails();
+        fetchDepartments();
+    }, [id]);
 
-                const departmentResponse = await axios.get(`http://localhost:9004/api/department/${data.Dept_ID}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                setDepartments([departmentResponse.data]);
-            } catch (error) {
-                console.error('Error fetching staff details:', error);
-                showAlert('Error fetching staff details.');
-            }
-        };
-
-        fetchData();
-    }, [id, token]);
-
-    const showAlert = (message) => {
-        setAlertMessage(message);
-        setShowErrorModal(true);
+    const fetchStaffDetails = async () => {
+        try {
+            const response = await axios.get(`http://localhost:9004/api/staff/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = response.data;
+            setFormData(data);
+        } catch (error) {
+            console.error('Error fetching staff details:', error);
+            showAlert('Error fetching staff details.');
+        }
+    };
+    const fetchDepartments = async () => {
+        try {
+            const response = await axios.get('http://localhost:9004/api/department', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setPatients(response.data);
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
     };
 
     const handleChange = (e) => {
@@ -63,7 +65,25 @@ function UpdateStaff({ id, onClose }) {
         }));
     };
 
-    const handleUpdateStaff = async () => {
+    const handleValidation = async () => {
+        const { Patient_ID, Doctor_ID, Date, Time, Scheduled_On } = formData;
+
+        if (!Emp_Fname || !Emp_Lname || !Joining_Date || !Emp_type || !Email || !Address || !Dept_ID || !SSN || !DOB || !Date_Separation) {
+            showAlert('All fields are required!');
+            return;
+        }
+
+        function validateEmail(Email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(Email).toLowerCase());
+        }
+
+        if (!validateEmail(Email)) {
+            showAlert('Invalid email format');
+            return;
+        }
+        
+
         try {
             await axios.put(`http://localhost:9004/api/staff/update/${id}`, formData, {
                 headers: {
@@ -76,9 +96,14 @@ function UpdateStaff({ id, onClose }) {
             console.error('Error updating staff:', error);
             showAlert('Error updating staff.');
         }
+        handleAddStaff();
     };
 
- 
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setShowErrorModal(true);
+    };
+
 
     return (
         <Modal open onClose={onClose}>
@@ -158,18 +183,24 @@ function UpdateStaff({ id, onClose }) {
                     value={formData.Address}
                     onChange={handleChange}
                 />
-                <TextField
-                    margin="normal"
-                    fullWidth
-                    label="Department"
-                    variant="outlined"
-                    id="Dept_ID"
-                    name="Dept_ID"
-                    value={formData.Dept_ID}
-                    InputProps={{
-                        readOnly: true,
-                    }}
-                />
+              <FormControl fullWidth variant="outlined" margin="normal">
+                        <InputLabel id="department-select-label">Department</InputLabel>
+                        <Select
+                            labelId="patient-department-select-label-label"
+                            id="visitDepartmentID"
+                            name="Dept_ID"
+                            value={formData.Dept_ID}
+                            onChange={handleChange}
+                            label="Department"
+                        >
+                            <MenuItem value=""><em>Select Department</em></MenuItem>
+                            {department.map(departmenttype => (
+                                <MenuItem key={departmenttype.Dept_ID} value={departmenttype.Dept_ID}>
+                                    {`${departmenttype.Dept_name}`}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 <TextField
                     margin="normal"
                     fullWidth
@@ -192,7 +223,7 @@ function UpdateStaff({ id, onClose }) {
                     onChange={handleChange}
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                    <Button variant="contained" color="primary" onClick={handleUpdateStaff} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
                     <Button variant="outlined" onClick={onClose}>Cancel</Button>
                 </Box>
             </Box>

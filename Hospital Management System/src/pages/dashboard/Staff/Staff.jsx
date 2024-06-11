@@ -18,39 +18,38 @@ function Staff({
     const [deleteStaffId, setDeleteStaffId] = useState(null);
     const [departments, setDepartments] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredStaff, setFilteredStaff] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(7);
+   
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
     const token = Cookies.get('token');
     const navigate = useNavigate();
-    console.log(staff);
-
+    // console.log(staff);
     useEffect(() => {
-      
-        axios.get('http://localhost:9004/api/staff', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const fetchData = async () => {
+            try {
+                const staffRes = await axios.get('http://localhost:9004/api/staff', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const staffDataWithNames = staffRes.data.map(staff => {
+                    const department = staff.Department;
+                    
+                    return {
+                        ...staff,
+                        Dept_Name: department ? `${department.Dept_name}` : 'Unknown'
+                    };
+                });
+                setStaff(staffDataWithNames);
+                setIsDataLoaded(true);
+            } catch (err) {
+                console.error('Error fetching data:', err);
             }
-        })
-            .then(res => {
-                console.log("Staff data:", res.data);
-                setStaff(res.data);
-                setFilteredStaff(res.data);
-            })
-            .catch(err => console.error('Error fetching staff:', err));
-
-        axios.get('http://localhost:9004/api/department', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-            .then(res => {
-                console.log("Departments data:", res.data);
-                setDepartments(res.data);
-            })
-            .catch(err => console.error('Error fetching departments:', err));
-
+        };
+    
+        fetchData();
     }, [token]);
+    
+
 
     const handleUpdateButtonClick = (staffId) => {
         setSelectedStaffId(staffId);
@@ -91,19 +90,29 @@ function Staff({
         setShowCreateForm(false);
     };
 
-    const getDepartmentName = (departmentId) => {
-        console.log("Department ID:", departmentId);
-        console.log("Departments:", departments);
+    // const getDepartmentName = (departmentId) => {
+    //     console.log("Department ID:", departmentId);
+    //     console.log("Departments:", departments);
 
-        const department = departments.find(dept => dept.Dept_ID === departmentId);
-        console.log("Found Department:", department);
+    //     const department = departments.find(dept => dept.Dept_ID === departmentId);
+    //     console.log("Found Department:", department);
 
-        if (department) {
-            return `${department.Dept_name}`;
-        } else {
-            return 'Unknown';
-        }
-    };
+    //     if (department) {
+    //         return `${department.Dept_name}`;
+    //     } else {
+    //         return 'Unknown';
+    //     }
+    // };
+
+    const filteredStaff = staff.filter((staff) => {
+        const departmentFullName = `${staff.Department.Dept_name}`.toLowerCase();
+        const searchQueryLower = searchQuery.toLowerCase();
+
+        return (
+            departmentFullName.includes(searchQueryLower) 
+            
+        );
+    });
 
     const columns = [
         { field: 'Emp_ID', headerName: 'ID', flex: 1 },
@@ -117,7 +126,7 @@ function Staff({
         { field: 'Emp_type', headerName: 'Employee Type', flex: 1 },
         { field: 'Email', headerName: 'Email', flex: 2 },
         { field: 'Address', headerName: 'Address', flex: 2 },
-        { field: 'Dept_ID', headerName: 'Department ID', flex: 1 },
+        { field: 'Dept_Name', headerName: 'Department', flex: 1 },
         { field: 'SSN', headerName: 'SSN', flex: 1 },
         {
             field: 'DOB',

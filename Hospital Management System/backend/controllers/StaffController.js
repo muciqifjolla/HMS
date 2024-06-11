@@ -12,8 +12,8 @@ const FindAllStaff = async (req, res) => {
     try {
         const staff = await Staff.findAll({
             include: [{
-                model: Department,
-                attributes: ['Dept_name'] 
+                model: Department
+                // attributes: ['Dept_name'] 
             }]
         });
         res.json(staff);
