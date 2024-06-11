@@ -1,10 +1,11 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
-import Cookies from 'js-cookie';
-import ErrorModal from '../../../components/ErrorModal';
 
-const ErrorModalLazy = lazy(() => import('../../../components/ErrorModal'));
+import Cookies from 'js-cookie';
+// Lazy load the ErrorModal component
+const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
 
 function UpdateDoctor({ id, onClose }) {
     const [formData, setFormData] = useState({
@@ -12,18 +13,23 @@ function UpdateDoctor({ id, onClose }) {
         Emp_ID: '',
         Specialization: ''
     });
-    const [staff, setStaff] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [originalData, setOriginalData] = useState({});
+    
+    const [staff, setStaff] = useState([]);
+    const navigate = useNavigate();
     const token = Cookies.get('token');
 
     useEffect(() => {
         fetchDoctorDetails();
         fetchStaff();
     }, [id]);
-   
+
+
     const fetchDoctorDetails = async () => {
         try {
+            
             const response = await axios.get(`http://localhost:9004/api/doctors/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -36,7 +42,7 @@ function UpdateDoctor({ id, onClose }) {
             showAlert('Error fetching doctor details.');
         }
     };
-
+    
     const fetchStaff = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/staff', {
@@ -50,21 +56,19 @@ function UpdateDoctor({ id, onClose }) {
         }
     };
 
-    const handleInputChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
             ...prevState,
             [name]: value,
         }));
     };
-
     const handleValidation = async () => {
         const { Qualifications, Emp_ID, Specialization } = formData;
 
-        if (!Qualifications || !Emp_ID || !Specialization || !/^\S+$/.test(Emp_ID)) {            showAlert("All fields are required.");
-            showAlert('All fields are required.');
+        if (Qualifications === '' || Emp_ID === '' || Specialization === '') {
+            showAlert("All fields are required.");
             return;
-       
         }
         try {
             await axios.put(`http://localhost:9004/api/doctors/update/${id}`, formData, {
@@ -76,10 +80,9 @@ function UpdateDoctor({ id, onClose }) {
             window.location.reload(); // Reload the page
         } catch (error) {
             console.error('Error updating doctor:', error);
-            showAlert('Error updating doctor.');
+            showAlert('Error updating doctors.');
         }
     };
-
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
@@ -101,27 +104,27 @@ function UpdateDoctor({ id, onClose }) {
                     name="Qualifications"
                     placeholder="Enter Qualifications"
                     value={formData.Qualifications}
-                    onChange={handleInputChange}
+                    onChange={handleChange}
                 />
-                <FormControl fullWidth variant="outlined" margin="normal">
-                <InputLabel id="doctor-select-label">Employee ID</InputLabel>
-                <Select
-                    labelId="doctor-select-label"
-                    id="visitDoctorID"
-                    name="Emp_ID"  // Changed name to Emp_ID
-                    value={formData.Emp_ID}
-                    onChange={handleInputChange}  // Changed to handleInputChange
-                    label="Employee ID"  // Changed label to "Employee ID"
-                    disabled
-                >
-                    <MenuItem value=""><em>Select Employee ID</em></MenuItem>
-                    {staff.map(staffMember => (
-                        <MenuItem key={staffMember.id} value={staffMember.id}>
-                            {`${staffMember.first_name} ${staffMember.last_name}`}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+              <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="doctor-select-label">Doctor</InputLabel>
+                    <Select
+                        labelId="doctor-select-label"
+                        id="visitDoctorID"
+                        name="Emp_ID"
+                        value={formData.Emp_ID}
+                        onChange={handleChange}
+                        label="Doctor"
+                        
+                    >
+                        <MenuItem value=""><em>Select Doctor</em></MenuItem>
+                        {staff.map(staffMember => (
+                            <MenuItem key={staffMember.Emp_ID} value={staffMember.Emp_ID}>
+                                {`${staffMember.Emp_Fname} ${staffMember.Emp_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <TextField
                     fullWidth
                     margin="normal"
@@ -131,7 +134,7 @@ function UpdateDoctor({ id, onClose }) {
                     name="Specialization"
                     placeholder="Enter Specialization"
                     value={formData.Specialization}
-                    onChange={handleInputChange}
+                    onChange={handleChange}
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>

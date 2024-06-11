@@ -20,9 +20,7 @@ const FindAllDoctors = async (req, res) => {
 
 const FindSingleDoctor = async (req, res) => {
     try {
-        const doctor = await Doctor.findByPk(req.params.id,{
-            include: [User, Staff ]
-        });
+        const doctor = await Doctor.findByPk(req.params.id);
         if (!doctor) {
             res.status(404).json({ error: 'Doctor not found' });
             return;

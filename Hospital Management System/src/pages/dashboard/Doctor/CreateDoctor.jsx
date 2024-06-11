@@ -2,47 +2,39 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Modal } from '@mui/material';
-import Cookies from 'js-cookie'; // Import js-cookie
-
+import Cookies from 'js-cookie';
 
 // Lazy load the ErrorModal component
 const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
 
-function CreateDoctor({ onClose })  {
+function CreateDoctor({ onClose }) {
     const [formData, setFormData] = useState({
         Qualifications: '',
         Emp_ID: '',
-        Specialization: ''
-        
+        Specialization: '',
     });
-    const [doctor, setDoctor] = useState([]);
+    const [staff, setStaff] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
-    const token = Cookies.get('token'); 
+    const token = Cookies.get('token');
 
- 
-    // useEffect(() => {
-        
-    //     fetchStaff();
-        
-    // }, []);
+    useEffect(() => {
+        fetchStaff();
+    }, []);
 
-    const fetchDoctors = async () => {
+    const fetchStaff = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/doctors', {
+            const response = await axios.get('http://localhost:9004/api/staff', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setDoctors(response.data);
+            setStaff(response.data);
         } catch (error) {
-            console.error('Error fetching doctors:', error);
+            console.error('Error fetching staff:', error);
         }
     };
-    useEffect(() => {
-        fetchDoctors();
-    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -52,56 +44,48 @@ function CreateDoctor({ onClose })  {
         }));
     };
 
-
-    const handleAddDoctor = async () => {
+    const handleAddDoctors = async () => {
         try {
-            await axios.post("http://localhost:9004/api/doctors/create", formData,{
+            await axios.post("http://localhost:9004/api/doctors/create", formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-                });
+            });
             navigate('/dashboard/doctor');
-            window.location.reload(); // Refresh after successful addition
+            window.location.reload();
+        } catch (error) {
+            console.error('Error adding doctors', error);
+            showAlert('Error adding doctors. Please try again.');
+        }
+    };
+
+    const handleValidation = async () => {
+        const { Qualifications, Emp_ID, Specialization } = formData;
+
+        if (Qualifications === '' || Emp_ID === '' || Specialization === '') {
+            showAlert('All fields are required!');
+            return;
+        }
+
+        if (parseInt(Emp_ID) < 1) {
+            showAlert('Employee ID cannot be less than 1');
+            return;
+        }
+
+        try {
+            await handleAddDoctors();
         } catch (error) {
             console.error('Error adding doctor:', error);
-            
+            showAlert('Error adding doctor. Please try again.');
         }
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        
-        
-    };
-
-    const handleValidation = async () => {
-        const { Qualifications, Emp_ID, Specialization } = formData;
-
-        if (Qualifications === '' || Emp_ID === '' || Specialization === '' ) {
-            showAlert('All fields are required!');
-            return;
-        }
-
-        if (Emp_ID < 1) {
-            showAlert('Employee ID can not be less than 1');
-            return;
-        }
-    
-        const existingDoctor = doctor.find(doctor => doctor.Emp_ID === Emp_ID);
-        if (existingDoctor) {
-            showAlert('Doctor with the same Emp_ID already exists');
-            return;
-        }
-        // try {
-        //     await axios.get(`http://localhost:9004/api/staff/check/${Emp_ID}`);
-            
-        //     handleAddDoctor();
-        // } catch (error) {
-        //     console.error('Error checking Emp ID:', error);
-        //     showAlert('Emp ID does not exist');
-        // }
-        handleAddDoctor();
+        setTimeout(() => {
+            setShowErrorModal(false);
+        }, 3000);
     };
 
     return (
@@ -122,17 +106,24 @@ function CreateDoctor({ onClose })  {
                     value={formData.Qualifications}
                     onChange={handleChange}
                 />
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Employee ID"
-                    variant="outlined"
-                    id="Emp_ID"
-                    name="Emp_ID"
-                    placeholder="Enter Employee ID"
-                    value={formData.Emp_ID}
-                    onChange={handleChange}
-                />
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="doctor-select-label">Doctor</InputLabel>
+                    <Select
+                        labelId="doctor-select-label"
+                        id="visitDoctorID"
+                        name="Emp_ID"
+                        value={formData.Emp_ID}
+                        onChange={handleChange}
+                        label="Doctor"
+                    >
+                        <MenuItem value=""><em>Select Doctor</em></MenuItem>
+                        {staff.map(staffMember => (
+                            <MenuItem key={staffMember.Emp_ID} value={staffMember.Emp_ID}>
+                                {`${staffMember.Emp_Fname} ${staffMember.Emp_Lname}`}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <TextField
                     fullWidth
                     margin="normal"
@@ -144,7 +135,6 @@ function CreateDoctor({ onClose })  {
                     value={formData.Specialization}
                     onChange={handleChange}
                 />
-               
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
                     <Button variant="outlined" onClick={onClose}>Cancel</Button>

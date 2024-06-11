@@ -65,7 +65,7 @@ function Doctor({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/doctros/delete/${deleteDoctorId}`);
+            await axios.delete(`http://localhost:9004/api/doctors/delete/${deleteDoctorId}`);
             setDoctors(doctors.filter((data) => data.Doctor_ID !== deleteDoctorId));
         } catch (err) {
             console.error('Error deleting doctor:', err);
