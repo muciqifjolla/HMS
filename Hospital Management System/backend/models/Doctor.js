@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Staff = require('./Staff');
-const Users = require('./User');
 
 const Doctor = sequelize.define('Doctor', {
     Doctor_ID: {
@@ -24,14 +23,6 @@ const Doctor = sequelize.define('Doctor', {
     Specialization: {
         type: DataTypes.STRING,
         allowNull: false
-    },
-    user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'user_id'
-        }
     }
 }, {
     tableName: 'doctor', // Table names are usually in lowercase
@@ -40,6 +31,6 @@ const Doctor = sequelize.define('Doctor', {
 
 // Associations
 Doctor.belongsTo(Staff, { foreignKey: 'Emp_ID' });
-Doctor.belongsTo(Users, { foreignKey: 'user_id' });
+
 
 module.exports = Doctor;

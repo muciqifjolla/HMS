@@ -12,8 +12,8 @@ function CreateDoctor({ onClose })  {
     const [formData, setFormData] = useState({
         Qualifications: '',
         Emp_ID: '',
-        Specialization: '',
-        user_id: '',
+        Specialization: ''
+        
     });
     const [doctor, setDoctor] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
@@ -55,7 +55,7 @@ function CreateDoctor({ onClose })  {
                     'Authorization': `Bearer ${token}`
                 }
                 });
-            navigate('/dashboard/doctors');
+            navigate('/dashboard/doctor');
             window.location.reload(); // Refresh after successful addition
         } catch (error) {
             console.error('Error adding doctor:', error);
@@ -71,9 +71,9 @@ function CreateDoctor({ onClose })  {
     };
 
     const handleValidation = async () => {
-        const { Qualifications, Emp_ID, Specialization, user_id } = formData;
+        const { Qualifications, Emp_ID, Specialization } = formData;
 
-        if (Qualifications === '' || Emp_ID === '' || Specialization === '' || user_id === '') {
+        if (Qualifications === '' || Emp_ID === '' || Specialization === '' ) {
             showAlert('All fields are required!');
             return;
         }
@@ -96,6 +96,7 @@ function CreateDoctor({ onClose })  {
         //     console.error('Error checking Emp ID:', error);
         //     showAlert('Emp ID does not exist');
         // }
+        handleAddDoctor();
     };
 
     return (
@@ -138,17 +139,7 @@ function CreateDoctor({ onClose })  {
                     value={formData.Specialization}
                     onChange={handleChange}
                 />
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    label="User ID"
-                    variant="outlined"
-                    id="user_id"
-                    name="user_id"
-                    placeholder="Enter User ID"
-                    value={formData.user_id}
-                    onChange={handleChange}
-                />
+               
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
                     <Button variant="outlined" onClick={onClose}>Cancel</Button>

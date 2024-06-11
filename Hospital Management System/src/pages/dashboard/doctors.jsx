@@ -18,7 +18,7 @@ export function Doctors() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:9004/api/doctor/delete/${id}`);
+            await axios.delete(`http://localhost:9004/api/doctors/delete/${id}`);
             setShowCreateForm(false);
             setShowUpdateForm(false);
             

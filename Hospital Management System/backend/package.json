@@ -24,6 +24,7 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.2",
     "pdf-creator-node": "^2.3.5",
+    "react-datetime": "^3.2.0",
     "sequelize": "^6.37.3",
     "vite": "^5.2.11"
   }

@@ -13,6 +13,24 @@ const FindAllUsers = async (req, res) => {
     }
 };
 
+const getUsersWithRoles = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            include: [{
+                model: UserRole,
+                include: [{
+                    model: Role,
+                    attributes: ['role_name']
+                }]
+            }],
+            attributes: ['user_id', 'username', 'email']
+        });
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users with roles:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 const FindSingleUser = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
@@ -146,4 +164,5 @@ module.exports = {
     AddUser,
     UpdateUser,
     DeleteUser,
+    getUsersWithRoles,
 };

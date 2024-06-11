@@ -94,7 +94,7 @@ function Doctor({
         { field: 'Qualifications', headerName: 'Qualifications', flex: 2 },
         { field: 'Emp_ID', headerName: 'Employee ID', flex: 2 },
         { field: 'Specialization', headerName: 'Specialization', flex: 2 },
-        { field: 'user_id', headerName: 'User ID', flex: 2 },
+        
         {
             field: 'update',
             headerName: 'Update',

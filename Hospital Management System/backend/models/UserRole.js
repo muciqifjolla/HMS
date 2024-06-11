@@ -13,7 +13,7 @@ const UserRole = sequelize.define('UserRole', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: User,
+            model: 'User', // Use the name of the model, not the imported variable
             key: 'user_id'
         }
     },
@@ -21,7 +21,7 @@ const UserRole = sequelize.define('UserRole', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Role,
+            model: 'Role', // Use the name of the model, not the imported variable
             key: 'role_id'
         }
     }
@@ -31,10 +31,10 @@ const UserRole = sequelize.define('UserRole', {
 });
 
 // Define associations
-UserRole.belongsTo(User, { foreignKey: 'user_id' });
-UserRole.belongsTo(Role, { foreignKey: 'role_id' });
+// UserRole.belongsTo(User, { foreignKey: 'userId' });
+// UserRole.belongsTo(Role, { foreignKey: 'roleId' });
 
-User.hasMany(UserRole, { foreignKey: 'user_id' });
-Role.hasMany(UserRole, { foreignKey: 'role_id' });
+// User.hasMany(UserRole, { foreignKey: 'user_id' });
+// Role.hasMany(UserRole, { foreignKey: 'role_id' });
 
 module.exports = UserRole;

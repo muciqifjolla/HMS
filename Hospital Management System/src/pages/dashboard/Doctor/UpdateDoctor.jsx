@@ -78,7 +78,7 @@ function UpdateDoctor({ id, onClose }) {
     const handleUpdateDoctor = async () => {
         const { Qualifications, Emp_ID, Specialization } = formData;
 
-        if (!Qualifications.trim() || !Emp_ID.trim() || !Specialization.trim()) {
+        if (!Qualifications.trim() ||  Emp_ID === '' || !Specialization.trim()) {
             showAlert("All fields are required.");
             return;
         }
