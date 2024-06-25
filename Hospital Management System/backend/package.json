@@ -22,7 +22,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.9.7",
     "nodemailer": "^6.9.13",
-    "nodemon": "^3.1.2",
+    "nodemon": "^3.1.4",
     "pdf-creator-node": "^2.3.5",
     "react-datetime": "^3.2.0",
     "sequelize": "^6.37.3",

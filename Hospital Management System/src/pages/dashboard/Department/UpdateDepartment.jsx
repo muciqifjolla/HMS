@@ -18,7 +18,7 @@ function UpdateDepartment({ id, onClose }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/department/${id}`,{
+                const response = await axios.get(`http://localhost:9004/api/department/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = response.data;
@@ -36,7 +36,7 @@ function UpdateDepartment({ id, onClose }) {
 
         fetchData();
     }, [id]);
-    
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
@@ -44,16 +44,16 @@ function UpdateDepartment({ id, onClose }) {
 
     const handleUpdateDepartment = async () => {
         // Basic validation
-        if (!formData.Dept_head.trim()) {
-            showAlert("Department head cannot be empty.");
+        if (!formData.Dept_head.trim() || formData.Dept_head.length < 2) {
+            showAlert("Department head must be at least 2 characters long.");
             return;
         }
-    
+
         if (!formData.Dept_name.trim()) {
             showAlert("Department name cannot be empty.");
             return;
         }
-    
+
         if (!formData.Emp_Count || formData.Emp_Count < 1) {
             showAlert("Employee count must be at least 1.");
             return;
@@ -77,7 +77,11 @@ function UpdateDepartment({ id, onClose }) {
             window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating department:', error);
-            showAlert('Error updating department. Please try again.');
+            if (error.response && error.response.data && error.response.data.error) {
+                showAlert(error.response.data.error);
+            } else {
+                showAlert('Error updating department. Please try again.');
+            }
         }
     };
 
