@@ -5,6 +5,7 @@ import CreateEmergencyContact from './CreateEmergency_Contact';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 
 function EmergencyContact({
     showCreateForm,
@@ -18,6 +19,7 @@ function EmergencyContact({
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [patients, setPatients] = useState([]);
     const token = Cookies.get('token');
+    const location = useLocation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -53,7 +55,10 @@ function EmergencyContact({
         };
 
         fetchData();
-    }, [token]);
+        if (location.state?.patientId && location.state?.showCreateForm) {
+            setShowCreateForm(true);
+        }
+    }, [token, location.state, setShowCreateForm]);
 
     const handleUpdateButtonClick = (contactId) => {
         setSelectedEmergency_ContactId(contactId);

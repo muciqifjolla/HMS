@@ -5,6 +5,7 @@ import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, D
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import CreateBill from './CreateBill';
+import {jwtDecode} from 'jwt-decode';
 
 function Bill({
     showCreateForm,
@@ -18,6 +19,9 @@ function Bill({
     const [searchQuery, setSearchQuery] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const token = Cookies.get('token');
+    const decodedToken = jwtDecode(token);
+    const userId = decodedToken.userId; // Adjust based on how the ID is stored in the token
+    const userRole = decodedToken.role; // Assuming the role is stored as 'role' in the token
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,13 +31,22 @@ function Bill({
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                const billsDataWithNames = billRes.data.map(res => {
-                    const patient = res.Patient;                    
+
+                let billsDataWithNames = billRes.data.map(res => {
+                    const patient = res.Patient;
                     return {
                         ...res,
                         Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
                     };
                 });
+
+                if (userRole === 'patient') {
+                    billsDataWithNames = billsDataWithNames.filter(res => res.aPtient_ID === userId);
+                } 
+                // else if (userRole === 'doctor') {
+                //     // Assuming each bill has a Doctor_ID that matches the logged-in doctor's ID
+                //     billsDataWithNames = billsDataWithNames.filter(res => res.Doctor_ID === userId);
+                // }
 
                 setBills(billsDataWithNames);
                 setIsDataLoaded(true);
@@ -43,7 +56,7 @@ function Bill({
         };
 
         fetchData();
-    }, [token]);
+    }, [token, userId, userRole]);
 
     const handleUpdateButtonClick = (billId) => {
         setSelectedBillId(billId);
@@ -162,7 +175,7 @@ function Bill({
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={bills}
+                    rows={filteredBills}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}

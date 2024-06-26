@@ -15,31 +15,20 @@ function User({
 }) {
     const [users, setUsers] = useState([]);
     const [deleteUserId, setDeleteUserId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const token = Cookies.get('token'); 
-
-
-    // const handleUpdateButtonClick = (userId) => {
-    //     setSelectedUserId(userId);
-    //     setShowUpdateForm(!showUpdateForm);
-    // };
-
 
     useEffect(() => {
         axios
-            .get('http://localhost:9004/api/users',{
+            .get('http://localhost:9004/api/users', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             })
             .then((res) => {
-                console.log("Users data:", res.data);
                 setUsers(res.data);
-                
             })
             .catch((err) => console.log(err));
-            
-    }, []);
+    }, [token]);
 
     const handleUpdateButtonClick = (userId) => {
         setSelectedUserId(userId);
@@ -55,19 +44,20 @@ function User({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/users/delete/${deleteUserId}`);
+            await axios.delete(`http://localhost:9004/api/users/delete/${deleteUserId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             setUsers(users.filter((user) => user.user_id !== deleteUserId));
-            setFilteredUsers(filteredUsers.filter((item) => item.user_id !== deleteUserId));
-            
             // Close the create form if open
             if (showCreateForm) {
                 setShowCreateForm(false);
             }
-             // Close the update form if open
-             if (showUpdateForm) {
+            // Close the update form if open
+            if (showUpdateForm) {
                 setShowUpdateForm(false);
             }
-            
         } catch (err) {
             console.log(err);
         }
@@ -79,15 +69,11 @@ function User({
         setShowUpdateForm(false);
     };
 
-    const handleCloseCreateForm = () => {
-        setShowCreateForm(false);
-    };
-
     const columns = [
         { field: 'user_id', headerName: 'User ID', flex: 1 },
         { field: 'email', headerName: 'Email', flex: 2 },
         { field: 'username', headerName: 'Username', flex: 2 },
-        { field: 'role', headerName: 'Role', flex: 2 }, // Assuming you want to display the user's role
+        { field: 'role', headerName: 'Role', flex: 2 }, // Role column
         {
             field: 'update',
             headerName: 'Update',
@@ -96,7 +82,7 @@ function User({
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => handleUpdateButtonClick(params.row.user_id)} // Adjust the function and parameter accordingly
+                    onClick={() => handleUpdateButtonClick(params.row.user_id)}
                     startIcon={<Edit />}
                 >
                 </Button>
@@ -110,7 +96,7 @@ function User({
                 <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => handleDelete(params.row.user_id)} // Adjust the function and parameter accordingly
+                    onClick={() => handleDelete(params.row.user_id)}
                     startIcon={<Delete />}
                 >
                 </Button>
@@ -118,8 +104,6 @@ function User({
         }
     ];
 
- 
-  
     return (
         <div className='container-fluid mt-4'>
             {deleteUserId && (

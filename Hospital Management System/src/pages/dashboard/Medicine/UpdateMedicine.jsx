@@ -55,8 +55,8 @@ function UpdateMedicine({ id, onClose }) {
         // Check if any data has been changed
         if (
             formData.M_name === originalData.M_name &&
-            formData.M_Quantity === originalData.M_Quantity.toString() &&
-            formData.M_Cost === originalData.M_Cost.toString()
+            formData.M_Quantity === originalData.M_Quantity &&
+            formData.M_Cost === originalData.M_Cost
         ) {
             showAlert('Data must be changed before updating.');
             return;

@@ -1,41 +1,48 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import User from "./User/User";
 import CreateUser from "./User/CreateUser";
 import UpdateUser from "./User/UpdateUser";
 
 export function Users() {
-
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState(null); 
+    const [selectedUserId, setSelectedUserId] = useState(null);
 
-    const handleCreateFormToggle = () => {
-        setShowCreateForm(!showCreateForm);
-        if (showUpdateForm) {
-            setShowUpdateForm(false); // Ensure update form is closed
-        }
+    const handleUpdateButtonClick = (userId) => {
+        setSelectedUserId(userId);
+        setShowUpdateForm((prevState) => prevState === userId ? null : userId);
+        setShowCreateForm(false); // Close create form if open
     };
 
-    const handleUpdateFormToggle = () => {
-        setShowUpdateForm(!showUpdateForm);
-        if (showCreateForm) {
-            setShowCreateForm(false); // Ensure create form is closed
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:9004/api/users/delete/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`
+                }
+            });
+            setShowCreateForm(false);
+            setShowUpdateForm(false);
+        } catch (error) {
+            console.error('Error deleting user:', error);
         }
     };
 
     return (
         <>
-            <div> 
+            <div>
                 <User
                     showCreateForm={showCreateForm}
-                    setShowCreateForm={handleCreateFormToggle}
-                    showUpdateForm={showUpdateForm}
-                    setShowUpdateForm={handleUpdateFormToggle}
+                    setShowCreateForm={setShowCreateForm}
+                    setShowUpdateForm={setShowUpdateForm}
                     setSelectedUserId={setSelectedUserId}
+                    showUpdateForm={showUpdateForm}
+                    handleUpdateButtonClick={handleUpdateButtonClick}
+                    handleDelete={handleDelete}
                 />
-                {showCreateForm && <CreateUser />}
-                
-                {showUpdateForm && <UpdateUser id={selectedUserId} />} 
+                {showCreateForm && <CreateUser onClose={() => setShowCreateForm(false)} />}
+                {showUpdateForm && <UpdateUser id={selectedUserId} setShowUpdateForm={setShowUpdateForm} onClose={() => setShowUpdateForm(false)} />}
             </div>
         </>
     );

@@ -1,99 +1,105 @@
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ErrorModal from '../../../components/ErrorModal';
+import { Box, TextField, Button, Typography, Modal, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Cookies from 'js-cookie';
 
-function CreateUser() {
+const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
+
+function CreateUser({ onClose }) {
     const [formData, setFormData] = useState({
         email: '',
         username: '',
         password: '',
+        role: 'patient' // Default role set to 'patient'
     });
 
     const [users, setUsers] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
 
     useEffect(() => {
-        // Fetch existing users when component mounts
         fetchUsers();
     }, []);
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/users',{
+            if (!token) {
+                console.error('Token is missing');
+                showAlert('Authentication token is missing');
+                return;
+            }
+
+            console.log('Token:', token); // Debug log to check if token is retrieved correctly
+
+            const response = await axios.get('http://localhost:9004/api/users', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            }
-        )
+            });
             setUsers(response.data);
         } catch (error) {
             console.error('Error fetching users:', error);
+            showAlert('Error fetching users. Please try again.');
         }
     };
 
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData((prevState) => ({
-    //         ...prevState,
-    //         [name]: value,
-    //     }));
-    // };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
 
     const handleAddUser = async () => {
         try {
-            await axios.post('http://localhost:9004/api/users/create', formData,{
+            if (!token) {
+                console.error('Token is missing');
+                showAlert('Authentication token is missing');
+                return;
+            }
+
+            console.log('Token:', token); // Debug log to check if token is retrieved correctly
+
+            await axios.post('http://localhost:9004/api/users/create', formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            }
-        )
-             navigate('/dashboard/user');
+            });
+            navigate('/dashboard/user');
             window.location.reload(); // Refresh the page after successful submission
         } catch (error) {
-            console.error('Error adding user:', error);
+            console.error('Error adding user:', error.response?.data || error.message);
             showAlert('Error adding user. Please try again.');
         }
     };
 
-   
+    const handleValidation = () => {
+        const { email, username, password, role } = formData;
 
-    const handleValidation = async () => {
-        const { email, username, password } = formData;
-
-        // Ensure all required fields are filled
-        if (!email.trim() || !username.trim() || !password.trim()) {
+        if (!email.trim() || !username.trim() || !password.trim() || !role.trim()) {
             showAlert('All fields are required');
             return;
         }
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             showAlert('Invalid email address');
             return;
         }
 
-        // Validate username length
         if (username.length < 3) {
             showAlert('Username must be at least 3 characters long');
             return;
         }
 
-        // Validate password length
         if (password.length < 6) {
             showAlert('Password must be at least 6 characters long');
             return;
         }
-
-        // Check if user with the same email or username already exists
-        // const existingUserByUsername = users.find(user => user.username === username);
-        // if (existingUserByUsername) {
-        //     showAlert('User with the same username already exists');
-        //     return;
-        // }
 
         const existingUserByUsername = users.find(user => user.username === username);
         if (existingUserByUsername) {
@@ -101,79 +107,76 @@ function CreateUser() {
             return;
         }
 
-        // Proceed with form submission after successful validation
         handleAddUser();
     };
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-        // Automatically hide the error modal after 3 seconds
-        // setTimeout(() => {
-        //     setAlertMessage('');
-        //     setShowErrorModal(false);
-        // }, 5000);
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Add User</h1>
-                <div className='mb-4'>
-                    <label htmlFor='userEmail'>Email:</label>
-                    <input
-                        type='text'
-                        id='userEmail'
-                        name='email'
-                        placeholder='Enter Email'
-                        className='form-control w-full'
-                        value={formData.email}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                <Suspense fallback={<div>Loading...</div>}>
+                    {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                </Suspense>
+                <Typography variant="h6" component="h1" gutterBottom>Add User</Typography>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Email"
+                    variant="outlined"
+                    id="email"
+                    name="email"
+                    placeholder="Enter Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Username"
+                    variant="outlined"
+                    id="username"
+                    name="username"
+                    placeholder="Enter Username"
+                    value={formData.username}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Password"
+                    variant="outlined"
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter Password"
+                    value={formData.password}
+                    onChange={handleChange}
+                />
+                <FormControl fullWidth margin="normal">
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                        labelId="role-label"
+                        id="role"
+                        name="role"
+                        value={formData.role}
                         onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='username'>Username:</label>
-                    <input
-                        type='text'
-                        id='username'
-                        name='username'
-                        placeholder='Enter Username'
-                        className='form-control w-full'
-                        value={formData.username}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='password'>Password:</label>
-                    <input
-                        type='password'
-                        id='password'
-                        name='password'
-                        placeholder='Enter Password'
-                        className='form-control w-full'
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleValidation}
+                        label="Role"
                     >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <MenuItem value="patient">Patient</MenuItem>
+                        <MenuItem value="doctor">Doctor</MenuItem>
+                        <MenuItem value="admin">Admin</MenuItem>
+                    </Select>
+                </FormControl>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleValidation} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 

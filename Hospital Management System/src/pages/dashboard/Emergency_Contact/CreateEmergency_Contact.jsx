@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Modal, Box, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import ErrorModal from '../../../components/ErrorModal';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function CreateEmergencyContact({ onClose }) {
     const [formData, setFormData] = useState({
@@ -18,10 +18,15 @@ function CreateEmergencyContact({ onClose }) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const token = Cookies.get('token'); 
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         fetchPatients();
-    }, []);
+        const patientId = location.state?.patientId;
+        if (patientId) {
+            setFormData((prevState) => ({ ...prevState, Patient_ID: patientId }));
+        }
+    }, [location.state]);
 
     const fetchPatients = async () => {
         try {
@@ -178,7 +183,7 @@ function CreateEmergencyContact({ onClose }) {
                         onChange={handleChange}
                     >
                         <MenuItem value=""><em>Select Patient</em></MenuItem>
-                        {patients.map((patient) => (
+                        {patients.map(patient => (
                             <MenuItem key={patient.Patient_ID} value={patient.Patient_ID}>
                                 {`${patient.Patient_Fname} ${patient.Patient_Lname}`}
                             </MenuItem>

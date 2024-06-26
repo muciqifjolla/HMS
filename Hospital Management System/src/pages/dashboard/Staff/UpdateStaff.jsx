@@ -18,7 +18,7 @@ function UpdateStaff({ id, onClose }) {
         SSN: '',
         DOB: '',
     });
-    const [department, setDepartments] = useState([]); // Change 'department' to 'departments'
+    const [departments, setDepartments] = useState([]);
 
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -44,6 +44,7 @@ function UpdateStaff({ id, onClose }) {
             showAlert('Error fetching staff details.');
         }
     };
+
     const fetchDepartments = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/department', {
@@ -51,7 +52,7 @@ function UpdateStaff({ id, onClose }) {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setPatients(response.data);
+            setDepartments(response.data);
         } catch (error) {
             console.error('Error fetching departments:', error);
         }
@@ -66,9 +67,9 @@ function UpdateStaff({ id, onClose }) {
     };
 
     const handleValidation = async () => {
-        const { Patient_ID, Doctor_ID, Date, Time, Scheduled_On } = formData;
+        const { Emp_Fname, Emp_Lname, Joining_Date, Emp_type, Email, Address, Dept_ID, SSN, DOB } = formData;
 
-        if (!Emp_Fname || !Emp_Lname || !Joining_Date || !Emp_type || !Email || !Address || !Dept_ID || !SSN || !DOB || !Date_Separation) {
+        if (!Emp_Fname || !Emp_Lname || !Joining_Date || !Emp_type || !Email || !Address || !Dept_ID || !SSN || !DOB) {
             showAlert('All fields are required!');
             return;
         }
@@ -82,7 +83,6 @@ function UpdateStaff({ id, onClose }) {
             showAlert('Invalid email format');
             return;
         }
-        
 
         try {
             await axios.put(`http://localhost:9004/api/staff/update/${id}`, formData, {
@@ -96,7 +96,6 @@ function UpdateStaff({ id, onClose }) {
             console.error('Error updating staff:', error);
             showAlert('Error updating staff.');
         }
-        handleAddStaff();
     };
 
     const showAlert = (message) => {
@@ -104,11 +103,10 @@ function UpdateStaff({ id, onClose }) {
         setShowErrorModal(true);
     };
 
-
     return (
         <Modal open onClose={onClose}>
             <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
-                {showErrorModal && <ErrorModal message={alertMessage} onClose={closeErrorModal} />}
+                {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
                 <Typography variant="h6" component="h1" gutterBottom>Update Staff</Typography>
                 <TextField
                     margin="normal"
@@ -183,24 +181,25 @@ function UpdateStaff({ id, onClose }) {
                     value={formData.Address}
                     onChange={handleChange}
                 />
-              <FormControl fullWidth variant="outlined" margin="normal">
-                        <InputLabel id="department-select-label">Department</InputLabel>
-                        <Select
-                            labelId="patient-department-select-label-label"
-                            id="visitDepartmentID"
-                            name="Dept_ID"
-                            value={formData.Dept_ID}
-                            onChange={handleChange}
-                            label="Department"
-                        >
-                            <MenuItem value=""><em>Select Department</em></MenuItem>
-                            {department.map(departmenttype => (
-                                <MenuItem key={departmenttype.Dept_ID} value={departmenttype.Dept_ID}>
-                                    {`${departmenttype.Dept_name}`}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="department-select-label">Department</InputLabel>
+                    <Select
+                        labelId="department-select-label"
+                        id="Dept_ID"
+                        name="Dept_ID"
+                        value={formData.Dept_ID}
+                        onChange={handleChange}
+                        label="Department"
+                        disabled
+                    >
+                        <MenuItem value=""><em>Select Department</em></MenuItem>
+                        {departments.map(department => (
+                            <MenuItem key={department.Dept_ID} value={department.Dept_ID}>
+                                {department.Dept_name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <TextField
                     margin="normal"
                     fullWidth

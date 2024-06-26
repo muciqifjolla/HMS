@@ -5,8 +5,6 @@ import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, D
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import Datetime from 'react-datetime';
-import "react-datetime/css/react-datetime.css";
 
 // Lazy load components
 const CreatePatient = lazy(() => import('./CreatePatient'));
@@ -26,6 +24,11 @@ function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpd
     const handleCreateRoomButtonClick = (patientId) => {
         setShowCreateForm(true);
         navigate('/dashboard/room', { state: { patientId, showCreateForm: true } });
+    };
+
+    const handleCreateEmergencyContactButtonClick = (patientId) => {
+        setShowCreateForm(true);
+        navigate('/dashboard/emergency_contact', { state: { patientId, showCreateForm: true } });
     };
 
     useEffect(() => {
@@ -126,6 +129,20 @@ function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpd
                     onClick={() => handleCreateRoomButtonClick(params.row.Patient_ID)}
                 >
                     + Room
+                </Button>
+            )
+        },
+        {
+            field: 'createEmergencyContact',
+            headerName: 'Create Emergency Contact',
+            flex: 1,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleCreateEmergencyContactButtonClick(params.row.Patient_ID)}
+                >
+                    + Emergency Contact
                 </Button>
             )
         }

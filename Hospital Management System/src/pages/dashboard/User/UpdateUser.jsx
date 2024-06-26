@@ -1,29 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import axios from 'axios';
-import ErrorModal from '../../../components/ErrorModal';
-import Cookies from 'js-cookie'; // Import js-cookie
+import { Box, TextField, Button, Typography, Modal, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Cookies from 'js-cookie';
+
+const ErrorModal = lazy(() => import('../../../components/ErrorModal'));
+
 function UpdateUser({ id, onClose }) {
-    const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
+    const [formData, setFormData] = useState({
+        email: '',
+        username: '',
+        role: '' // Add role field
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [originalData, setOriginalData] = useState({});
     const [users, setUsers] = useState([]);
-    const token = Cookies.get('token'); 
-
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9004/api/users/${id}`,{
+                const response = await axios.get(`http://localhost:9004/api/users/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                })
+                });
                 const data = response.data;
                 setOriginalData(data);
-                setEmail(data.email);
-                setUsername(data.username);
+                setFormData({
+                    email: data.email,
+                    username: data.username,
+                    role: data.UserRoles && data.UserRoles.length > 0 ? data.UserRoles[0].Role.role_name : '' // Handle case where UserRoles might be undefined or empty
+                });
             } catch (error) {
                 console.error('Error fetching user:', error);
                 showAlert('Error fetching user details.');
@@ -31,12 +39,16 @@ function UpdateUser({ id, onClose }) {
         };
 
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     useEffect(() => {
         const fetchAllUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:9004/api/users');
+                const response = await axios.get('http://localhost:9004/api/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 setUsers(response.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -44,13 +56,13 @@ function UpdateUser({ id, onClose }) {
         };
 
         fetchAllUsers();
-    }, []);
+    }, [token]);
 
     const showAlert = (message) => {
         setAlertMessage(message);
         setShowErrorModal(true);
-       
     };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -59,9 +71,9 @@ function UpdateUser({ id, onClose }) {
         }));
     };
 
-
     const handleUpdateUser = async () => {
-        // Basic validation
+        const { email, username, role } = formData;
+
         if (!email.trim()) {
             showAlert('Email cannot be empty.');
             return;
@@ -72,44 +84,35 @@ function UpdateUser({ id, onClose }) {
             return;
         }
 
-       
+        if (!role.trim()) {
+            showAlert('Role cannot be empty.');
+            return;
+        }
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             showAlert('Invalid email address');
             return;
         }
 
-        // Check if user with the same email or username already exists
-        if (
-            email === originalData.email &&
-            username === originalData.username 
-          
-        ) {
-            showAlert("Data must be changed before updating.");
+        if (email === originalData.email && username === originalData.username && role === (originalData.UserRoles && originalData.UserRoles.length > 0 ? originalData.UserRoles[0].Role.role_name : '')) {
+            showAlert('Data must be changed before updating.');
             return;
         }
 
-
-        const existingUserByUsername = users.find(user => user.username === username && user.id !== id);
+        const existingUserByUsername = users.find(user => user.username === username && user.user_id !== id);
         if (existingUserByUsername) {
             showAlert('User with the same username already exists');
             return;
         }
 
         try {
-            await axios.put(`http://localhost:9004/api/users/update/${id}`,
-             {
-                email: email,
-                username: username,
-            }, {
+            await axios.put(`http://localhost:9004/api/users/update/${id}`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-        });
+            });
 
-            
             window.location.reload(); // Refresh the page to show the updated data
         } catch (error) {
             console.error('Error updating user:', error);
@@ -118,51 +121,57 @@ function UpdateUser({ id, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white p-8 mx-auto rounded-lg w-96">
-                {showErrorModal && (
-                    <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />
-                )}
-                <h1 className="text-lg font-bold mb-4">Update User</h1>
-                <div className='mb-4'>
-                    <label htmlFor='userEmail'>Email:</label>
-                    <input
-                        type='email'
-                        id='userEmail'
-                        placeholder='Enter Email'
-                        className='form-control'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='username'>Username:</label>
-                    <input
-                        type='text'
-                        id='username'
-                        placeholder='Enter Username'
-                        className='form-control w-full'
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleUpdateUser}
+        <Modal open onClose={onClose} className="fixed inset-0 flex items-center justify-center z-10 overflow-auto bg-black bg-opacity-50">
+            <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, width: 400, mx: 'auto' }}>
+                <Suspense fallback={<div>Loading...</div>}>
+                    {showErrorModal && <ErrorModal message={alertMessage} onClose={() => setShowErrorModal(false)} />}
+                </Suspense>
+                <Typography variant="h6" component="h1" gutterBottom>Update User</Typography>
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Email"
+                    variant="outlined"
+                    id="email"
+                    name="email"
+                    placeholder="Enter Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                />
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Username"
+                    variant="outlined"
+                    id="username"
+                    name="username"
+                    placeholder="Enter Username"
+                    value={formData.username}
+                    onChange={handleChange}
+                />
+                <FormControl fullWidth margin="normal">
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                        labelId="role-label"
+                        id="role"
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        label="Role"
                     >
-                        Submit
-                    </button>
-                    <button
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded"
-                        onClick={onClose} // Call the onClose function passed from props
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <MenuItem value="patient">Patient</MenuItem>
+                        <MenuItem value="doctor">Doctor</MenuItem>
+                        <MenuItem value="admin">Admin</MenuItem>
+                    </Select>
+                </FormControl>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleUpdateUser} sx={{ mr: 1 }}>Submit</Button>
+                    <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                </Box>
+            </Box>
+        </Modal>
     );
 }
 
 export default UpdateUser;
+    

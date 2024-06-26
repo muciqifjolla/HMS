@@ -16,13 +16,11 @@ function Staff({
 }) {
     const [staff, setStaff] = useState([]);
     const [deleteStaffId, setDeleteStaffId] = useState(null);
-    const [departments, setDepartments] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-   
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const token = Cookies.get('token');
     const navigate = useNavigate();
-    // console.log(staff);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -33,7 +31,6 @@ function Staff({
                 });
                 const staffDataWithNames = staffRes.data.map(staff => {
                     const department = staff.Department;
-                    
                     return {
                         ...staff,
                         Dept_Name: department ? `${department.Dept_name}` : 'Unknown'
@@ -45,11 +42,9 @@ function Staff({
                 console.error('Error fetching data:', err);
             }
         };
-    
+
         fetchData();
     }, [token]);
-    
-
 
     const handleUpdateButtonClick = (staffId) => {
         setSelectedStaffId(staffId);
@@ -65,20 +60,18 @@ function Staff({
 
     const handleDeleteConfirm = async () => {
         try {
-           await axios.delete(`http://localhost:9004/api/staff/delete/${deleteStaffId}`);
-
+            console.log(`Deleting staff with ID: ${deleteStaffId}`);
+            await axios.delete(`http://localhost:9004/api/staff/delete/${deleteStaffId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            console.log('Staff deleted successfully');
             setStaff(staff.filter((data) => data.Emp_ID !== deleteStaffId));
-            setFilteredStaff(filteredStaff.filter((data) => data.Emp_ID !== deleteStaffId));
-            if (showCreateForm) {
-                setShowCreateForm(false);
-            }
-            if (showUpdateForm) {
-                setShowUpdateForm(false);
-            }
+            setDeleteStaffId(null);
         } catch (err) {
             console.error('Error deleting staff:', err);
         }
-        setDeleteStaffId(null);
     };
 
     const handleCreateFormToggle = () => {
@@ -90,54 +83,24 @@ function Staff({
         setShowCreateForm(false);
     };
 
-    // const getDepartmentName = (departmentId) => {
-    //     console.log("Department ID:", departmentId);
-    //     console.log("Departments:", departments);
-
-    //     const department = departments.find(dept => dept.Dept_ID === departmentId);
-    //     console.log("Found Department:", department);
-
-    //     if (department) {
-    //         return `${department.Dept_name}`;
-    //     } else {
-    //         return 'Unknown';
-    //     }
-    // };
-
     const filteredStaff = staff.filter((staff) => {
-        const departmentFullName = `${staff.Department.Dept_name}`.toLowerCase();
+        const departmentFullName = staff.Department && staff.Department.Dept_name ? staff.Department.Dept_name.toLowerCase() : '';
         const searchQueryLower = searchQuery.toLowerCase();
-
-        return (
-            departmentFullName.includes(searchQueryLower) 
-            
-        );
+        return departmentFullName.includes(searchQueryLower);
     });
 
     const columns = [
         { field: 'Emp_ID', headerName: 'ID', flex: 1 },
         { field: 'Emp_Fname', headerName: 'Name', flex: 1 },
         { field: 'Emp_Lname', headerName: 'Surname', flex: 1 },
-        {
-            field: 'Joining_Date',
-            headerName: 'Joining Date',
-            flex: 1,
-        },
+        { field: 'Joining_Date', headerName: 'Joining Date', flex: 1 },
         { field: 'Emp_type', headerName: 'Employee Type', flex: 1 },
         { field: 'Email', headerName: 'Email', flex: 2 },
         { field: 'Address', headerName: 'Address', flex: 2 },
         { field: 'Dept_Name', headerName: 'Department', flex: 1 },
         { field: 'SSN', headerName: 'SSN', flex: 1 },
-        {
-            field: 'DOB',
-            headerName: 'Date of Birth',
-            flex: 1,
-        },
-        {
-            field: 'Date_Separation',
-            headerName: 'Date of Separation',
-            flex: 1,
-        },
+        { field: 'DOB', headerName: 'Date of Birth', flex: 1 },
+        { field: 'Date_Separation', headerName: 'Date of Separation', flex: 1 },
         {
             field: 'update',
             headerName: 'Update',
@@ -163,7 +126,6 @@ function Staff({
                     onClick={() => handleDelete(params.row.Emp_ID)}
                     startIcon={<Delete />}
                 >
-                    
                 </Button>
             )
         },
@@ -213,7 +175,7 @@ function Staff({
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={staff}
+                    rows={filteredStaff}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}

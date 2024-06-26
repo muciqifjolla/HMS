@@ -8,7 +8,8 @@ const FindAllBills = async (req, res) => {
         const bills = await Bill.findAll({
             include: [
                 {
-                    model: Patient
+                    model: Patient,
+                    attributes: ['Patient_Fname', 'Patient_Lname']
                 }
             ]
         });

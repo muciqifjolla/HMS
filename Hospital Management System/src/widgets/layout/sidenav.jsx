@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
   Avatar,
@@ -21,15 +21,22 @@ export function Sidenav({ brandImg, brandName, routes }) {
     transparent: "bg-transparent",
   };
 
+  // Ensure sidenavColor is one of the valid color values
+  const validColors = [
+    "white", "blue-gray", "gray", "brown", "deep-orange", "orange", "amber", 
+    "yellow", "lime", "light-green", "green", "teal", "cyan", "light-blue", 
+    "blue", "indigo", "deep-purple", "purple", "pink", "red"
+  ];
+
+  const getValidColor = (color) => validColors.includes(color) ? color : 'blue-gray';
+
   return (
     <aside
       className={`${sidenavTypes[sidenavType]} ${
         openSidenav ? "translate-x-0" : "-translate-x-80"
       } fixed inset-0 overflow-auto z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
     >
-      <div
-        className={`relative`}
-      >
+      <div className={`relative`}>
         <IconButton
           variant="text"
           color="white"
@@ -63,7 +70,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {({ isActive }) => (
                       <Button
                         variant={isActive ? 'gradient' : 'text'}
-                        color={isActive ? sidenavColor : 'blue-gray'}
+                        color={getValidColor(isActive ? sidenavColor : 'blue-gray')}
                         className="flex items-center gap-4 px-4 capitalize"
                         fullWidth
                       >
