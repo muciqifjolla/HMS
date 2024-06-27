@@ -9,11 +9,13 @@ const {
     UpdateStaff,
     DeleteStaff,
     CheckStaffExistence,
-    FindNurses // Import the new function
+    FindNurses,
+    FindDoctors
 } = require("../controllers/StaffController");
 
 router.get("/staff", authenticateToken(['admin', 'doctor', 'patient']), FindAllStaff);
-router.get("/staff/nurses", authenticateToken(['admin', 'doctor', 'patient']), FindNurses); // New route
+router.get("/staff/nurses", authenticateToken(['admin', 'doctor', 'patient']), FindNurses); 
+router.get("/staff/doctors", authenticateToken(['admin', 'doctor', 'patient']), FindDoctors); 
 router.get("/staff/:id", authenticateToken(['admin', 'doctor', 'patient']), FindSingleStaff);
 router.post("/staff/create", authenticateToken(['admin', 'doctor', 'patient']), AddStaff);
 router.put("/staff/update/:id", authenticateToken(['admin', 'doctor', 'patient']), UpdateStaff);

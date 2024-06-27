@@ -88,15 +88,15 @@ function EmergencyContact({
     };
 
     const columns = [
-        { field: 'Contact_ID', headerName: 'Contact ID', width: 250 },
-        { field: 'Patient_Name', headerName: 'Patient Name', width: 250 },
-        { field: 'Contact_Name', headerName: 'Contact Name', width: 250 },
-        { field: 'Phone', headerName: 'Phone', width: 250 },
-        { field: 'Relation', headerName: 'Relation', width: 250 },
+        { field: 'Contact_ID', headerName: 'Contact ID', flex: 1 },
+        { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
+        { field: 'Contact_Name', headerName: 'Contact Name', flex: 2 },
+        { field: 'Phone', headerName: 'Phone', flex: 1.5 },
+        { field: 'Relation', headerName: 'Relation', flex: 1.5 },
         {
             field: 'update',
             headerName: 'Update',
-            width: 130,
+            flex: 0.5,
             renderCell: (params) => (
                 <Button
                     variant="contained"
@@ -110,7 +110,7 @@ function EmergencyContact({
         {
             field: 'delete',
             headerName: 'Delete',
-            width: 130,
+            flex: 0.5,
             renderCell: (params) => (
                 <Button
                     variant="contained"

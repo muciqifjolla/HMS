@@ -44,7 +44,7 @@ import { Home, Profile, Medicines, Appointments,MedicalHistorys,Bills,Staffs, Pa
           name: "medicine",
           path: "/medicines",
           element: <Medicines />,
-          allowedRoles: ['admin']
+          allowedRoles: ['admin', 'doctor']
         },
         {
       
@@ -79,7 +79,7 @@ import { Home, Profile, Medicines, Appointments,MedicalHistorys,Bills,Staffs, Pa
           name: "Ratings",
           path: "/rating",
           element: <Ratings/>,
-          allowedRoles: ['admin', 'patient']
+          allowedRoles: ['admin']
         },
         {
           icon: (

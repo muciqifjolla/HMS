@@ -13,26 +13,26 @@ function CreateDoctor({ onClose }) {
         Emp_ID: '',
         Specialization: '',
     });
-    const [staff, setStaff] = useState([]);
+    const [doctors, setDoctors] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get('token');
 
     useEffect(() => {
-        fetchStaff();
+        fetchDoctors();
     }, []);
 
-    const fetchStaff = async () => {
+    const fetchDoctors = async () => {
         try {
-            const response = await axios.get('http://localhost:9004/api/staff', {
+            const response = await axios.get('http://localhost:9004/api/staff/doctors', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setStaff(response.data);
+            setDoctors(response.data);
         } catch (error) {
-            console.error('Error fetching staff:', error);
+            console.error('Error fetching doctors:', error);
         }
     };
 
@@ -117,9 +117,9 @@ function CreateDoctor({ onClose }) {
                         label="Doctor"
                     >
                         <MenuItem value=""><em>Select Doctor</em></MenuItem>
-                        {staff.map(staffMember => (
-                            <MenuItem key={staffMember.Emp_ID} value={staffMember.Emp_ID}>
-                                {`${staffMember.Emp_Fname} ${staffMember.Emp_Lname}`}
+                        {doctors.map(doctor => (
+                            <MenuItem key={doctor.Emp_ID} value={doctor.Emp_ID}>
+                                {`${doctor.Emp_Fname} ${doctor.Emp_Lname}`}
                             </MenuItem>
                         ))}
                     </Select>

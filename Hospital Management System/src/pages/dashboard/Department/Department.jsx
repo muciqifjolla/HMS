@@ -44,10 +44,9 @@ function Department({
         try {
             await axios.delete(`http://localhost:9004/api/department/delete/${deleteDepartmentId}`);
             setDepartment(department.filter((item) => item.Dept_ID !== deleteDepartmentId));
-                setShowUpdateForm(false);
-                setShowCreateForm(false);
-            }
-             catch (err) {
+            setShowUpdateForm(false);
+            setShowCreateForm(false);
+        } catch (err) {
             console.log(err);
         }
         setDeleteDepartmentId(null);
@@ -58,26 +57,26 @@ function Department({
         setShowUpdateForm(false); 
     };
     
-            const columns = [
-                { field: 'Dept_ID', headerName: 'ID', width: 310 },
-                { field: 'Dept_head', headerName: 'Department Head', width: 310 },
-                { field: 'Dept_name', headerName: 'Department Name', width: 310 },
-                { field: 'Emp_Count', headerName: 'Employee Count', width: 310 },
-                {
-                    field: 'update',
-                    headerName: 'Update',
-                    width: 130,
-                    renderCell: (params) => (
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleUpdateButtonClick(params.row.Dept_ID)}
-                            startIcon={<Edit />}
-                        >
-                        </Button>
-                    ),
-                },
-                {
+    const columns = [
+        { field: 'Dept_ID', headerName: 'ID', width: 310 },
+        { field: 'Dept_head', headerName: 'Department Head', width: 310 },
+        { field: 'Dept_name', headerName: 'Department Name', width: 310 },
+        { field: 'Emp_Count', headerName: 'Employee Count', width: 310 },
+        {
+            field: 'update',
+            headerName: 'Update',
+            width: 130,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUpdateButtonClick(params.row.Dept_ID)}
+                    startIcon={<Edit />}
+                >
+                </Button>
+            ),
+        },
+        {
             field: 'delete',
             headerName: 'Delete',
             width: 130,
@@ -94,7 +93,7 @@ function Department({
     ];
         
     return (
-        <div className='container-fluid mt-4'>
+        <Box className='container-fluid mt-4' display="flex" flexDirection="column" flexGrow={1}>
             {deleteDepartmentId && (
                 <Dialog
                     open={!!deleteDepartmentId}
@@ -135,7 +134,7 @@ function Department({
 
             {showCreateForm && <CreateDepartment onClose={() => setShowCreateForm(false)} />}
 
-            <Box mt={4} style={{ height: '100%', width: '100%' }}>
+            <Box mt={4} flexGrow={1} width="100%">
                 <DataGrid
                     rows={department}
                     columns={columns}
@@ -144,7 +143,7 @@ function Department({
                     getRowId={(row) => row.Dept_ID}
                 />
             </Box>
-        </div>
+        </Box>
     );
 }
 

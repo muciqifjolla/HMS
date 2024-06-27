@@ -52,6 +52,22 @@ const FindNurses = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+const FindDoctors = async (req, res) => {
+    try {
+        const doctors = await Staff.findAll({
+            where: { Emp_type: 'doctor' },
+            include: [{
+                model: Department,
+                attributes: ['Dept_name'] 
+            }]
+        });
+        res.json(doctors);
+    } catch (error) {
+        console.error('Error fetching doctors:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 
 const AddStaff = async (req, res) => {
     try {
@@ -160,7 +176,8 @@ const CheckStaffExistence = async (req, res) => {
 module.exports = {
     FindAllStaff,
     FindSingleStaff,
-    FindNurses, // New function
+    FindNurses,
+    FindDoctors,
     AddStaff,
     UpdateStaff,
     DeleteStaff,
