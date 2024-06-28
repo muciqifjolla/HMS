@@ -3,19 +3,61 @@ const Medicine = require('../models/Medicine');
 const Room = require('../models/Room');
 const Patient = require('../models/Patient');
 
+const getPatientByEmail = async (email) => {
+    try {
+        const patient = await Patient.findOne({
+            where: { Email: email }
+        });
+
+        if (!patient) {
+            throw new Error('Patient not found');
+        }
+
+        return patient;
+    } catch (error) {
+        console.error('Error fetching patient by email:', error);
+        throw error;
+    }
+};
+
 const FindAllBills = async (req, res) => {
     try {
-        const bills = await Bill.findAll({
-            include: [
-                {
-                    model: Patient,
-                    attributes: ['Patient_Fname', 'Patient_Lname']
-                }
-            ]
-        });
-        res.json(bills);
+        const userEmail = req.user.email;
+        const userRole = req.user.role;
+
+        let bills;
+        if (userRole === 'admin') {
+            bills = await Bill.findAll({
+                include: [
+                    {
+                        model: Patient,
+                        attributes: ['Patient_Fname', 'Patient_Lname']
+                    }
+                ]
+            });
+        } else if (userRole === 'patient') {
+            const patient = await getPatientByEmail(userEmail);
+            bills = await Bill.findAll({
+                where: { Patient_ID: patient.Patient_ID },
+                include: [
+                    {
+                        model: Patient,
+                        attributes: ['Patient_Fname', 'Patient_Lname']
+                    }
+                ]
+            });
+        } else {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const billsDataWithNames = bills.map(bill => ({
+            ...bill.toJSON(),
+            Patient_Name: bill.Patient ? `${bill.Patient.Patient_Fname} ${bill.Patient.Patient_Lname}` : 'Unknown Patient'
+        }));
+
+        res.json({ bills: billsDataWithNames });
     } catch (error) {
-        console.error('Error fetching all bills:', error);
+        console.error('Error fetching bills:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };

@@ -35,7 +35,6 @@ const getUsersWithRoles = async (req, res) => {
             role: user.UserRoles.length > 0 ? user.UserRoles[0].Role.role_name : 'No Role'
         }));
 
-        console.log("Fetched Users with Roles:", usersWithRoles); // Debug log
 
         res.json(usersWithRoles);
     } catch (error) {

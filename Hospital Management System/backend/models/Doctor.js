@@ -31,6 +31,6 @@ const Doctor = sequelize.define('Doctor', {
 
 // Associations
 Doctor.belongsTo(Staff, { foreignKey: 'Emp_ID' });
-
+Staff.hasOne(Doctor, { foreignKey: 'Emp_ID' });
 
 module.exports = Doctor;

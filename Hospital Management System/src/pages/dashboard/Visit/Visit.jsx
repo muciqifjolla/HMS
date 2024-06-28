@@ -4,8 +4,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
-import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
+import {jwtDecode} from 'jwt-decode';
 
 const CreateVisit = lazy(() => import('./CreateVisit'));
 const UpdateVisit = lazy(() => import('./UpdateVisit'));
@@ -13,6 +13,7 @@ const UpdateVisit = lazy(() => import('./UpdateVisit'));
 function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedVisitId }) {
     const [visits, setVisits] = useState([]);
     const [deleteVisitId, setDeleteVisitId] = useState(null);
+    const [userRole, setUserRole] = useState('');
     const token = Cookies.get('token');
 
     const handleUpdateButtonClick = (visitId) => {
@@ -21,33 +22,47 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
     };
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchUserRole = async () => {
             try {
-                const [visitRes, patientRes, doctorRes] = await Promise.all([
-                    axios.get('http://localhost:9004/api/visit', { headers: { 'Authorization': `Bearer ${token}` } }),
-                    axios.get('http://localhost:9004/api/patient', { headers: { 'Authorization': `Bearer ${token}` } }),
-                    axios.get('http://localhost:9004/api/doctor', { headers: { 'Authorization': `Bearer ${token}` } })
-                ]);
+                const decodedToken = jwtDecode(token);
+                const userEmail = decodedToken.email;
+
+                const userResponse = await axios.get('http://localhost:9004/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const currentUser = userResponse.data.find(user => user.email === userEmail);
+                const role = currentUser.role;
+                setUserRole(role);
+            } catch (err) {
+                console.error('Error fetching user role:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchUserRole();
+    }, [token]);
+
+    useEffect(() => {
+        const fetchVisits = async () => {
+            try {
+                const userResponse = await axios.get('http://localhost:9004/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const userRole = userResponse.data.role;
+
+                const endpoint = userRole === 'admin' ? 'http://localhost:9004/api/visit' : 'http://localhost:9004/api/doctor/data';
                 
-                const patients = patientRes.data;
-                const doctors = doctorRes.data;
-                
-                const visitsDataWithNames = visitRes.data.map(visit => {
-                    const patient = patients.find(p => p.Patient_ID === visit.Patient_ID);
-                    const doctor = doctors.find(d => d.Doctor_ID === visit.Doctor_ID);
-                    return {
-                        ...visit,
-                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown',
-                        Doctor_Name: doctor ? `${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}` : 'Unknown'
-                    };
-                });
+                const response = await axios.get(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = userRole === 'admin' ? response.data : response.data.visits;
+
+                const visitsDataWithNames = data.map(visit => ({
+                    ...visit,
+                    Patient_Name: visit.Patient ? `${visit.Patient.Patient_Fname} ${visit.Patient.Patient_Lname}` : 'Unknown Patient',
+                    Doctor_Name: visit.Doctor_Name || 'Unknown Doctor'
+                }));
 
                 setVisits(visitsDataWithNames);
             } catch (err) {
-                console.error(err);
+                console.error('Error fetching visits:', err.response ? err.response.data : err.message);
             }
         };
-        fetchData();
+
+        fetchVisits();
     }, [token]);
 
     const handleDelete = (id) => {
@@ -56,12 +71,12 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/visit/delete/${deleteVisitId}`);
+            await axios.delete(`http://localhost:9004/api/visit/delete/${deleteVisitId}`, { headers: { 'Authorization': `Bearer ${token}` } });
             setVisits(visits.filter(item => item.Visit_ID !== deleteVisitId));
             setShowUpdateForm(false);
             setShowCreateForm(false);
         } catch (err) {
-            console.error(err);
+            console.error('Error deleting visit:', err.response ? err.response.data : err.message);
         }
         setDeleteVisitId(null);
     };
@@ -107,20 +122,22 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
                 </Button>
             )
         },
-        {
-            field: 'delete',
-            headerName: 'Delete',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleDelete(params.row.Visit_ID)}
-                    startIcon={<Delete />}
-                >
-                </Button>
-            )
-        }
+        ...(userRole !== 'doctor' ? [
+            {
+                field: 'delete',
+                headerName: 'Delete',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleDelete(params.row.Visit_ID)}
+                        startIcon={<Delete />}
+                    >
+                    </Button>
+                )
+            }
+        ] : [])
     ];
 
     return (
@@ -147,21 +164,23 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
                 </Dialog>
             )}
 
-            <Box mt={4} display="flex" alignItems="center">
-                <Typography variant="h6" style={{ marginRight: 'auto' }}>
-                    Visits
-                </Typography>
-                {showCreateForm ? null : (
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleCreateFormToggle}
-                        startIcon={<Add />}
-                    >
-                        Add Visit
-                    </Button>
-                )}
-            </Box>
+            {userRole !== 'doctor' && (
+                <Box mt={4} display="flex" alignItems="center">
+                    <Typography variant="h6" style={{ marginRight: 'auto' }}>
+                        Visits
+                    </Typography>
+                    {showCreateForm ? null : (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleCreateFormToggle}
+                            startIcon={<Add />}
+                        >
+                            Add Visit
+                        </Button>
+                    )}
+                </Box>
+            )}
 
             {showCreateForm && (
                 <Suspense fallback={<div>Loading...</div>}>
@@ -181,7 +200,7 @@ function Visit({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdat
 
             {showUpdateForm && (
                 <Suspense fallback={<div>Loading...</div>}>
-                    <UpdateVisit onClose={() => setShowUpdateForm(false)}/>
+                    <UpdateVisit onClose={() => setShowUpdateForm(false)} />
                 </Suspense>
             )}
         </div>

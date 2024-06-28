@@ -5,6 +5,7 @@ import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, D
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode';
 
 // Lazy load components
 const CreatePatient = lazy(() => import('./CreatePatient'));
@@ -13,6 +14,7 @@ const UpdatePatient = lazy(() => import('./UpdatePatient'));
 function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedPatientId }) {
     const [patients, setPatients] = useState([]);
     const [deletePatientId, setDeletePatientId] = useState(null);
+    const [userRole, setUserRole] = useState('');
     const token = Cookies.get('token');
     const navigate = useNavigate();
 
@@ -30,6 +32,24 @@ function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpd
         setShowCreateForm(true);
         navigate('/dashboard/emergency_contact', { state: { patientId, showCreateForm: true } });
     };
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const decodedToken = jwtDecode(token);
+                const userEmail = decodedToken.email;
+
+                const userResponse = await axios.get('http://localhost:9004/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const currentUser = userResponse.data.find(user => user.email === userEmail);
+                const role = currentUser.role;
+                setUserRole(role);
+            } catch (err) {
+                console.error('Error fetching user role:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchUserRole();
+    }, [token]);
 
     useEffect(() => {
         axios.get('http://localhost:9004/api/patient', {
@@ -90,62 +110,64 @@ function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpd
         { field: 'Blood_type', headerName: 'Blood Type', flex: 1 },
         { field: 'Email', headerName: 'Email', flex: 2 },
         { field: 'Phone', headerName: 'Phone', flex: 2 },
-        {
-            field: 'update',
-            headerName: 'Update',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleUpdateButtonClick(params.row.Patient_ID)}
-                    startIcon={<Edit />}
-                >
-                </Button>
-            )
-        },
-        {
-            field: 'delete',
-            headerName: 'Delete',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleDelete(params.row.Patient_ID)}
-                    startIcon={<Delete />}
-                >
-                </Button>
-            )
-        },
-        {
-            field: 'createRoom',
-            headerName: 'Create Room',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleCreateRoomButtonClick(params.row.Patient_ID)}
-                >
-                    + Room
-                </Button>
-            )
-        },
-        {
-            field: 'createEmergencyContact',
-            headerName: 'Create Emergency Contact',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleCreateEmergencyContactButtonClick(params.row.Patient_ID)}
-                >
-                    + Emergency Contact
-                </Button>
-            )
-        }
+        ...(userRole !== 'doctor' ? [
+            {
+                field: 'update',
+                headerName: 'Update',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleUpdateButtonClick(params.row.Patient_ID)}
+                        startIcon={<Edit />}
+                    >
+                    </Button>
+                )
+            },
+            {
+                field: 'delete',
+                headerName: 'Delete',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleDelete(params.row.Patient_ID)}
+                        startIcon={<Delete />}
+                    >
+                    </Button>
+                )
+            },
+            {
+                field: 'createRoom',
+                headerName: 'Create Room',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleCreateRoomButtonClick(params.row.Patient_ID)}
+                    >
+                        + Room
+                    </Button>
+                )
+            },
+            {
+                field: 'createEmergencyContact',
+                headerName: 'Create Emergency Contact',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleCreateEmergencyContactButtonClick(params.row.Patient_ID)}
+                    >
+                        + Emergency Contact
+                    </Button>
+                )
+            }
+        ] : [])
     ];
 
     return (
@@ -176,7 +198,7 @@ function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpd
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Patients
                 </Typography>
-                {showCreateForm ? null : (
+                {userRole !== 'doctor' && !showCreateForm && (
                     <Button
                         variant="contained"
                         color="primary"
@@ -204,7 +226,7 @@ function Patient({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpd
 
             {showUpdateForm && (
                 <Suspense fallback={<div>Loading...</div>}>
-                    <UpdatePatient onClose={() => setShowUpdateForm(false)}/>
+                    <UpdatePatient onClose={() => setShowUpdateForm(false)} />
                 </Suspense>
             )}
         </div>

@@ -1,72 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreateEmergencyContact from './CreateEmergency_Contact';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
-import { useLocation } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode';
 
-function EmergencyContact({
-    showCreateForm,
-    setShowCreateForm,
-    showUpdateForm,
-    setShowUpdateForm,
-    setSelectedEmergency_ContactId,
-}) {
+const CreateEmergencyContact = lazy(() => import('./CreateEmergency_Contact'));
+const UpdateEmergencyContact = lazy(() => import('./UpdateEmergency_Contact'));
+
+function EmergencyContact({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedEmergency_ContactId }) {
     const [emergencyContacts, setEmergencyContacts] = useState([]);
     const [deleteContactId, setDeleteContactId] = useState(null);
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [patients, setPatients] = useState([]);
+    const [userRole, setUserRole] = useState('');
     const token = Cookies.get('token');
-    const location = useLocation();
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const contactsRes = await axios.get('http://localhost:9004/api/emergency_contact', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const patientsRes = await axios.get('http://localhost:9004/api/patient', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const patientsData = patientsRes.data;
-
-                const contactsDataWithNames = contactsRes.data.map(contact => {
-                    const patient = patientsData.find(pat => pat.Patient_ID === contact.Patient_ID);
-                    return {
-                        ...contact,
-                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
-                    };
-                });
-
-                setEmergencyContacts(contactsDataWithNames);
-                setPatients(patientsData);
-                setIsDataLoaded(true);
-            } catch (err) {
-                console.error('Error fetching data:', err);
-            }
-        };
-
-        fetchData();
-        if (location.state?.patientId && location.state?.showCreateForm) {
-            setShowCreateForm(true);
-        }
-    }, [token, location.state, setShowCreateForm]);
 
     const handleUpdateButtonClick = (contactId) => {
         setSelectedEmergency_ContactId(contactId);
         setShowUpdateForm(true);
-        if (showCreateForm) {
-            setShowCreateForm(false);
-        }
     };
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const decodedToken = jwtDecode(token);
+                const userEmail = decodedToken.email;
+
+                const userResponse = await axios.get('http://localhost:9004/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const currentUser = userResponse.data.find(user => user.email === userEmail);
+                const role = currentUser.role;
+                console.log('User Role:', role); // Debug log to verify the user role
+                setUserRole(role);
+            } catch (err) {
+                console.error('Error fetching user role:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchUserRole();
+    }, [token]);
+
+    useEffect(() => {
+        const fetchEmergencyContacts = async () => {
+            try {
+                const endpoint = 'http://localhost:9004/api/emergency_contact';
+                const response = await axios.get(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = response.data.emergencyContacts;
+
+                const emergencyContactsDataWithNames = data.map(contact => ({
+                    ...contact,
+                    Patient_Name: contact.Patient ? `${contact.Patient.Patient_Fname} ${contact.Patient.Patient_Lname}` : 'Unknown'
+                }));
+
+                setEmergencyContacts(emergencyContactsDataWithNames);
+            } catch (err) {
+                console.error('Error fetching emergency contacts:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchEmergencyContacts();
+    }, [token]);
 
     const handleDelete = (id) => {
         setDeleteContactId(id);
@@ -74,10 +66,12 @@ function EmergencyContact({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/emergency_contact/delete/${deleteContactId}`);
-            setEmergencyContacts(emergencyContacts.filter((data) => data.Contact_ID !== deleteContactId));
+            await axios.delete(`http://localhost:9004/api/emergency_contact/delete/${deleteContactId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            setEmergencyContacts(emergencyContacts.filter(item => item.Contact_ID !== deleteContactId));
+            setShowUpdateForm(false);
+            setShowCreateForm(false);
         } catch (err) {
-            console.error('Error deleting emergency contact:', err);
+            console.error('Error deleting emergency contact:', err.response ? err.response.data : err.message);
         }
         setDeleteContactId(null);
     };
@@ -93,34 +87,36 @@ function EmergencyContact({
         { field: 'Contact_Name', headerName: 'Contact Name', flex: 2 },
         { field: 'Phone', headerName: 'Phone', flex: 1.5 },
         { field: 'Relation', headerName: 'Relation', flex: 1.5 },
-        {
-            field: 'update',
-            headerName: 'Update',
-            flex: 0.5,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleUpdateButtonClick(params.row.Contact_ID)}
-                    startIcon={<Edit />}
-                >
-                </Button>
-            ),
-        },
-        {
-            field: 'delete',
-            headerName: 'Delete',
-            flex: 0.5,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleDelete(params.row.Contact_ID)}
-                    startIcon={<Delete />}
-                >
-                </Button>
-            ),
-        }
+        ...(userRole !== 'patient' ? [
+            {
+                field: 'update',
+                headerName: 'Update',
+                flex: 0.5,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleUpdateButtonClick(params.row.Contact_ID)}
+                        startIcon={<Edit />}
+                    >
+                    </Button>
+                ),
+            },
+            {
+                field: 'delete',
+                headerName: 'Delete',
+                flex: 0.5,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleDelete(params.row.Contact_ID)}
+                        startIcon={<Delete />}
+                    >
+                    </Button>
+                ),
+            }
+        ] : [])
     ];
 
     return (
@@ -151,7 +147,7 @@ function EmergencyContact({
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Emergency Contacts
                 </Typography>
-                {!showCreateForm && (
+                {userRole !== 'patient' && !showCreateForm && (
                     <Button
                         variant="contained"
                         color="primary"
@@ -163,21 +159,27 @@ function EmergencyContact({
                 )}
             </Box>
 
-            {showCreateForm && <CreateEmergencyContact onClose={() => setShowCreateForm(false)} />}
+            {showCreateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <CreateEmergencyContact onClose={() => setShowCreateForm(false)} />
+                </Suspense>
+            )}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
-                {isDataLoaded && (
-                    <DataGrid
-                        rows={emergencyContacts}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10]}
-                        getRowId={(row) => row.Contact_ID}
-                        autoHeight
-                        hideFooterSelectedRowCount
-                    />
-                )}
+                <DataGrid
+                    rows={emergencyContacts}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
+                    getRowId={(row) => row.Contact_ID}
+                />
             </Box>
+
+            {showUpdateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <UpdateEmergencyContact onClose={() => setShowUpdateForm(false)} />
+                </Suspense>
+            )}
         </div>
     );
 }

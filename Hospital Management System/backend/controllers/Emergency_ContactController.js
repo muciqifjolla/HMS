@@ -1,29 +1,71 @@
-// backend/controllers/MedicineController.js
 const Emergency_Contact = require('../models/Emergency_Contact');
+const Patient = require('../models/Patient');
+
+const getPatientByEmail = async (email) => {
+    try {
+        const patient = await Patient.findOne({
+            where: { Email: email }
+        });
+
+        if (!patient) {
+            throw new Error('Patient not found');
+        }
+
+        return patient;
+    } catch (error) {
+        console.error('Error fetching patient by email:', error);
+        throw error;
+    }
+};
 
 const FindAllEmergency_Contact = async (req, res) => {
     try {
-        const emergency_contact = await Emergency_Contact.findAll();
-        res.json(emergency_contact);
+        const userEmail = req.user.email;
+        const userRole = req.user.role;
+
+        let emergencyContacts;
+        if (userRole === 'admin') {
+            emergencyContacts = await Emergency_Contact.findAll({
+                include: { model: Patient }
+            });
+        } else if (userRole === 'patient') {
+            const patient = await getPatientByEmail(userEmail);
+            emergencyContacts = await Emergency_Contact.findAll({
+                where: { Patient_ID: patient.Patient_ID },
+                include: { model: Patient }
+            });
+        } else {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const emergencyContactsDataWithNames = emergencyContacts.map(contact => ({
+            ...contact.toJSON(),
+            Patient_Name: contact.Patient ? `${contact.Patient.Patient_Fname} ${contact.Patient.Patient_Lname}` : 'Unknown'
+        }));
+
+        res.json({ emergencyContacts: emergencyContactsDataWithNames });
     } catch (error) {
-        console.error('Error fetching all emergency contact:', error);
+        console.error('Error fetching emergency contacts:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
 const FindSingleEmergency_Contact = async (req, res) => {
     try {
-        const emergency_contact = await Emergency_Contact.findByPk(req.params.id);
-        if (!emergency_contact) {
+        const emergencyContact = await Emergency_Contact.findByPk(req.params.id, {
+            include: { model: Patient }
+        });
+        if (!emergencyContact) {
             res.status(404).json({ error: 'Emergency Contact not found' });
             return;
         }
-        res.json(emergency_contact);
+        res.json(emergencyContact);
     } catch (error) {
-        console.error('Error fetching single medicine:', error);
+        console.error('Error fetching single emergency contact:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 const AddEmergency_Contact = async (req, res) => {
     try {
         const { Contact_Name, Phone, Relation, Patient_ID } = req.body;
@@ -41,7 +83,7 @@ const AddEmergency_Contact = async (req, res) => {
         if (!Patient_ID) {
             return res.status(400).json({ error: 'Patient_ID cannot be empty' });
         }
-        if (Patient_ID<1) {
+        if (Patient_ID < 1) {
             return res.status(400).json({ error: 'Patient_ID should be at least 1' });
         }
 
@@ -63,7 +105,6 @@ const AddEmergency_Contact = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 
 const UpdateEmergency_Contact = async (req, res) => {
     try {

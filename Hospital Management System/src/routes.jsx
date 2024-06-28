@@ -103,7 +103,7 @@ import { Home, Profile, Medicines, Appointments,MedicalHistorys,Bills,Staffs, Pa
             name: "medical history",
             path: "/medicalhistorys",
             element: <MedicalHistorys />,
-            allowedRoles: ['admin', 'patient', 'doctor']
+            allowedRoles: ['admin', 'patient',]
           },
         {
           

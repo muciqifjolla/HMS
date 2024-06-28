@@ -1,6 +1,9 @@
 const Staff = require('../models/Staff');
 const Department = require('../models/Department');
 const { Op } = require('sequelize');
+const Visit = require('../models/Visits');
+const Patient = require('../models/Patient');
+const Doctor = require('../models/Doctor');
 
 // Utility function to validate email format
 const validateEmail = (email) => {
@@ -173,6 +176,77 @@ const CheckStaffExistence = async (req, res) => {
     }
 };
 
+const getDoctorByEmail = async (email) => {
+    try {
+        const doctor = await Doctor.findOne({
+            include: [{ model: Staff, where: { Email: email, Emp_type: 'doctor' } }]
+        });
+
+        if (!doctor) {
+            throw new Error('Doctor not found');
+        }
+
+        return doctor;
+    } catch (error) {
+        console.error('Error fetching doctor by email:', error);
+        throw error;
+    }
+};
+
+
+const getDoctorData = async (req, res) => {
+    try {
+        const userEmail = req.user.email;
+        const userRole = req.user.role;
+
+        let visits;
+        if (userRole === 'admin') {
+            visits = await Visit.findAll({
+                include: [
+                    { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                    { 
+                        model: Doctor, 
+                        attributes: ['Doctor_ID'],
+                        include: [{ model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }]
+                    }
+                ]
+            });
+
+            const visitsDataWithNames = visits.map(visit => ({
+                ...visit.toJSON(),
+                Patient_Name: visit.Patient ? `${visit.Patient.Patient_Fname} ${visit.Patient.Patient_Lname}` : 'Unknown Patient',
+                Doctor_Name: visit.Doctor && visit.Doctor.Staff ? `${visit.Doctor.Staff.Emp_Fname} ${visit.Doctor.Staff.Emp_Lname}` : 'Unknown Doctor'
+            }));
+
+            return res.json({ visits: visitsDataWithNames });
+        } else {
+            const doctor = await getDoctorByEmail(userEmail);
+
+            visits = await Visit.findAll({
+                where: { Doctor_ID: doctor.Doctor_ID }, // Correctly refer to Doctor_ID
+                include: [{ model: Patient }]
+            });
+
+            const visitsDataWithNames = visits.map(visit => ({
+                ...visit.toJSON(),
+                Patient_Name: visit.Patient ? `${visit.Patient.Patient_Fname} ${visit.Patient.Patient_Lname}` : 'Unknown Patient',
+                Doctor_Name: `${doctor.Staff.Emp_Fname} ${doctor.Staff.Emp_Lname}`
+            }));
+
+            return res.json({
+                doctor,
+                visits: visitsDataWithNames,
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching doctor data:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+};
+
+
 module.exports = {
     FindAllStaff,
     FindSingleStaff,
@@ -181,5 +255,6 @@ module.exports = {
     AddStaff,
     UpdateStaff,
     DeleteStaff,
-    CheckStaffExistence
+    CheckStaffExistence,
+    getDoctorData
 };

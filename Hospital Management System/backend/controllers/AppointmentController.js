@@ -1,39 +1,129 @@
 const Appointment = require('../models/Appointment');
-const Doctor = require('../models/Doctor');
 const Staff = require('../models/Staff');
+const Department = require('../models/Department');
 const Patient = require('../models/Patient');
+const Doctor = require('../models/Doctor');
+
+// Utility function to validate email format
+const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+};
+
+const getDoctorByEmail = async (email) => {
+    try {
+        const doctor = await Doctor.findOne({
+            include: [{ model: Staff, where: { Email: email, Emp_type: 'doctor' } }]
+        });
+
+        if (!doctor) {
+            throw new Error('Doctor not found');
+        }
+
+        return doctor;
+    } catch (error) {
+        console.error('Error fetching doctor by email:', error);
+        throw error;
+    }
+};
+
+const getPatientByEmail = async (email) => {
+    try {
+        const patient = await Patient.findOne({
+            where: { Email: email }
+        });
+
+        if (!patient) {
+            throw new Error('Patient not found');
+        }
+
+        return patient;
+    } catch (error) {
+        console.error('Error fetching patient by email:', error);
+        throw error;
+    }
+};
 
 const FindAllAppointments = async (req, res) => {
     try {
-        const appointments = await Appointment.findAll({
-            include: [{
-                model: Doctor,
-                include: [{
-                    model: Staff,
-                    attributes: ['Emp_Fname', 'Emp_Lname'] // Include only the full_name attribute
-                }]
-            }, {
-                model: Patient
-            }]
-        });
-        console.log(appointments);
-        res.json(appointments);
+        const userEmail = req.user.email;
+        const userRole = req.user.role;
+
+        let appointments;
+        if (userRole === 'admin') {
+            appointments = await Appointment.findAll({
+                include: [
+                    { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                    { 
+                        model: Doctor, 
+                        attributes: ['Doctor_ID'],
+                        include: [{ model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }]
+                    }
+                ]
+            });
+        } else if (userRole === 'doctor') {
+            const doctor = await getDoctorByEmail(userEmail);
+            appointments = await Appointment.findAll({
+                where: { Doctor_ID: doctor.Doctor_ID },
+                include: [
+                    { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                    { 
+                        model: Doctor, 
+                        attributes: ['Doctor_ID'],
+                        include: [{ model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }]
+                    }
+                ]
+            });
+        } else if (userRole === 'patient') {
+            const patient = await getPatientByEmail(userEmail);
+            appointments = await Appointment.findAll({
+                where: { Patient_ID: patient.Patient_ID },
+                include: [
+                    { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                    { 
+                        model: Doctor, 
+                        attributes: ['Doctor_ID'],
+                        include: [{ model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }]
+                    }
+                ]
+            });
+        } else {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const appointmentsDataWithNames = appointments.map(appointment => ({
+            ...appointment.toJSON(),
+            Patient_Name: appointment.Patient ? `${appointment.Patient.Patient_Fname} ${appointment.Patient.Patient_Lname}` : 'Unknown Patient',
+            Doctor_Name: appointment.Doctor && appointment.Doctor.Staff ? `${appointment.Doctor.Staff.Emp_Fname} ${appointment.Doctor.Staff.Emp_Lname}` : 'Unknown Doctor'
+        }));
+
+        return res.json({ appointments: appointmentsDataWithNames });
     } catch (error) {
-        console.error('Error fetching all appointments:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching appointments:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
     }
 };
 
 const FindSingleAppointment = async (req, res) => {
     try {
-        const appointment = await Appointment.findByPk(req.params.id);
+        const appointment = await Appointment.findByPk(req.params.id, {
+            include: [
+                { model: Patient, attributes: ['Patient_Fname', 'Patient_Lname'] },
+                { 
+                    model: Doctor, 
+                    attributes: ['Doctor_ID'],
+                    include: [{ model: Staff, attributes: ['Emp_Fname', 'Emp_Lname'] }]
+                }
+            ]
+        });
         if (!appointment) {
-            res.status(404).json({ error: 'Appointment not found' });
-            return;
+            return res.status(404).json({ error: 'Appointment not found' });
         }
         res.json(appointment);
     } catch (error) {
-        console.error('Error fetching single appointment:', error);
+        console.error('Error fetching appointment:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
@@ -42,19 +132,14 @@ const AddAppointment = async (req, res) => {
     try {
         const { Scheduled_On, Date, Time, Doctor_ID, Patient_ID } = req.body;
 
-        if (!Scheduled_On || !Date || !Time || !Doctor_ID || !Patient_ID) {
-            return res.status(400).json({ error: 'All fields are required' });
-        }
-
         const newAppointment = await Appointment.create({
             Scheduled_On,
             Date,
             Time,
             Doctor_ID,
-            Patient_ID,
+            Patient_ID
         });
-        console.log(newAppointment);
-        res.status(201).json({ success: true, message: 'Appointment added successfully', data: newAppointment });
+        res.json({ success: true, message: 'Appointment added successfully', data: newAppointment });
     } catch (error) {
         console.error('Error adding appointment:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -65,17 +150,12 @@ const UpdateAppointment = async (req, res) => {
     try {
         const { Scheduled_On, Date, Time, Doctor_ID, Patient_ID } = req.body;
 
-        if (!Scheduled_On || !Date || !Time || !Doctor_ID || !Patient_ID) {
-            return res.status(400).json({ error: 'All fields are required' });
-        }
-
-        const [updatedCount] = await Appointment.update(
+        const updated = await Appointment.update(
             { Scheduled_On, Date, Time, Doctor_ID, Patient_ID },
             { where: { Appoint_ID: req.params.id } }
         );
-        if (updatedCount === 0) {
-            res.status(404).json({ error: 'Appointment not found or not updated' });
-            return;
+        if (updated[0] === 0) {
+            return res.status(404).json({ error: 'Appointment not found or not updated' });
         }
         res.json({ success: true, message: 'Appointment updated successfully' });
     } catch (error) {
@@ -86,12 +166,11 @@ const UpdateAppointment = async (req, res) => {
 
 const DeleteAppointment = async (req, res) => {
     try {
-        const deletedCount = await Appointment.destroy({
-            where: { Appoint_ID: req.params.id },
+        const deleted = await Appointment.destroy({
+            where: { Appoint_ID: req.params.id }
         });
-        if (deletedCount === 0) {
-            res.status(404).json({ error: 'Appointment not found' });
-            return;
+        if (deleted === 0) {
+            return res.status(404).json({ error: 'Appointment not found' });
         }
         res.json({ success: true, message: 'Appointment deleted successfully' });
     } catch (error) {
@@ -105,5 +184,5 @@ module.exports = {
     FindSingleAppointment,
     AddAppointment,
     UpdateAppointment,
-    DeleteAppointment,
+    DeleteAppointment
 };

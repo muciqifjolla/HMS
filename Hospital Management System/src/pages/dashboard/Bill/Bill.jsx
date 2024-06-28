@@ -1,70 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
-import CreateBill from './CreateBill';
 import {jwtDecode} from 'jwt-decode';
 
-function Bill({
-    showCreateForm,
-    setShowCreateForm,
-    showUpdateForm,
-    setShowUpdateForm,
-    setSelectedBillId,
-}) {
+const CreateBill = lazy(() => import('./CreateBill'));
+const UpdateBill = lazy(() => import('./UpdateBill'));
+
+function Bill({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedBillId }) {
     const [bills, setBills] = useState([]);
     const [deleteBillId, setDeleteBillId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [userRole, setUserRole] = useState('');
     const token = Cookies.get('token');
-    const decodedToken = jwtDecode(token);
-    const userId = decodedToken.userId; // Adjust based on how the ID is stored in the token
-    const userRole = decodedToken.role; // Assuming the role is stored as 'role' in the token
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const billRes = await axios.get('http://localhost:9004/api/bills', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                let billsDataWithNames = billRes.data.map(res => {
-                    const patient = res.Patient;
-                    return {
-                        ...res,
-                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
-                    };
-                });
-
-                if (userRole === 'patient') {
-                    billsDataWithNames = billsDataWithNames.filter(res => res.aPtient_ID === userId);
-                } 
-                // else if (userRole === 'doctor') {
-                //     // Assuming each bill has a Doctor_ID that matches the logged-in doctor's ID
-                //     billsDataWithNames = billsDataWithNames.filter(res => res.Doctor_ID === userId);
-                // }
-
-                setBills(billsDataWithNames);
-                setIsDataLoaded(true);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
-    }, [token, userId, userRole]);
 
     const handleUpdateButtonClick = (billId) => {
         setSelectedBillId(billId);
         setShowUpdateForm(true);
-        if (showCreateForm) {
-            setShowCreateForm(false);
-        }
     };
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const decodedToken = jwtDecode(token);
+                const userEmail = decodedToken.email;
+                
+                const userResponse = await axios.get('http://localhost:9004/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const currentUser = userResponse.data.find(user => user.email === userEmail);
+                const role = currentUser.role;
+                console.log('User Role:', role); // Debug log to verify the user role
+                setUserRole(role);
+            } catch (err) {
+                console.error('Error fetching user role:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchUserRole();
+    }, [token]);
+
+    useEffect(() => {
+        const fetchBills = async () => {
+            try {
+                const endpoint = 'http://localhost:9004/api/bills';
+                const response = await axios.get(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = response.data.bills;
+
+                const billsDataWithNames = data.map(bill => ({
+                    ...bill,
+                    Patient_Name: bill.Patient ? `${bill.Patient.Patient_Fname} ${bill.Patient.Patient_Lname}` : 'Unknown Patient'
+                }));
+
+                setBills(billsDataWithNames);
+            } catch (err) {
+                console.error('Error fetching bills:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchBills();
+    }, [token]);
 
     const handleDelete = (id) => {
         setDeleteBillId(id);
@@ -72,10 +66,12 @@ function Bill({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/bills/delete/${deleteBillId}`);
-            setBills(bills.filter((data) => data.Bill_ID !== deleteBillId));
+            await axios.delete(`http://localhost:9004/api/bills/delete/${deleteBillId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            setBills(bills.filter(item => item.Bill_ID !== deleteBillId));
+            setShowUpdateForm(false);
+            setShowCreateForm(false);
         } catch (err) {
-            console.error('Error deleting bill:', err);
+            console.error('Error deleting bill:', err.response ? err.response.data : err.message);
         }
         setDeleteBillId(null);
     };
@@ -85,50 +81,57 @@ function Bill({
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
+    const formatDate = (date) => {
+        if (!date) return 'N/A';
+        return new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(new Date(date));
     };
-
-    const filteredBills = bills.filter((res) => {
-        const patientName = res.Patient_Name.toLowerCase();
-        return patientName.startsWith(searchQuery.toLowerCase());
-    });
 
     const columns = [
         { field: 'Bill_ID', headerName: 'ID', flex: 1 },
         { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
-        { field: 'Date_Issued', headerName: 'Date Issued', flex: 2 },
+        { 
+            field: 'Date_Issued', 
+            headerName: 'Date Issued', 
+            flex: 2,
+            renderCell: (params) => formatDate(params.row.Date_Issued)
+        },
         { field: 'Description', headerName: 'Description', flex: 2 },
         { field: 'Amount', headerName: 'Amount', flex: 2 },
         { field: 'Payment_Status', headerName: 'Payment Status', flex: 2 },
-        {
-            field: 'update',
-            headerName: 'Update',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleUpdateButtonClick(params.row.Bill_ID)}
-                    startIcon={<Edit />}
-                >
-                </Button>
-            )
-        },
-        {
-            field: 'delete',
-            headerName: 'Delete',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleDelete(params.row.Bill_ID)}
-                    startIcon={<Delete />}
-                >
-                </Button>
-            )
-        }
+        ...(userRole !== 'patient' ? [
+            {
+                field: 'update',
+                headerName: 'Update',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleUpdateButtonClick(params.row.Bill_ID)}
+                        startIcon={<Edit />}
+                    >
+                    </Button>
+                )
+            },
+            {
+                field: 'delete',
+                headerName: 'Delete',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleDelete(params.row.Bill_ID)}
+                        startIcon={<Delete />}
+                    >
+                    </Button>
+                )
+            }
+        ] : [])
     ];
 
     return (
@@ -159,7 +162,7 @@ function Bill({
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Bills
                 </Typography>
-                {showCreateForm ? null : (
+                {userRole !== 'patient' && !showCreateForm && (
                     <Button
                         variant="contained"
                         color="primary"
@@ -171,18 +174,27 @@ function Bill({
                 )}
             </Box>
 
-            {showCreateForm && <CreateBill onClose={() => setShowCreateForm(false)} />}
+            {showCreateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <CreateBill onClose={() => setShowCreateForm(false)} />
+                </Suspense>
+            )}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
-                    rows={filteredBills}
+                    rows={bills}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Bill_ID}
-                    autoHeight
                 />
             </Box>
+
+            {showUpdateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <UpdateBill onClose={() => setShowUpdateForm(false)} />
+                </Suspense>
+            )}
         </div>
     );
 }

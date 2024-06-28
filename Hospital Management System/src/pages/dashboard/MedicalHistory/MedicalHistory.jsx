@@ -1,57 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
-import CreateMedicalHistory from './CreateMedicalHistory';
 import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Add, Delete, Edit } from '@mui/icons-material';
+import {jwtDecode} from 'jwt-decode';
 
-function MedicalHistory({
-    showCreateForm,
-    setShowCreateForm,
-    showUpdateForm,
-    setShowUpdateForm,
-    setSelectedMedicalHistoryId,
-}) {
+const CreateMedicalHistory = lazy(() => import('./CreateMedicalHistory'));
+const UpdateMedicalHistory = lazy(() => import('./UpdateMedicalHistory'));
+
+function MedicalHistory({ showCreateForm, setShowCreateForm, showUpdateForm, setShowUpdateForm, setSelectedMedicalHistoryId }) {
     const [medicalHistorys, setMedicalHistorys] = useState([]);
     const [deleteMedicalHistoryId, setDeleteMedicalHistoryId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [userRole, setUserRole] = useState('');
     const token = Cookies.get('token');
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const medicalHistoryRes = await axios.get('http://localhost:9004/api/medicalhistory', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const medicalHistorysDataWithNames = medicalHistoryRes.data.map(res => {
-                    const patient = res.Patient;
-                    return {
-                        ...res,
-                        Patient_Name: patient ? `${patient.Patient_Fname} ${patient.Patient_Lname}` : 'Unknown'
-                    };
-                });
-
-                setMedicalHistorys(medicalHistorysDataWithNames);
-                setIsDataLoaded(true);
-            } catch (err) {
-                console.error('Error fetching data:', err);
-            }
-        };
-
-        fetchData();
-    }, [token]);
 
     const handleUpdateButtonClick = (medicalHistoryId) => {
         setSelectedMedicalHistoryId(medicalHistoryId);
         setShowUpdateForm(true);
-        if (showCreateForm) {
-            setShowCreateForm(false);
-        }
     };
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const decodedToken = jwtDecode(token);
+                const userEmail = decodedToken.email;
+                
+                const userResponse = await axios.get('http://localhost:9004/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const currentUser = userResponse.data.find(user => user.email === userEmail);
+                const role = currentUser.role;
+                console.log('User Role:', role); // Debug log to verify the user role
+                setUserRole(role);
+            } catch (err) {
+                console.error('Error fetching user role:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchUserRole();
+    }, [token]);
+
+    useEffect(() => {
+        const fetchMedicalHistories = async () => {
+            try {
+                const endpoint = 'http://localhost:9004/api/medicalhistory';
+                const response = await axios.get(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = response.data.medicalHistories;
+
+                const medicalHistoriesDataWithNames = data.map(history => ({
+                    ...history,
+                    Patient_Name: history.Patient ? `${history.Patient.Patient_Fname} ${history.Patient.Patient_Lname}` : 'Unknown Patient'
+                }));
+
+                setMedicalHistorys(medicalHistoriesDataWithNames);
+            } catch (err) {
+                console.error('Error fetching medical histories:', err.response ? err.response.data : err.message);
+            }
+        };
+
+        fetchMedicalHistories();
+    }, [token]);
 
     const handleDelete = (id) => {
         setDeleteMedicalHistoryId(id);
@@ -59,10 +66,12 @@ function MedicalHistory({
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:9004/api/medicalhistory/delete/${deleteMedicalHistoryId}`);
-            setMedicalHistorys(medicalHistorys.filter((data) => data.Record_ID !== deleteMedicalHistoryId));
+            await axios.delete(`http://localhost:9004/api/medicalhistory/delete/${deleteMedicalHistoryId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            setMedicalHistorys(medicalHistorys.filter(item => item.Record_ID !== deleteMedicalHistoryId));
+            setShowUpdateForm(false);
+            setShowCreateForm(false);
         } catch (err) {
-            console.error('Error deleting medical history:', err);
+            console.error('Error deleting medical history:', err.response ? err.response.data : err.message);
         }
         setDeleteMedicalHistoryId(null);
     };
@@ -72,48 +81,50 @@ function MedicalHistory({
         setShowUpdateForm(false);
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
+    const formatDate = (date) => {
+        if (!date) return 'N/A';
+        return new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(new Date(date));
     };
-
-    const filteredMedicalHistorys = medicalHistorys.filter((res) => {
-        const patientName = res.Patient_Name.toLowerCase();
-        return patientName.startsWith(searchQuery.toLowerCase());
-    });
 
     const columns = [
         { field: 'Record_ID', headerName: 'ID', flex: 1 },
         { field: 'Patient_Name', headerName: 'Patient Name', flex: 2 },
         { field: 'Allergies', headerName: 'Allergies', flex: 2 },
         { field: 'Pre_Conditions', headerName: 'Pre Conditions', flex: 2 },
-        {
-            field: 'update',
-            headerName: 'Update',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleUpdateButtonClick(params.row.Record_ID)}
-                    startIcon={<Edit />}
-                >
-                </Button>
-            )
-        },
-        {
-            field: 'delete',
-            headerName: 'Delete',
-            flex: 1,
-            renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleDelete(params.row.Record_ID)}
-                    startIcon={<Delete />}
-                >
-                </Button>
-            )
-        }
+        ...(userRole !== 'patient' ? [
+            {
+                field: 'update',
+                headerName: 'Update',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleUpdateButtonClick(params.row.Record_ID)}
+                        startIcon={<Edit />}
+                    >
+                    </Button>
+                )
+            },
+            {
+                field: 'delete',
+                headerName: 'Delete',
+                flex: 1,
+                renderCell: (params) => (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleDelete(params.row.Record_ID)}
+                        startIcon={<Delete />}
+                    >
+                    </Button>
+                )
+            }
+        ] : [])
     ];
 
     return (
@@ -144,7 +155,7 @@ function MedicalHistory({
                 <Typography variant="h6" style={{ marginRight: 'auto' }}>
                     Medical Histories
                 </Typography>
-                {showCreateForm ? null : (
+                {userRole !== 'patient' && !showCreateForm && (
                     <Button
                         variant="contained"
                         color="primary"
@@ -156,7 +167,11 @@ function MedicalHistory({
                 )}
             </Box>
 
-            {showCreateForm && <CreateMedicalHistory onClose={() => setShowCreateForm(false)} />}
+            {showCreateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <CreateMedicalHistory onClose={() => setShowCreateForm(false)} />
+                </Suspense>
+            )}
 
             <Box mt={4} style={{ height: '100%', width: '100%' }}>
                 <DataGrid
@@ -165,9 +180,14 @@ function MedicalHistory({
                     pageSize={10}
                     rowsPerPageOptions={[10]}
                     getRowId={(row) => row.Record_ID}
-                    autoHeight
                 />
             </Box>
+
+            {showUpdateForm && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <UpdateMedicalHistory onClose={() => setShowUpdateForm(false)} />
+                </Suspense>
+            )}
         </div>
     );
 }
