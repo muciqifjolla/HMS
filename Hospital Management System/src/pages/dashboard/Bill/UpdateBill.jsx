@@ -181,9 +181,9 @@ function UpdateBill({ id, onClose }) {
                     label="Payment Status"
                 >
                     <MenuItem value=""><em>Select Payment Status</em></MenuItem>
-                    <MenuItem value="Pending+">Pending</MenuItem>
-                    <MenuItem value="Paid-">Paid</MenuItem>
-                    <MenuItem value="Failed+">Failed</MenuItem>
+                    <MenuItem value="Pending">Pending</MenuItem>
+                    <MenuItem value="Paid">Paid</MenuItem>
+                    <MenuItem value="Failed">Failed</MenuItem>
                 </Select>
             </FormControl>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>

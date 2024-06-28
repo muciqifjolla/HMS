@@ -13,7 +13,7 @@ function CreateEmergencyContact({ onClose }) {
         Patient_ID: '',
     });
     const [patients, setPatients] = useState([]);
-    const [emergency_contact, setEmergency_contact] = useState([]);
+    const [emergencyContacts, setEmergencyContacts] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const token = Cookies.get('token'); 
@@ -42,17 +42,17 @@ function CreateEmergencyContact({ onClose }) {
     };
 
     useEffect(() => {
-        fetchEmergency_contact();
+        fetchEmergencyContacts();
     }, []);
 
-    const fetchEmergency_contact = async () => {
+    const fetchEmergencyContacts = async () => {
         try {
             const response = await axios.get('http://localhost:9004/api/emergency_contact', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setEmergency_contact(response.data);
+            setEmergencyContacts(response.data);
         } catch (error) {
             console.error('Error fetching emergency contacts:', error);
         }
@@ -106,8 +106,8 @@ function CreateEmergencyContact({ onClose }) {
             return;
         }
 
-        const existingEmergency_contact = emergency_contact.find(contact => contact.Phone === Phone);
-        if (existingEmergency_contact) {
+        const existingEmergencyContact = Array.isArray(emergencyContacts) ? emergencyContacts.find(contact => contact.Phone === Phone) : null;
+        if (existingEmergencyContact) {
             showAlert('Phone number already exists');
             return;
         }
