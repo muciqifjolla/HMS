@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(
   process.env.DATABASE || 'hms', // Database name
-  process.env.USER || 'root',    // MySQL user
+  process.env.DB_USER || 'root',    // MySQL user   // MySQL user
   process.env.PASSWORD || '',    // MySQL password
   {
     host: process.env.HOST || 'localhost', // Host
